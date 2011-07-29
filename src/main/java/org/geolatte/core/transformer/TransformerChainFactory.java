@@ -278,7 +278,7 @@ public class TransformerChainFactory {
          * Should only be called after the input is set
          */
         @SuppressWarnings("unchecked")
-        private void Configure() {
+        private void configure() {
 
             if (isConfigured)
                 return;
@@ -302,13 +302,13 @@ public class TransformerChainFactory {
             if (input == null)
                 isConfigured = false;
             chain.get(0).setInput((Iterable)input);
-            Configure();
+            configure();
         }
 
         @SuppressWarnings("unchecked")
         public Iterable<? extends Target> output() {
 
-            Configure();
+            configure();
             return (Iterable<Target>)chain.get(chain.size()-1).output();
         }
 
@@ -333,7 +333,7 @@ public class TransformerChainFactory {
 
         private Iterator<Target> iterator = null;
 
-        private void Configure() {
+        private void configure() {
 
             TransformerChain<Source, Target> transformerChain = new TransformerChain<Source, Target>(chain);
 
@@ -343,7 +343,7 @@ public class TransformerChainFactory {
             }
             transformerChain.setInput(output);
 
-            transformerChain.Configure();
+            transformerChain.configure();
             transformerChain.addTransformerEventListener(this);
 
             transformerSink = new IterableTransformerSink<Target>();
@@ -358,7 +358,7 @@ public class TransformerChainFactory {
         public Iterator<Target> iterator() {
 
             if (iterator == null) {
-                Configure();
+                configure();
                 transformerSink.start();
                 iterator = transformerSink.iterator();
             }
@@ -397,7 +397,7 @@ public class TransformerChainFactory {
         private boolean isConfigured = false;
         private boolean isStarted = false;
 
-        private void Configure() {
+        private void configure() {
 
             if (isConfigured)
                 return;
@@ -410,7 +410,7 @@ public class TransformerChainFactory {
             }
             transformerChain.setInput(output);
 
-            transformerChain.Configure();
+            transformerChain.configure();
             transformerChain.addTransformerEventListener(this);
 
             if (transformerSink instanceof ObservableTransformerSink) {
@@ -428,7 +428,7 @@ public class TransformerChainFactory {
                 return;
 
             isStarted = true;
-            Configure();
+            configure();
             transformerSink.start();
         }
 
