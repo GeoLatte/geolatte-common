@@ -85,6 +85,7 @@ public abstract class StringLikeComparisonExpression extends BooleanBinaryString
         this.caseInsensitive = caseInsensitive; 
     }
 
+    //TODO -- is this still used??
     /**
      * Matches the given text with the given pattern.
      * Based on http://www.adarshr.com/papers/wildcard, added checks for wildcard at the start and at the end

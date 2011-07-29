@@ -84,7 +84,19 @@ public abstract class AbstractStringLikeComparisonTest {
     protected final Expression<String> anotherDoubleWildcardDoesNotMatchStringExpression = (Expression<String>)context.mock(Expression.class, "AnotherDoubleWildcardDoesNotMatchString");
     protected final String anotherDoubleWildcardDoesNotMatchString = "%Scarlett Joh%so";
 
+    @SuppressWarnings("unchecked")
+    protected final Expression<String> doubleUserSpecifiedWildcardMatchesStringExpression = (Expression<String>)context.mock(Expression.class, "DoubleUserSpecifiedWildcardMatchesString");
+    protected final String doubleUserSpecifiedWildcardMatchesString = "Scarl* Joha*on";
+
+
+    @SuppressWarnings("unchecked")
+    protected final Expression<String> doubleUserSpecifiedWildcardDoesNotMatchStringExpression = (Expression<String>)context.mock(Expression.class, "DoubleUserSpecifiedWildcardDoesNotMatchString");
+    protected final String doubleUserSpecifiedWildcardDoesNotMatchString = "*Scarlett Joh*so";
+
+
+
     protected Object theObjectToEvaluate = new Object();
+    protected char userSpecifiedWildCard = '*';
 
     @Before
     public void setUp() throws Exception {
@@ -118,6 +130,14 @@ public abstract class AbstractStringLikeComparisonTest {
         context.checking(new Expectations() {
             {allowing(anotherDoubleWildcardDoesNotMatchStringExpression).evaluate(with(theObjectToEvaluate)); will(returnValue(anotherDoubleWildcardDoesNotMatchString));}
         });
+        context.checking(new Expectations() {
+            {allowing(doubleUserSpecifiedWildcardMatchesStringExpression).evaluate(with(theObjectToEvaluate)); will(returnValue(doubleUserSpecifiedWildcardMatchesString));}
+        });
+        context.checking(new Expectations() {
+                {allowing(doubleUserSpecifiedWildcardDoesNotMatchStringExpression).evaluate(with(theObjectToEvaluate)); will(returnValue(doubleUserSpecifiedWildcardDoesNotMatchString));}
+            });
+
+
     }
 
     @After

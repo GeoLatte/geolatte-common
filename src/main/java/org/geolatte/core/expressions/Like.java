@@ -85,7 +85,8 @@ public class Like extends StringLikeComparisonExpression {
 
     public Boolean evaluate(Object o) {
 
-        WildcardMatch wc = new WildcardMatch('_', '%', '\\');
+//        WildcardMatch wc = new WildcardMatch('_', '%', '\\');
+        WildcardMatch wc = new WildcardMatch('_', getWildcardChar(), '\\');
         wc.setCaseSensitive(!isCaseInsensitive());
         return wc.match(getLeft().evaluate(o), getRight().evaluate(o));
     }

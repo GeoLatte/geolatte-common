@@ -55,6 +55,8 @@ public class LikeTest extends AbstractStringLikeComparisonTest {
         expr = new Like(aStringExpression, anotherDoubleWildcardMatchesStringExpression);
         Assert.assertEquals(true, expr.evaluate(theObjectToEvaluate));
 
+        expr = new Like(aStringExpression, doubleUserSpecifiedWildcardMatchesStringExpression, userSpecifiedWildCard);
+        Assert.assertEquals(true, expr.evaluate(theObjectToEvaluate));
 
         expr = new Like(aStringExpression, singleWildcardDoesNotMatchStringExpression);
         Assert.assertEquals(false, expr.evaluate(theObjectToEvaluate));
@@ -67,5 +69,10 @@ public class LikeTest extends AbstractStringLikeComparisonTest {
 
         expr = new Like(aStringExpression, anotherDoubleWildcardDoesNotMatchStringExpression);
         Assert.assertEquals(false, expr.evaluate(theObjectToEvaluate));
+
+        expr = new Like(aStringExpression, doubleUserSpecifiedWildcardDoesNotMatchStringExpression, userSpecifiedWildCard);
+        Assert.assertEquals(false, expr.evaluate(theObjectToEvaluate));
+
+
     }
 }
