@@ -1,0 +1,1383 @@
+<!--
+  ~ This file is part of the GeoLatte project.
+  ~
+  ~ GeoLatte is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ GeoLatte is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with GeoLatte.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (C) 2010 - 2010 and Ownership of code is shared by:
+  ~ Qmino bvba - Romeinsestraat 18 - 3001 Heverlee  (http://www.qmino.com)
+  ~ Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
+  -->
+
+<cqlTests>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Numeric comparison operators
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Greater than -->
+    <testCase>
+
+        <searchCondition>(aDouble > 5)</searchCondition>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aDouble>2</aDouble>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aDouble>10</aDouble>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aDouble>5</aDouble>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Lower than -->
+    <testCase>
+
+        <searchCondition>(anInteger &lt; 5)</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>2</anInteger>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>10</anInteger>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>5</anInteger>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Greater than or equal -->
+
+    <testCase>
+        <searchCondition>(aFloat &gt;= 5)</searchCondition>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aFloat>2</aFloat>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aFloat>10</aFloat>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aFloat>5</aFloat>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Lower than or equal -->
+    <testCase>
+
+        <searchCondition>(aLong &lt;= 5)</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aLong>2</aLong>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aLong>10</aLong>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aLong>5</aLong>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Equal -->
+    <testCase>
+
+        <searchCondition>(aShort = 5)</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aShort>5</aShort>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aShort>4</aShort>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aShort>6</aShort>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Not equal -->
+    <testCase>
+
+        <searchCondition>(aShort &lt;&gt; 5)</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aShort>2</aShort>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aShort>10</aShort>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aShort>5</aShort>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Equal with boolean property -->
+    <testCase>
+
+        <searchCondition>(aBoolean = true)</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aBoolean>true</aBoolean>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aBoolean>false</aBoolean>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Not Equal with boolean property -->
+    <testCase>
+
+        <searchCondition>(aBoolean &lt;&gt; true)</searchCondition>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aBoolean>true</aBoolean>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aBoolean>false</aBoolean>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Equal with a string -->
+    <testCase>
+
+        <searchCondition>(aString = 'Scarlett')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scarlett</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>ImNotScarlett</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Natalie</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Not Equal with a string -->
+    <testCase>
+
+        <searchCondition>(aString &lt;&gt; 'Scarlett')</searchCondition>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlett</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>ImNotScarlett</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Natalie</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Textual comparison operators
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Like -->
+    <testCase>
+
+        <searchCondition>(aString LIKE 'Sca%tt')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scarlett</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scatt</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scerlett</aString>
+            </with>
+        </verify>
+
+        <verify comment="case sensitivity test">
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>SCARLatt</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Like with quote escape -->
+    <testCase>
+
+        <searchCondition>(aString LIKE 'Scarlett''s')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scarlett's</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Like with wildcard escape -->
+    <testCase>
+
+        <searchCondition>(aString LIKE 'Scarlett\_s')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scarlett_s</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlett__s</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlettgs</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarletts</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Like with wildcard escape -->
+    <testCase>
+
+        <searchCondition>(aString LIKE 'Scarlett\\s')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scarlett\s</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlett\\s</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlettgs</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarletts</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Like with wildcard escape -->
+    <testCase>
+
+        <searchCondition>(aString LIKE 'Scarlett\%s')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scarlett%s</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlett%%s</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlettgs</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarletts</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Like -->
+    <testCase>
+
+        <searchCondition>(aString LIKE 'Nata% %man')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Natalie Portman</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Nata man</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Natalie Imbruglia</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Not Like -->
+    <testCase>
+
+        <searchCondition>(aString NOT LIKE 'Scarlett%')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Natalie Portman</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlett Johansson</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scerlett</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- ilike -->
+    <testCase>
+
+        <searchCondition>(aString ILIKE 'Sca%tt')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scarlett</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scatt</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scerlett</aString>
+            </with>
+        </verify>
+
+        <verify comment="case sensitivity test">
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>SCARLett</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- not ilike -->
+    <testCase>
+
+        <searchCondition>(aString NOT ILIKE 'Scarlett%')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Natalie Portman</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>Scarlett Johansson</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>Scerlett</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aString>SCARLETT</aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aString>SCErlETT</aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Boolean operators
+Must be tested in combination with other expressions since we cannot write e.g., TRUE OR FALSE in CQL
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- AND -->
+    <testCase>
+        <searchCondition>(anInteger = 0) AND (anotherInteger = 0)</searchCondition>
+
+        <verify> <!-- TRUE/TRUE -->
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>0</anInteger>
+                <anotherInteger>0</anotherInteger>
+            </with>
+        </verify>
+
+        <verify> <!-- FALSE/TRUE -->
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>1</anInteger>
+                <anotherInteger>0</anotherInteger>
+            </with>
+        </verify>
+
+        <verify> <!-- TRUE/FALSE -->
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>0</anInteger>
+                <anotherInteger>1</anotherInteger>
+            </with>
+        </verify>
+
+        <verify> <!-- FALSE/FALSE -->
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>1</anInteger>
+                <anotherInteger>1</anotherInteger>
+            </with>
+        </verify>
+    </testCase>
+
+    <!-- OR -->
+    <testCase>
+        <searchCondition>(anInteger = 0) OR (anotherInteger = 0)</searchCondition>
+
+        <verify> <!-- TRUE/TRUE -->
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>0</anInteger>
+                <anotherInteger>0</anotherInteger>
+            </with>
+        </verify>
+
+        <verify> <!-- FALSE/TRUE -->
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>1</anInteger>
+                <anotherInteger>0</anotherInteger>
+            </with>
+        </verify>
+
+        <verify> <!-- TRUE/FALSE -->
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>0</anInteger>
+                <anotherInteger>1</anotherInteger>
+            </with>
+        </verify>
+
+        <verify> <!-- FALSE/FALSE -->
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>1</anInteger>
+                <anotherInteger>1</anotherInteger>
+            </with>
+        </verify>
+    </testCase>
+
+    <!-- NOT -->
+        <testCase>
+            <searchCondition>NOT (anInteger = 0)</searchCondition>
+
+            <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>1</anInteger>
+            </with>
+
+        </verify>
+
+            <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>0</anInteger>
+            </with>
+
+        </verify>
+
+        </testCase>
+
+    <!-- Test NOT/AND/OR operator precedence -->
+    <testCase>
+        <searchCondition>NOT (anInteger = 0) OR (anotherInteger = 0) AND (aLong = 0)</searchCondition>
+        <!-- Should be: (NOT   x   ) OR (  y   AND     z  ) -->
+        <verify> <!-- FALSE OR TRUE AND FALSE -> TRUE (is FALSE when OR is executed first)-->
+
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>1</anInteger>
+                <anotherInteger>0</anotherInteger>
+                <aLong>1</aLong>
+            </with>
+
+        </verify>
+
+
+    </testCase>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Temporal queries
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- AFTER Datetime -->
+    <testCase>
+        <searchCondition>aDate AFTER 2010-05-01T00:00:00</searchCondition>
+
+        <verify>
+
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aDate>2010-04-01T00:00:00</aDate>
+            </with>
+
+        </verify>
+
+        <verify>
+
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aDate>2010-06-01T00:00:00</aDate>
+            </with>
+
+        </verify>
+
+        <verify>
+
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aDate>2010-05-01T00:00:00</aDate>
+            </with>
+
+        </verify>
+    </testCase>
+
+    <!-- BEFORE Datetime -->
+    <testCase>
+        <searchCondition>aDate BEFORE 2010-05-01T00:00:00</searchCondition>
+
+        <verify>
+
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aDate>2010-04-01T00:00:00</aDate>
+            </with>
+
+        </verify>
+
+        <verify>
+
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aDate>2010-06-01T00:00:00</aDate>
+            </with>
+
+        </verify>
+
+        <verify>
+
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aDate>2010-05-01T00:00:00</aDate>
+            </with>
+
+        </verify>
+    </testCase>
+
+    <!-- DURING Datetime/Datetime (between the two)-->
+    <testCase>
+        <searchCondition>aDate DURING 1950-05-05T05:05:05/1960-05-05T05:05:05</searchCondition>
+
+        <verify>
+
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aDate>1955-05-05T05:05:05</aDate>
+            </with>
+
+        </verify>
+
+        <verify>
+
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aDate>2010-06-01T00:00:00</aDate>
+            </with>
+
+        </verify>
+        
+    </testCase>
+
+    <!-- DURING Datetime/Duration (Starting from datetime to datetime + duration)-->
+    <!--testCase>
+        <searchCondition>aDate DURING 1950-05-05T05:05:05/P10Y00M00D05H00M00S</searchCondition>
+
+        <verify>
+
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aDate>1955-05-05T05:05:05</aDate>
+            </with>
+
+        </verify>
+
+        <verify>
+
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aDate>2010-06-01T00:00:00</aDate>
+            </with>
+
+        </verify>
+
+    </testCase-->
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Property Existence (loose queries)
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- EXISTS -->
+    <testCase>
+        <searchCondition>anInteger EXISTS</searchCondition>
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+        </verify>
+    </testCase>
+
+    <!-- EXISTS -->
+    <testCase>
+        <searchCondition>aPropertyThatSurelyDoesNotExist EXISTS</searchCondition>
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+        </verify>
+    </testCase>
+
+    <!-- DOES-NOT-EXISTS -->
+    <testCase>
+        <searchCondition>aLong DOES-NOT-EXIST</searchCondition>
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+        </verify>
+    </testCase>
+
+    <!-- DOES-NOT-EXISTS -->
+    <testCase>
+        <searchCondition>aPropertyThatSurelyDoesNotExist DOES-NOT-EXIST</searchCondition>
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+        </verify>
+    </testCase>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Non-strict CQL: comparisons of numbers/other types with string literals
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Integer equal with a string -->
+    <testCase>
+
+        <searchCondition>(anInteger = '5')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>5</anInteger>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>6</anInteger>
+            </with>
+        </verify>
+    </testCase>
+
+    <!-- Integer not equal with a string -->
+    <testCase>
+
+        <searchCondition>(anInteger &lt;&gt; '5')</searchCondition>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <anInteger>5</anInteger>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <anInteger>6</anInteger>
+            </with>
+        </verify>
+    </testCase>
+
+    <!-- Integer gte with a string -->
+    <testCase>
+
+        <searchCondition>(anInteger >= '5')</searchCondition>
+
+        <verify>
+            <resultIs>true</resultIs>
+            <with><anInteger>5</anInteger></with>
+        </verify>
+
+        <verify>
+            <resultIs>true</resultIs>
+            <with><anInteger>6</anInteger></with>
+        </verify>
+
+        <verify>
+            <resultIs>false</resultIs>
+            <with><anInteger>4</anInteger></with>
+        </verify>
+    </testCase>
+
+    <!-- Integer lte with a string -->
+    <testCase>
+
+        <searchCondition>(anInteger &lt;= '5')</searchCondition>
+
+        <verify>
+            <resultIs>true</resultIs>
+            <with><anInteger>5</anInteger></with>
+        </verify>
+
+        <verify>
+            <resultIs>false</resultIs>
+            <with><anInteger>6</anInteger></with>
+        </verify>
+
+        <verify>
+            <resultIs>true</resultIs>
+            <with><anInteger>4</anInteger></with>
+        </verify>
+    </testCase>
+
+    <!-- Double lt with a string -->
+    <testCase>
+
+        <searchCondition>(aDouble &lt; '5.4')</searchCondition>
+
+        <verify>
+            <resultIs>true</resultIs>
+            <with><aDouble>4</aDouble></with>
+        </verify>
+
+        <verify>
+            <resultIs>false</resultIs>
+            <with><aDouble>5.6</aDouble></with>
+        </verify>
+
+    </testCase>
+
+    <!-- Short gt with a string -->
+    <testCase>
+
+        <searchCondition>(aShort > '5')</searchCondition>
+
+        <verify>
+            <resultIs>false</resultIs>
+            <with><aShort>4</aShort></with>
+        </verify>
+
+        <verify>
+            <resultIs>true</resultIs>
+            <with><aShort>6</aShort></with>
+        </verify>
+
+    </testCase>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Some Compound Property tests (just testing parsing, not expression functionality -> this should have been covered
+    in the simple property tests).
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Compound Property Lower than -->
+    <testCase>
+        <searchCondition>aChildObject.anInteger &lt; 10</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aChildObject.anInteger>15</aChildObject.anInteger>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aChildObject.anInteger>10</aChildObject.anInteger>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Compound Property Greater than -->
+    <testCase>
+        <searchCondition>aChildObject.anInteger &gt; 5</searchCondition>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Compound Property Greater than Equal -->
+    <testCase>
+        <searchCondition>aChildObject.anInteger &gt;= 5</searchCondition>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Compound Property Lower than Equal -->
+    <testCase>
+        <searchCondition>aChildObject.anInteger &lt;= 5</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Compound Property Equals -->
+    <testCase>
+        <searchCondition>aChildObject.anInteger = 5</searchCondition>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Compound Property Not Equals -->
+    <testCase>
+        <searchCondition>aChildObject.anInteger &lt;&gt; 5</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- Compound Property Like -->
+    <testCase>
+        <searchCondition>(aChildObject.aString like '%ino')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aChildObject.aString>Qmino</aChildObject.aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aChildObject.aString>GeoVise</aChildObject.aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <testCase>
+        <searchCondition>aChildObject.aSecondChildObject.anInteger &lt; 10</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aChildObject.aSecondChildObject.anInteger>2</aChildObject.aSecondChildObject.anInteger>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Tests from issue reports
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- BASE-6 / Using the same compound property more than once causes an hibernate alias to be created more than once
+     as well, resulting in an exception -->
+
+    <testCase>
+        <searchCondition>(aChildObject.aString like '%ino') AND (aChildObject.aString not like 'Valen%')</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aChildObject.aString>Qmino</aChildObject.aString>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aChildObject.aString>Valentino</aChildObject.aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <testCase>
+        <searchCondition>(aChildObject.aString like '%ino') AND (aChildObject.anInteger > 5)</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aChildObject.aString>Qmino</aChildObject.aString>
+                <aChildObject.anInteger>10</aChildObject.anInteger>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aChildObject.aString>Valentino</aChildObject.aString>
+            </with>
+        </verify>
+
+    </testCase>
+
+    <!-- - - - - - - - - - - - - - - - - - - -->
+    <!-- GEO SPECIFIC OPERATIONS FROM HEREON -->
+    <!-- - - - - - - - - - - - - - - - - - - -->
+
+    <!--
+    <testCase>
+        <searchCondition>EQUALS (aGeometry, POINT(5 10))</searchCondition>
+
+        <verify>
+            <resultIs>
+                true
+            </resultIs>
+            <with>
+                <aGeometry>POINT(5 10)</aGeometry>
+            </with>
+        </verify>
+
+        <verify>
+            <resultIs>
+                false
+            </resultIs>
+            <with>
+                <aGeometry>POINT(6 10)</aGeometry>
+            </with>
+        </verify>
+
+    </testCase>
+    -->
+
+</cqlTests>

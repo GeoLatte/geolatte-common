@@ -1,0 +1,320 @@
+Package org.geolatte.wkt;
+
+Helpers /* Define a number of constants */
+/*****/
+
+minus_sign                      = '-';
+left_paren                      = '(';
+right_paren                     = ')';
+left_bracket                    = '[';
+right_bracket                   = ']';
+period                          = '.';
+plus_sign                       = '+';
+double_quote                    = '"';
+quote                           = ''';
+comma                           = ',';
+underscore                      = '_';
+digit                           = '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9';
+simple_latin_lower_case_letter  = 'a'|'b'|'c'|'d'|'e'|'f'|'g'|'h'|'i'|'j'|'k'|'l'|'m'|'n'|'o'|'p'|'q'|'r'|'s'|'t'|'u'|'v'|'w'|'x'|'y'|'z';
+simple_latin_upper_case_letter  = 'A'|'B'|'C'|'D'|'E'|'F'|'G'|'H'|'I'|'J'|'K'|'L'|'M'|'N'|'O'|'P'|'Q'|'R'|'S'|'T'|'U'|'V'|'W'|'X'|'Y'|'Z';
+space                           = ' ';
+exponent_symbol                 = 'E';
+lparen                          = '(';
+rparen                          = ')';
+
+/* Case insensitive letters */
+a	                            = 'a' | 'A';
+b	                            = 'b' | 'B';
+c	                            = 'c' | 'C';
+d	                            = 'd' | 'D';
+e	                            = 'e' | 'E';
+f	                            = 'f' | 'F';
+g	                            = 'g' | 'G';
+h	                            = 'h' | 'H';
+i	                            = 'i' | 'I';
+j	                            = 'j' | 'J';
+k	                            = 'k' | 'K';
+l	                            = 'l' | 'L';
+m	                            = 'm' | 'M';
+n	                            = 'n' | 'N';
+o	                            = 'o' | 'O';
+p	                            = 'p' | 'P';
+q	                            = 'q' | 'Q';
+r	                            = 'r' | 'R';
+s	                            = 's' | 'S';
+t	                            = 't' | 'T';
+u	                            = 'u' | 'U';
+v	                            = 'v' | 'V';
+w	                            = 'w' | 'W';
+x	                            = 'x' | 'X';
+y	                            = 'y' | 'Y';
+z	                            = 'z' | 'Z';
+
+
+Tokens /* What comes out of the lexer. Most of the time these are terminals, i.e., something that isn't another rule/production */
+/****/
+
+minus_sign                      = minus_sign;
+left_paren                      = left_paren;
+right_paren                     = right_paren;
+left_bracket                    = left_bracket;
+right_bracket                   = right_bracket;
+period                          = period;
+plus_sign                       = plus_sign;
+double_quote                    = double_quote;
+quote                           = quote;
+comma                           = comma;
+underscore                      = underscore;
+//digit                           = digit;
+simple_latin_lower_case_letter  = simple_latin_lower_case_letter;
+simple_latin_upper_case_letter  = simple_latin_upper_case_letter;
+space                           = space;
+exponent_symbol                 = exponent_symbol;
+
+/* Case insensitive keywords */
+// See example                  : http://sablecc.sourceforge.net/grammars/SmallPascal.grammar.web.html
+// SableCC mailing list post on : http://lists.sablecc.org/pipermail/sablecc-discussion/msg00626.html
+point_symbol                    = p o i n t;
+line_string_symbol              = l i n e s t r i n g;
+polygon_symbol                  = p o l y g o n;
+polyhedral_surface_symbol       = p o l y h e d r a l s u r f a c e;
+triangle_symbol                 = t r i a n g l e;
+tin_symbol                      = t i n;
+multi_point_symbol              = m u l t i p o i n t;
+multi_line_string_symbol        = m u l t i l i n e s t r i n g;
+multi_polygon_symbol            = m u l t i p o l y g o n;
+geometry_collection_symbol      = g e o m e t r y c o l l e c t i o n;
+empty_set_symbol                = e m p t y;
+
+signed_numeric_literal          = (plus_sign | minus_sign)? digit+ (period digit+)?; // (exponent_symbol (plus_sign | minus_sign)? digit+)?;
+
+unsigned_numeric_literal        =                           digit+ (period digit+)?; // (exponent_symbol (plus_sign | minus_sign)? digit+)?;
+
+//exact_numeric_literal         = digit+ (period digit+);
+
+//unsigned_integer              = digit+;
+//signed_integer                = (plus_sign | minus_sign)? digit+;
+
+//special                         = right_paren | left_paren | minus_sign | underscore | period | quote | space;
+
+letter                          = simple_latin_upper_case_letter | simple_latin_lower_case_letter | digit | right_paren | left_paren | minus_sign | underscore | period | quote | space;
+
+simple_latin_letter             = simple_latin_upper_case_letter | simple_latin_lower_case_letter;
+
+//point_string                    = lparen signed_numeric_literal space+ signed_numeric_literal rparen;
+//line_string                     = lparen signed_numeric_literal space+ signed_numeric_literal (comma signed_numeric_literal space+ signed_numeric_literal)* rparen;
+
+Productions
+/*********/
+
+start {-> geometry}=
+    {point} point_tagged_text {-> point_tagged_text.geometry}
+  | {line} line_string_tagged_text {-> line_string_tagged_text.geometry}
+  | {polygon} polygon_tagged_text {-> polygon_tagged_text.geometry}
+  | {polyhedral_surface} polyhedral_surface_tagged_text {-> polyhedral_surface_tagged_text.geometry}
+  | {triangle} triangle_tagged_text {-> triangle_tagged_text.geometry}
+  | {tin} tin_tagged_text {-> tin_tagged_text.geometry}
+  | {multi_point} multi_point_tagged_text {-> multi_point_tagged_text.geometry}
+  | {multi_line_string} multi_line_string_tagged_text {-> multi_line_string_tagged_text.geometry}
+  | {multi_polygon} multi_polygon_tagged_text {-> multi_polygon_tagged_text.geometry}
+  | {geometry_collection} geometry_collection_tagged_text {-> geometry_collection_tagged_text.geometry};
+
+
+point {-> point} =
+    {d2} [x]:signed_numeric_literal [xyspace]:space [y]:signed_numeric_literal {-> New point.d2(x, y)}
+  | {d3} [x]:signed_numeric_literal [xyspace]:space [y]:signed_numeric_literal [yzspace]:space [z]:signed_numeric_literal {-> New point.d3(x, y, z)};
+
+m =
+    signed_numeric_literal;
+
+quoted_name =
+    [left_quote]:double_quote name [right_quote]:double_quote;
+
+name =
+    letters;
+
+letters =
+    letter*;
+
+left_delimiter =
+    {left_paren} left_paren
+  | {left_bracket} left_bracket;
+
+right_delimiter =
+    {right_paren} right_paren
+  | {right_bracket} right_bracket;
+
+/* Two dimensional geometry */
+
+geometry_tagged_text {-> geometry} =
+    {point_tagged_text} point_tagged_text {-> point_tagged_text.geometry}
+  | {linestring_tagged_text} line_string_tagged_text {-> line_string_tagged_text.geometry}
+  | {polygon_tagged_text} polygon_tagged_text {-> polygon_tagged_text.geometry}
+  | {triangle_tagged_text} triangle_tagged_text {-> triangle_tagged_text.geometry}
+  | {polyhedralsurface_tagged_text} polyhedral_surface_tagged_text {-> polyhedral_surface_tagged_text.geometry}
+  | {tin_tagged_text} tin_tagged_text {-> tin_tagged_text.geometry}
+  | {multipoint_tagged_text} multi_point_tagged_text {-> multi_point_tagged_text.geometry}
+  | {multilinestring_tagged_text} multi_line_string_tagged_text {-> multi_line_string_tagged_text.geometry}
+  | {multipolygon_tagged_text} multi_polygon_tagged_text {-> multi_polygon_tagged_text.geometry}
+  | {geometrycollection_tagged_text} geometry_collection_tagged_text {-> geometry_collection_tagged_text.geometry};
+
+/* POINT */
+point_tagged_text {-> geometry} =
+    {empty} point_symbol space* empty_set_symbol {-> New geometry.empty_point()}
+  | {non_empty} point_symbol space* point_text {-> New geometry.point(point_text.point)};
+
+point_text {-> point} =
+    left_paren [left]:space* point [right]:space* right_paren {-> point.point};
+
+/* LINE */
+
+line_string_tagged_text {-> geometry} =
+    {empty} line_string_symbol space* empty_set_symbol {-> New geometry.empty_line_string()}
+  | {non_empty} line_string_symbol space* line_string_text {-> New geometry.line_string(line_string_text.line)};
+
+line_string_text {-> line} =
+    left_paren point_list right_paren {-> New line([point_list.point])};
+
+point_list {-> point*} =
+    {one} [left]:space* point [right]:space* {-> [point.point]}
+  | {many} point_list comma [left]:space* point [right]:space* {-> [point_list.point, point]};
+
+/* POLYGON */
+
+polygon_tagged_text {-> geometry} =
+    {empty} polygon_symbol space* empty_set_symbol {-> New geometry.empty_polygon()}
+  | {non_empty} polygon_symbol space* polygon_text {-> New geometry.polygon(polygon_text.polygon)};
+
+polygon_text {-> polygon} =
+    {list} left_paren line_string_text_list right_paren {-> New polygon([line_string_text_list.line])};
+
+line_string_text_list {-> line*}=
+    {one} [left]:space* line_string_text [right]:space* {-> [line_string_text.line]}
+  | {many} line_string_text_list comma [left]:space* line_string_text [right]:space* {-> [line_string_text_list.line, line_string_text.line]};
+
+/* POLYHEDRALSURFACE */
+
+polyhedral_surface_tagged_text {-> geometry} =
+    {empty} polyhedral_surface_symbol space* empty_set_symbol {-> New geometry.empty_polyhedral_surface()}
+  | {non_empty} polyhedral_surface_symbol space* polyhedral_surface_text {-> New geometry.polyhedral_surface(polyhedral_surface_text.polyhedral_surface)};
+
+polyhedral_surface_text {-> polyhedral_surface} =
+    {list} left_paren polygon_text_list right_paren {-> New polyhedral_surface([polygon_text_list.polygon])};
+
+polygon_text_list {-> polygon*} =
+    {one} [left]:space* polygon_text [right]:space* {-> [polygon_text.polygon]}
+  | {many} polygon_text_list comma [left]:space* polygon_text [right]:space* {-> [polygon_text_list.polygon, polygon_text.polygon]};
+
+/* TRIANGLE */
+
+triangle_tagged_text {-> geometry} =
+    {empty} triangle_symbol space* empty_set_symbol {-> New geometry.empty_triangle()}
+  | {non_empty} triangle_symbol space* polygon_text {-> New geometry.triangle(polygon_text.polygon)};
+
+/* TIN */
+
+tin_tagged_text {-> geometry} =
+    tin_symbol space* polyhedral_surface_text {-> New geometry.tin(polyhedral_surface_text.polyhedral_surface)};
+
+/* MULTIPOINT */
+
+multi_point_tagged_text {-> geometry} =
+    {empty} multi_point_symbol empty_set_symbol {-> New geometry.empty_multi_point()}
+  | {non_empty} multi_point_symbol space* multi_point_text {-> New geometry.multi_point(multi_point_text.multi_point)};
+
+multi_point_text {-> multi_point} =
+    left_paren multi_point_text_list right_paren {-> New multi_point([multi_point_text_list.point])};
+
+multi_point_text_list {-> point*} =
+    {one} [left]:space* point_text [right]:space* {-> [point_text.point]}
+  | {many} multi_point_text_list comma [left]:space* point_text [right]:space* {-> [multi_point_text_list.point, point_text.point]};
+
+/* MULTILINESTRING */
+
+multi_line_string_tagged_text {-> geometry} =
+    {empty} multi_line_string_symbol space* empty_set_symbol {-> New geometry.empty_multi_line()}
+  | {non_empty} multi_line_string_symbol space* multi_line_string_text {-> New geometry.multi_line(multi_line_string_text.multi_line)};
+
+multi_line_string_text {-> multi_line} =
+    left_paren multi_line_string_text_list right_paren {-> New multi_line([multi_line_string_text_list.line])};
+
+multi_line_string_text_list {-> line*} =
+    {one} [left]:space* line_string_text [right]:space* {-> [line_string_text.line]}
+  | {many} multi_line_string_text_list comma line_string_text {-> [multi_line_string_text_list.line, line_string_text.line]};
+
+/* MULTIPOLYGON */
+
+multi_polygon_tagged_text {-> geometry} =
+    {empty} multi_polygon_symbol space* empty_set_symbol {-> New geometry.empty_multi_polygon()}
+  | {non_empty} multi_polygon_symbol space* multi_polygon_text {-> New geometry.multi_polygon(multi_polygon_text.multi_polygon)};
+
+multi_polygon_text {-> multi_polygon} =
+    left_paren multi_polygon_text_list right_paren {-> New multi_polygon([multi_polygon_text_list.polygon])};
+
+multi_polygon_text_list {-> polygon*} =
+    {one} [left]:space* polygon_text [right]:space* {-> [polygon_text.polygon]}
+  | {many} multi_polygon_text_list comma polygon_text {-> [multi_polygon_text_list.polygon, polygon_text.polygon]};
+
+/* GEOMETRYCOLLECTION */
+
+geometry_collection_tagged_text {-> geometry} =
+    {empty} geometry_collection_symbol space* empty_set_symbol {-> New geometry.empty_collection()}
+  | {non_empty} geometry_collection_symbol space* geometry_collection_text {-> New geometry.collection(geometry_collection_text.geometry_collection)};
+
+geometry_collection_text {-> geometry_collection} =
+    left_paren geometry_tagged_text_list right_paren {-> New geometry_collection([geometry_tagged_text_list.geometry])};
+
+geometry_tagged_text_list {-> geometry*} =
+    {one} [left]:space* geometry_tagged_text [right]:space* {-> [geometry_tagged_text.geometry]}
+  | {many} geometry_tagged_text_list comma geometry_tagged_text {-> [geometry_tagged_text_list.geometry, geometry_tagged_text.geometry]};
+
+
+Abstract Syntax Tree
+/*******************/
+
+geometry =
+    {point} point
+  | {empty_point}
+  | {line_string} line
+  | {empty_line_string}
+  | {polygon} polygon
+  | {empty_polygon}
+  | {polyhedral_surface} polyhedral_surface
+  | {empty_polyhedral_surface}
+  | {triangle} polygon
+  | {empty_triangle}
+  | {empty_tin}
+  | {tin} polyhedral_surface
+  | {empty_multi_point}
+  | {multi_point} multi_point
+  | {empty_multi_line}
+  | {multi_line} multi_line
+  | {empty_multi_polygon}
+  | {multi_polygon} multi_polygon
+  | {empty_collection}
+  | {collection} geometry_collection;
+
+point =
+    {d2} [x]:signed_numeric_literal [y]:signed_numeric_literal
+  | {d3} [x]:signed_numeric_literal [y]:signed_numeric_literal [z]:signed_numeric_literal;
+
+line =
+    point*;
+
+polygon =
+    line*;
+
+polyhedral_surface =
+    polygon*;
+
+multi_point =
+    point*;
+
+multi_line =
+    line*;
+
+multi_polygon =
+    polygon*;
+
+geometry_collection =
+    geometry*;

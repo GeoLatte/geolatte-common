@@ -1,0 +1,9 @@
+How to use SableCC
+------------------
+
+Generate the lexer/parser classes:
+
+When sablecc.jar is located in the org.geolatte.cql path (same as the cql grammar: cql.sablecc), go into the path and execute this command line:
+java -jar sablecc.jar -d ../../../ cql.grammar
+
+Compile and then copy the lexer/lexer.dat and parser/parser.dat files into the corresponding locations in the output path.

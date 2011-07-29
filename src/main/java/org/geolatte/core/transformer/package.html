@@ -1,0 +1,91 @@
+<!--
+  ~ This file is part of the GeoLatte project.
+  ~
+  ~     GeoLatte is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU Lesser General Public License as published by
+  ~     the Free Software Foundation, either version 3 of the License, or
+  ~     (at your option) any later version.
+  ~
+  ~     GeoLatte is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU Lesser General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU Lesser General Public License
+  ~     along with GeoLatte.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (C) 2010 - 2010 and Ownership of code is shared by:
+  ~ Qmino bvba - Romeinsestraat 18 - 3001 Heverlee  (http://www.qmino.com)
+  ~ Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
+  -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+Copyright notice
+  
+
+-->
+</head>
+<body bgcolor="white">
+
+Provides a transformer framework that allows to transform a collection of input objects (e.g., obtained from a database) to a collection of different output objects, which can for example be serialized as part of a web request.
+
+
+<h2>Package Specification</h2>
+
+<h3>Transformation and Transformer Overview</h3>
+
+<p>
+    The transformer framework contains two basic transormation related classes: <tt>Transformation</tt> and <tt>Transformer</tt>. A <tt>Transformation</tt> operates on a single element while a <tt>Transformer</tt> iterates over an input collection and produces an output collection (which can be smaller, equal to or larger than the input collection). Optionally, a <tt>Transformer</tt> can delegate the transformation of a single element to a <tt>Transformation</tt> (see <tt>DefaultTransformer</tt>).
+</p>
+
+<img src="doc-files/TransformationVsTransformer.png" alt="Transformation vs Transformer">
+
+<p>
+    A <tt>Transformation</tt> transforms a single input or source element into a single output or target element. Atomic transformations can be instantiated directly. The <tt>TransformationChainFactory</tt> allows to combine multiple transformations to form a transformation chain.
+</p>
+
+<p>
+    A <tt>Transformer</tt> on the other hand transforms a collection of input elements to a collection of output elements.
+    A <tt>Transformation</tt> (chain) can be used in <tt>Transformer</tt> chains by wrapping it in a <tt>DefaultTransformer</tt> (see further).
+    </br>
+    A <tt>TransformerSource</tt> acts as a data provider, e.g., by getting objects from a database, for further transformation while a <tt>TransformerSink</tt> consumes the output of a transformer, e.g., by serializing the data to XML.
+</p>
+
+<p>
+    The <tt>TransformerChainFactory</tt> can be used to create three types of chains, shown in the figures below.
+</p>
+
+<img src="doc-files/TransformerChain.png" alt="TransformerChain">
+
+<p>
+    A Transformer chain is exposed as a regular <tt>Transformer</tt> that is internally composed of many <tt>Transformers</tt>. As a client cannot use a <tt>Transformer</tt> directly since you cannot set its input or query its output. A <tt>Transformer</tt> is, apart from a few events, a complete black-box for its clients. Use an <tt>OpenTransformationChain</tt> or a <tt>ClosedTransformationChain</tt> to process data.
+</p>
+
+<img src="doc-files/OpenTransformerChain.png" alt="Open Transformer Chain">
+
+<p>
+    An <tt>OpenTransformerChain</tt> allows you to attach a <tt>TransformerSource</tt> to a <tt>Transformer(Chain)</tt>; the former providing input elements for the <tt>Transformer</tt>. The transformer output must be processed manually by iterating the <tt>OpenTransformerChain</tt>, which implements <tt>Iterable</tt>.
+</p>
+
+<img src="doc-files/ClosedTransformerChain.png" alt="Closed Transformer Chain">
+
+<p>
+    A <tt>ClosedTransformationChain</tt> adds a <tt>TransformerSink</tt> to the chain. The latter processed the transformed output automatically. This means the chain runs completely independent; just call its <tt>run()</tt> method.
+</p>
+
+<h3>Error Handling</h3>
+
+<p>
+    A <tt>Transformation</tt> might not always be able to transform a certain input. In that case, it is allowed to throw a <tt>TransformationException</tt>. Of course, we don't want a transformer to stop processing its input elements when a single element fails to be transformed. Therefore, each <tt>Transformer</tt> should catch these exceptions (this is the case for <tt>DefaultTransformer</tt>).
+</p>
+
+<p>
+    Both <tt>Transformer</tt> and <tt>Open/ClosedTransformerChain</tt> expose a set of events through <tt>TransformerEventListener</tt>, <tt>TransformerSourceEventListener</tt> and <tt>TransformerSinkEventListener</tt>. Subscribing to these listeners allow the client to receive notification each time an error occurrs somewhere in the chain.
+</p>
+
+
+</body>
+</html>

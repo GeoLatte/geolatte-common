@@ -1,0 +1,107 @@
+<!--
+  ~ This file is part of the GeoLatte project.
+  ~
+  ~     GeoLatte is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU Lesser General Public License as published by
+  ~     the Free Software Foundation, either version 3 of the License, or
+  ~     (at your option) any later version.
+  ~
+  ~     GeoLatte is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU Lesser General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU Lesser General Public License
+  ~     along with GeoLatte.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ Copyright (C) 2010 - 2010 and Ownership of code is shared by:
+  ~ Qmino bvba - Romeinsestraat 18 - 3001 Heverlee  (http://www.qmino.com)
+  ~ Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
+  -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+Copyright notice
+
+
+-->
+</head>
+<body bgcolor="white">
+
+<p>
+
+    This package contains the implementation of a CQL parser and a number of utility classes. CQL - Common Query Language - is described in the OGC OpenGIS Catalogue Services Specification.
+</p>
+<p>
+    Our implementation does implement the described CQL syntax completely and may deviate in some places. This is mainly because the standard does not seems to be 100% finished and contains a few strange decisions.
+</p>
+
+<h2>CQL Examples</h2>
+
+<p>
+</p>
+
+    <h3>General Comparisons</h3>
+    <pre>
+        A > 1
+        B >= 2
+        C < 3
+        D <= 4
+        E = 5
+        F <> 6
+    </pre>
+
+    <h3>Date Comparisons</h3>
+    (dateformat = <i>yyyy-mm-dd</i>T<i>hh:mm:ss</i>)<br/>
+    <pre>
+        DateAttr BEFORE 2010-05-05T12:56:35
+        DateAttr AFTER 2010-11-05T12:56:35
+    </pre>
+
+    <h3>Text Comparisons</h3>
+    The % sign can be used as a wildcard.
+    <pre>
+        A LIKE 'geo%tte'
+        B NOT LIKE 'something%thing'
+    </pre>
+
+    <h3>Existence operations</h3>
+    Check whether a property is present to enable so-called loose queries.
+    <pre>
+        A EXISTS
+        B DOES-NOT-EXIST
+    </pre>
+
+    <h3>Boolean Operators</h3>
+    <pre>
+        expr1 AND expr2
+        expr1 OR expr2
+        NOT expr
+    </pre>
+
+<h2>API</h2>
+
+<p>
+    This package contains a SableCC-generated parser. While the parser classes are publicly accessible, most clients will not (want to) use them directly.
+    The most important class is the CQL class. It contains methods to convert a CQL string into an executable filter. For example:
+
+    <tt>
+        import org.geolatte.core.expressions.Filter;
+
+        Filter myFilter = CQL.toFilter("(A > 42)");
+        boolean passedFilter = myFilter.evaluate(anObject);
+    </tt>
+
+</p>
+
+<h2>Extension</h2>
+
+<p>
+        
+
+</p>
+
+</body>
+</html>
