@@ -78,6 +78,7 @@ public class EntityClassReader {
     private Method proxyIdGetMethod;
     private Method proxyExistsMethod;
     private Method proxyGeomGetMethod;
+    private Method proxyGeomNameGetMethod;
     private Method proxyPropertiesGetMethod;
     private Method proxyAttributeGetMethod;
 
@@ -507,6 +508,7 @@ public class EntityClassReader {
             Class[] emptyArray = new Class[]{};
             try {
                 proxyGeomGetMethod = Feature.class.getDeclaredMethod("getGeometry", emptyArray);
+                proxyGeomNameGetMethod = Feature.class.getDeclaredMethod("getGeometryName", emptyArray);
                 proxyIdGetMethod = Feature.class.getDeclaredMethod("getId", emptyArray);
                 proxyExistsMethod = Feature.class.getDeclaredMethod("hasProperty", new Class[]{String.class, boolean.class});
                 proxyAttributeGetMethod = Feature.class.getDeclaredMethod("getProperty", new Class[]{String.class});
@@ -557,6 +559,8 @@ public class EntityClassReader {
                 return EntityClassReader.this.getId(target);
             } else if (proxyGeomGetMethod.equals(method)) {
                 return EntityClassReader.this.getGeometry(target);
+            } else if (proxyGeomNameGetMethod.equals(method)) {
+                return EntityClassReader.this.getGeometryName();
             } else if (proxyPropertiesGetMethod.equals(method)) {
                 return EntityClassReader.this.getProperties();
             } else if (proxyExistsMethod.equals(method)) {
