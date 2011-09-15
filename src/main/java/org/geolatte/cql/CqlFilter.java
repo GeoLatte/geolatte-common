@@ -21,7 +21,7 @@
 
 package org.geolatte.cql;
 
-import org.geolatte.core.expressions.Filter;
+import org.geolatte.common.expressions.Filter;
 import org.geolatte.cql.lexer.LexerException;
 import org.geolatte.cql.node.Start;
 import org.geolatte.cql.parser.Parser;

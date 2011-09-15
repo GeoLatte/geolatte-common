@@ -21,7 +21,7 @@
 
 package org.geolatte.testobjects;
 
-import org.geolatte.core.transformer.Transformation;
+import org.geolatte.common.transformer.Transformation;
 
 /**
  * Transforms a given number into an equivalent string e.g. 1234->"1234". This transformation is for testing purposes only.

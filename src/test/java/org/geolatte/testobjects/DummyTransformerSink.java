@@ -21,7 +21,7 @@
 
 package org.geolatte.testobjects;
 
-import org.geolatte.core.transformer.AbstractObservableTransformerSink;
+import org.geolatte.common.transformer.AbstractObservableTransformerSink;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -21,7 +21,7 @@
 
 package org.geolatte.testobjects;
 
-import org.geolatte.core.transformer.Transformation;
+import org.geolatte.common.transformer.Transformation;
 
 /**
  * Transformation that capitalizes a given String. Used for testing purposed only.

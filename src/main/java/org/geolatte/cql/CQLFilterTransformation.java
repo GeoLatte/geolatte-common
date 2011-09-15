@@ -21,14 +21,14 @@
 
 package org.geolatte.cql;
 
-import org.geolatte.core.transformer.Transformation;
-import org.geolatte.core.transformer.TransformationException;
+import org.geolatte.common.transformer.Transformation;
+import org.geolatte.common.transformer.TransformationException;
 
 import java.text.ParseException;
 
 /**
  * <p>
- * A {@link org.geolatte.core.transformer.Transformation} that applies a cql filter to its input object and returns a Boolean indicating whether the input passed the filter.
+ * A {@link org.geolatte.common.transformer.Transformation} that applies a cql filter to its input object and returns a Boolean indicating whether the input passed the filter.
  * </p>
  * <p>
  * <i>Creation-Date</i>: 01-Jul-2010<br>

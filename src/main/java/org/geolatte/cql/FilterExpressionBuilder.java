@@ -22,11 +22,11 @@
 package org.geolatte.cql;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.geolatte.core.expressions.ComparableExpression;
-import org.geolatte.core.expressions.EmptyBasicTypeSwitch;
-import org.geolatte.core.expressions.Expression;
-import org.geolatte.core.expressions.Expressions;
-import org.geolatte.core.reflection.EntityClassReader;
+import org.geolatte.common.expressions.ComparableExpression;
+import org.geolatte.common.expressions.EmptyBasicTypeSwitch;
+import org.geolatte.common.expressions.Expression;
+import org.geolatte.common.expressions.Expressions;
+import org.geolatte.common.reflection.EntityClassReader;
 import org.geolatte.cql.node.*;
 
 import java.util.Date;
@@ -34,7 +34,7 @@ import java.util.HashMap;
 
 /**
  * <p>
- * Treewalker that builds an executable {@link org.geolatte.core.expressions.Expression} based on a given CQL AST. Use as follows:
+ * Treewalker that builds an executable {@link org.geolatte.common.expressions.Expression} based on a given CQL AST. Use as follows:
  * <pre>
  * {@code
  * FilterExpressionBuilder builder = new FilterExpressionBuilder(clazz); // builder for the given class
