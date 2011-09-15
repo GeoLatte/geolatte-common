@@ -42,7 +42,7 @@ public class SimpleTransformerSourceTest {
     @Test
     public void testOutput() throws Exception {
 
-        ArrayList<String> input = new ArrayList<String>(Arrays.asList(new String[]{"Scarlett", "Natalie", "Rachel", "Cameron"}));
+        ArrayList<String> input = new ArrayList<String>(Arrays.asList("Scarlett", "Natalie", "Rachel", "Cameron"));
         SimpleTransformerSource<String> source = new SimpleTransformerSource<String>(input);
 
         int step = 0;
@@ -54,7 +54,7 @@ public class SimpleTransformerSourceTest {
 
         Assert.assertEquals(input.size(), step);
 
-        source = new SimpleTransformerSource(null);
+        source = new SimpleTransformerSource<String>(null);
         for (String element : source.output())
             Assert.fail("No output elements expected as source is empty.");
 

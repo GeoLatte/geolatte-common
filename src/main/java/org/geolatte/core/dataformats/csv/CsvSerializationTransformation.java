@@ -35,7 +35,7 @@ import java.util.List;
 
 
 /**
- * This transformer takes a feature and serializes it into a CSV representation. The geometry is shown in WKT
+ * This transformation takes a feature and serializes it into a CSV representation. The geometry is shown in WKT
  * format whereas the format for the date as well as the separator for the different columns can be set by the user.
  * This transformation is stateless with the exception of its configuration (the dateformatter and separator).
  * <i>Creation-Date</i>: 9-jul-2010<br>
