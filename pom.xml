@@ -33,10 +33,82 @@
         This GeoLatte-common library contains the transformer framework and other common classes used by other
         GeoLatte modules.
     </description>
-    <url>http://geolatte.org</url>
+    <url>http://www.geolatte.org/confluence/display/base</url>
+
+
+    <organization>
+        <name>geolatte.org</name>
+        <url>http://www.geolatte.org/</url>
+    </organization>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <licenses>
+        <license>
+            <name>LGPL 3.0</name>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:GeoLatte/geolatte-common.git</connection>
+        <url>scm:git:git@github.com:GeoLatte/geolatte-common.git</url>
+        <developerConnection>scm:git:git@github.com:GeoLatte/geolatte-common.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>maesenka</id>
+            <name>Karel Maesen</name>
+            <email>karel@geovise.com</email>
+            <roles>
+                <role>Contributor</role>
+                <role>Committer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>bertvh</id>
+            <name>Bert Vanhooff</name>
+            <email>bert.vanhooff@qmino.com</email>
+            <roles>
+                <role>Contributor</role>
+                <role>Committer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>yvesv</id>
+            <name>Yves Vandewoude</name>
+            <email>yves.vandewoude@qmino.com</email>
+            <roles>
+                <role>Contributor</role>
+                <role>Committer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>rigolepe</id>
+            <name>Peter Rigole</name>
+            <email>peter.rigole@qmino.com</email>
+            <roles>
+                <role>Contributor</role>
+                <role>Committer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <build>
         <plugins>
+
+            <!-- generate compiled (binary) artefacts -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -45,6 +117,33 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
+            <!-- generate source artefacts -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- generate javadoc artefacts -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8</version>
+                <configuration>
+                    <show>private</show>
+                    <nohelp>true</nohelp>
+                </configuration>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -98,41 +197,24 @@
                 </executions>
             </plugin>
 
-
-            <!-- generate source artefacts -->
+            <!-- sign files -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.4</version>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
-                        <phase>package</phase>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>sign</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
 
-
         </plugins>
     </build>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <licenses>
-        <license>
-            <name>LGPL 3.0</name>
-            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <organization>
-        <name>geolatte.org</name>
-        <url>http://www.geolatte.org/</url>
-    </organization>
 
     <dependencies>
         <dependency>
@@ -183,42 +265,4 @@
             <url>http://www.hibernatespatial.org/repository</url>
         </repository>
     </repositories>
-    <developers>
-        <developer>
-            <id>maesenka</id>
-            <name>Karel Maesen</name>
-            <email>karel@geovise.com</email>
-            <roles>
-                <role>Contributor</role>
-                <role>Committer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>bertvh</id>
-            <name>Bert Vanhooff</name>
-            <email>bert.vanhooff@qmino.com</email>
-            <roles>
-                <role>Contributor</role>
-                <role>Committer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>yvesv</id>
-            <name>Yves Vandewoude</name>
-            <email>yves.vandewoude@qmino.com</email>
-            <roles>
-                <role>Contributor</role>
-                <role>Committer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>rigolepe</id>
-            <name>Peter Rigole</name>
-            <email>peter.rigole@qmino.com</email>
-            <roles>
-                <role>Contributor</role>
-                <role>Committer</role>
-            </roles>
-        </developer>
-    </developers>
 </project>

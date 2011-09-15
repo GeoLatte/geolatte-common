@@ -83,6 +83,11 @@ public interface Feature {
      */
     Geometry getGeometry();
 
+    /**
+     * Gets the name of the geometry property returned by {@link #getGeometry}.
+     * @return The name of the geometry property. Null if no geometry property exists.
+     */
+    String getGeometryName();
 
     /**
      * @return Whether this feature has an id property. This allows you to better interpret the meaning of a null

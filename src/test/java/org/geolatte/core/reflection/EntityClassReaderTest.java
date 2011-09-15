@@ -196,6 +196,7 @@ public class EntityClassReaderTest {
             Assert.assertEquals(5, asFeature.getId());
             Assert.assertEquals("Antwerpen", asFeature.getProperty("name"));
             Assert.assertEquals(((TestFeature) testFeature).getShape(), asFeature.getGeometry());
+            Assert.assertEquals("shape", asFeature.getGeometryName());
             Assert.assertEquals(4, asFeature.getProperties().size());
             Assert.assertTrue(asFeature.hasProperty("length", false));
             Assert.assertFalse(asFeature.hasProperty("somethingelse", false));

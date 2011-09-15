@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A default feature is a simple implementation of the featureinterface for class that
- * wish to output features, but do not want to use reflection to do so.
+ * A default feature is a simple implementation of the {@link Feature} interface that does not use reflection.
  * <i>Creation-Date</i>: 1-sep-2010<br>
  * <i>Creation-Time</i>: 9:50:05<br>
  *
  * @author Yves Vandewoude
+ * @author Bert Vanhooff
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
@@ -46,6 +46,33 @@ public class DefaultFeature implements Feature {
     private String idPropertyName;
     private Geometry geomValue;
     private Object idValue;
+
+    /**
+     * Default constructor.
+     */
+    public DefaultFeature() {
+    }
+
+    /**
+     * Constructs a DefaultFeature as a copy of the given feature.
+     * All properties of the given feature are copied. The id property is stored as 'id'. If another property of the
+     * given feature has the same name ('id'), it is ignored.
+     * @param feature The feature to copy.
+     */
+    public DefaultFeature(Feature feature) {
+
+        if (feature.hasGeometry()) {
+            setGeometry(feature.getGeometryName(), feature.getGeometry());
+        }
+        if (feature.hasId()) {
+            setId("id", feature.getId());
+        }
+        for (String propertyName : feature.getProperties()) {
+            if (!"id".equals(propertyName)) {
+                addProperty(propertyName ,feature.getProperty(propertyName));
+            }
+        }
+    }
 
     /**
      * Sets the geometry property of the feature. This method also allows wiping the current geometry
@@ -156,6 +183,10 @@ public class DefaultFeature implements Feature {
             return geomValue;
         }
         return null;
+    }
+
+    public String getGeometryName() {
+        return geomPropertyName;
     }
 
     public boolean hasId() {

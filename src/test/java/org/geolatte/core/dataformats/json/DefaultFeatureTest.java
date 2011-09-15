@@ -14,10 +14,9 @@
 
 package org.geolatte.core.dataformats.json;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import org.jmock.Mockery;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -39,6 +38,7 @@ public class DefaultFeatureTest {
 
     private DefaultFeature f;
     private static GeometryFactory geomFact;
+    private Mockery mockery = new Mockery();
 
     @BeforeClass
     public static void setupOnce()
@@ -159,5 +159,25 @@ public class DefaultFeatureTest {
         Assert.assertFalse(f.hasProperty("hallo2", true));
         Assert.assertEquals(null, f.getProperty("hallo2"));
         Assert.assertEquals(1, f.getProperties().size());
+    }
+
+    @Test
+    public void CopyConstructorTest() {
+
+        Object idValue = new Object();
+        Object propertyValue = new Object();
+        Geometry geomValue = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(8.0, 9.0)}),
+                                       new GeometryFactory());
+
+        f.setId("id", idValue);
+        f.setGeometry("myGeometry", geomValue);
+        f.addProperty("myProperty", propertyValue);
+
+        DefaultFeature featureCopy = new DefaultFeature(f);
+
+        Assert.assertEquals(idValue, featureCopy.getId());
+        Assert.assertEquals(geomValue, featureCopy.getGeometry());
+        Assert.assertEquals(1, featureCopy.getProperties().size());
+        Assert.assertEquals(propertyValue, featureCopy.getProperty("myProperty"));
     }
 }
