@@ -1,4 +1,4 @@
-Package org.geolatte.cql;
+Package org.geolatte.common.cql;
 
 Helpers
 
