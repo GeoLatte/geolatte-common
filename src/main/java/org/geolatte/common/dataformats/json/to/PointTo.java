@@ -36,10 +36,6 @@ public class PointTo extends GeoJsonTo {
     public PointTo() {
     }
 
-    public String getType() {
-        return "Point";
-    }
-
     @Override
     public boolean isValid() {
         return coordinates != null && (coordinates.length == 2 || coordinates.length == 3);

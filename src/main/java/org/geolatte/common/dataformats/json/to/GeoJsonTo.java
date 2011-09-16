@@ -21,22 +21,30 @@
 
 package org.geolatte.common.dataformats.json.to;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+
 /**
  * Abstract parentclass for all geojson transfer objects
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="type")
+@JsonIgnoreProperties({"valid"})
+@JsonSubTypes({
+        @JsonSubTypes.Type(value=PointTo.class, name="Point"),
+        @JsonSubTypes.Type(value=MultiPointTo.class, name="MultiPoint"),
+        @JsonSubTypes.Type(value=LineStringTo.class, name="LineString"),
+        @JsonSubTypes.Type(value=MultiLineStringTo.class, name="MultiLineString"),
+        @JsonSubTypes.Type(value=PolygonTo.class, name="Polygon"),
+        @JsonSubTypes.Type(value=MultiPolygonTo.class, name="MultiPolygon")
+
+})
 public abstract class GeoJsonTo {
 
     private CrsTo crs;
-
-    /**
-     * @return According to the geojson specification, the value of the type member
-     *         must be one of: "Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon",
-     *         "GeometryCollection", "Feature", or "FeatureCollection". The case of the type member values must be as shown here.
-     */
-    public abstract String getType();
 
     /**
      * @return whether the transfer object corresponds with a valid GeoJson entity
@@ -136,17 +144,5 @@ public abstract class GeoJsonTo {
             }
         }
         return bbox;
-    }
-
-    /**
-     * Atypical to a normal property, the type property of any geojsonto is set in advance to a certain value.
-     * Using the setter is not necessary, but the setter is included so that serializationframeworks will call them
-     * and errors in GeoJson strings can be detected early.
-     * @param s the type to set.
-     */
-    public void setType(String s) {
-        if (!getType().equals(s)) {
-            throw new IllegalArgumentException("The typestring for a " + getClass().getName() + " must be " + getType() + " but was set to " + s);
-        }
     }
 }

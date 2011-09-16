@@ -37,10 +37,6 @@ public class MultiPolygonTo extends GeoJsonTo {
     public MultiPolygonTo() {
     }
 
-    public String getType() {
-        return "MultiPolygon";
-    }
-
     @Override
     public boolean isValid() {
         if (coordinates == null || coordinates.length == 0) {

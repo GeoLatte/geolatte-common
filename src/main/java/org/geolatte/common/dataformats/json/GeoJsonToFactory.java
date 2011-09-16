@@ -21,6 +21,7 @@
 
 package org.geolatte.common.dataformats.json;
 
+import org.codehaus.jackson.map.JsonMappingException;
 import org.geolatte.common.dataformats.json.to.*;
 import org.geolatte.geom.*;
 
@@ -66,38 +67,38 @@ public class GeoJsonToFactory {
      * @return the corresponding geometry
      * @throws IOException If the transfer object is invalid or missing information
      */
-    public Geometry fromTo(GeoJsonTo input) throws IOException {
+    public Geometry fromTo(GeoJsonTo input) throws JsonMappingException {
         if (input == null) {
             return null;
         }
         Integer srid = getSrid(input);
         int sridValue = srid == null ? DEFAULT_SRID : srid;
         if (! input.isValid()) {
-            throw new IllegalArgumentException("Input to is not valid and can therefore not be converted to a geometry");
+            throw new JsonMappingException("Input to is not valid and can therefore not be converted to a geometry");
         }
-        if ("Point".equals(input.getType())) {
+        if (input instanceof PointTo) {
             return createPoint(((PointTo) input).getCoordinates(), sridValue);
-        } else if ("MultiPoint".equals(input.getType())) {
+        } else if (input instanceof MultiPointTo)  {
             MultiPointTo to = (MultiPointTo) input;
             Point[] points = new Point[to.getCoordinates().length];
             for (int i=0; i< points.length; i++) {
                 points[i] = createPoint(to.getCoordinates()[i], sridValue);
             }
             return MultiPoint.create(points, sridValue);
-        } else if ("LineString".equals(input.getType())) {
+        } else if (input instanceof LineStringTo)  {
             LineStringTo to = (LineStringTo) input;
             return LineString.create(createPointSequence(to.getCoordinates()), sridValue);
-        } else if ("MultiLineString".equals(input.getType())) {
+        } else if (input instanceof MultiLineStringTo)  {
             MultiLineStringTo to = (MultiLineStringTo) input;
             LineString[] lineStrings = new LineString[to.getCoordinates().length];
             for (int i =0; i < lineStrings.length;i++) {
                 lineStrings[i] = LineString.create(createPointSequence(to.getCoordinates()[i]), sridValue);
             }
             return MultiLineString.create(lineStrings, sridValue);
-        } else if ("Polygon".equals(input.getType())) {
+        } else if (input instanceof PolygonTo)  {
             PolygonTo to = (PolygonTo) input;
             return createPolygon(to.getCoordinates(), sridValue);
-        } else if ("MultiPolygon".equals(input.getType())) {
+        } else if (input instanceof MultiPolygonTo)  {
             MultiPolygonTo to = (MultiPolygonTo) input;
             Polygon[] polygons = new Polygon[to.getCoordinates().length];
             for (int i=0; i < polygons.length; i ++) {
@@ -285,39 +286,39 @@ public class GeoJsonToFactory {
      * EPSG:4326
      * </pre>
      * @return the SRID value of the crs system in the json if it is present, null otherwise.
-     * @throws java.io.IOException If a crs object is present, but deserialization is not possible
+     * @throws org.codehaus.jackson.map.JsonMappingException If a crs object is present, but deserialization is not possible
      */
-    protected Integer getSrid(GeoJsonTo to) throws IOException {
+    protected Integer getSrid(GeoJsonTo to) throws JsonMappingException {
         if (to.getCrs() == null) {
             return null;
         } else {
             if (to.getCrs().getType() == null || !"name".equals(to.getCrs().getType())) {
-                throw new IOException("If the crs is specified the type must be specified. Currently, only named crses are supported.");
+                throw new JsonMappingException("If the crs is specified the type must be specified. Currently, only named crses are supported.");
             }
             if (to.getCrs().getProperties() == null || to.getCrs().getProperties().getName() == null) {
-                throw new IOException("A crs specification requires a properties value containing a name value.");
+                throw new JsonMappingException("A crs specification requires a properties value containing a name value.");
             }
             String sridString = to.getCrs().getProperties().getName();
             if (sridString.startsWith("EPSG:")) {
                 Integer srid = parseDefault(sridString.substring(5), null);
                 if (srid == null) {
-                    throw new IOException("Unable to derive SRID from crs name");
+                    throw new JsonMappingException("Unable to derive SRID from crs name");
                 } else {
                     return srid;
                 }
             } else if (sridString.startsWith("urn:ogc:def:crs:EPSG:")) {
                 String[] splits = sridString.split(":");
                 if (splits.length != 7) {
-                    throw new IOException("Unable to derive SRID from crs name");
+                    throw new JsonMappingException("Unable to derive SRID from crs name");
                 } else {
                     Integer srid = parseDefault(splits[6], null);
                     if (srid == null) {
-                        throw new IOException("Unable to derive SRID from crs name");
+                        throw new JsonMappingException("Unable to derive SRID from crs name");
                     }
                     return srid;
                 }
             } else {
-                throw new IOException("Unable to derive SRID from crs name");
+                throw new JsonMappingException("Unable to derive SRID from crs name");
             }
         }
     }

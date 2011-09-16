@@ -36,10 +36,6 @@ public class MultiPointTo extends GeoJsonTo {
     public MultiPointTo() {
     }
 
-    public String getType() {
-        return "MultiPoint";
-    }
-
     @Override
     public boolean isValid() {
         if (coordinates == null || coordinates.length == 0 || coordinates[0] == null) {

@@ -37,10 +37,6 @@ public class PolygonTo extends GeoJsonTo {
     public PolygonTo() {
     }
 
-    public String getType() {
-        return "Polygon";
-    }
-
     @Override
     public boolean isValid() {
         if (coordinates == null || coordinates.length == 0) {

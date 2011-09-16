@@ -37,10 +37,6 @@ public class LineStringTo extends GeoJsonTo {
     public LineStringTo() {
     }
 
-    public String getType() {
-        return "LineString";
-    }
-
     @Override
     public boolean isValid() {
         if (coordinates == null || coordinates.length < 2) {

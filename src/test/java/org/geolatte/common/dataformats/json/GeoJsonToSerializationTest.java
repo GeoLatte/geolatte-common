@@ -44,7 +44,7 @@ import java.util.Map;
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
-public class JsonSerializationTest {
+public class GeoJsonToSerializationTest {
 
     private static GeometryFactory geomFactory;
     private static GeoJsonToFactory factory;

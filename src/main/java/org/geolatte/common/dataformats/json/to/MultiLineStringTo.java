@@ -37,10 +37,6 @@ public class MultiLineStringTo extends GeoJsonTo {
     public MultiLineStringTo() {
     }
 
-    public String getType() {
-        return "MultiLineString";
-    }
-
     @Override
     public boolean isValid() {
         if (coordinates == null || coordinates.length == 0) {
