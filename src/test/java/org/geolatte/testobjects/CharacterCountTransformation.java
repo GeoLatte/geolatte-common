@@ -21,7 +21,7 @@
 
 package org.geolatte.testobjects;
 
-import org.geolatte.core.transformer.Transformation;
+import org.geolatte.common.transformer.Transformation;
 
 /**
  * Transformation that counts the characters in a given string. Used for testing purposes only!
