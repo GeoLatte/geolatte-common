@@ -21,8 +21,8 @@
 
 package org.geolatte.testobjects;
 
-import org.geolatte.core.transformer.Transformation;
-import org.geolatte.core.transformer.TransformationException;
+import org.geolatte.common.transformer.Transformation;
+import org.geolatte.common.transformer.TransformationException;
 
 import java.util.ArrayList;
 import java.util.Arrays;

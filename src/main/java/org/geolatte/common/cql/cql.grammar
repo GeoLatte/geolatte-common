@@ -1,0 +1,399 @@
+Package org.geolatte.common.cql;
+
+Helpers
+
+    /* These are not defined in CQL */
+    tab                             = 9;
+    cr                              = 13;
+    lf                              = 10;
+    eol                             = cr lf | cr | lf;
+    blank                           = (' ' | tab | eol)+;
+
+    all                             = [0 .. 0xFFFF];
+
+    simple_latin_upper_case_letter  = 'A'|'B'|'C'|'D'|'E'|'F'|'G'|'H'|'I'|'J'|'K'|'L'|'M'|'N'|'O'|'P'|'Q'|'R'|'S'|'T'|'U'|'V'|'W'|'X'|'Y'|'Z';
+    simple_latin_lower_case_letter  = 'a'|'b'|'c'|'d'|'e'|'f'|'g'|'h'|'i'|'j'|'k'|'l'|'m'|'n'|'o'|'p'|'q'|'r'|'s'|'t'|'u'|'v'|'w'|'x'|'y'|'z';
+    simple_latin_letter             = simple_latin_upper_case_letter | simple_latin_lower_case_letter;
+
+    /* Case insensitive letters */
+    a	                            = 'a' | 'A';
+    b	                            = 'b' | 'B';
+    c	                            = 'c' | 'C';
+    d	                            = 'd' | 'D';
+    e	                            = 'e' | 'E';
+    f	                            = 'f' | 'F';
+    g	                            = 'g' | 'G';
+    h	                            = 'h' | 'H';
+    i	                            = 'i' | 'I';
+    j	                            = 'j' | 'J';
+    k	                            = 'k' | 'K';
+    l	                            = 'l' | 'L';
+    m	                            = 'm' | 'M';
+    n	                            = 'n' | 'N';
+    o	                            = 'o' | 'O';
+    p	                            = 'p' | 'P';
+    q	                            = 'q' | 'Q';
+    r	                            = 'r' | 'R';
+    s	                            = 's' | 'S';
+    t	                            = 't' | 'T';
+    u	                            = 'u' | 'U';
+    v	                            = 'v' | 'V';
+    w	                            = 'w' | 'W';
+    x	                            = 'x' | 'X';
+    y	                            = 'y' | 'Y';
+    z	                            = 'z' | 'Z';
+
+    digit                           = '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9';
+
+    space                           = ' ';
+    doublequote                     = '"';
+    quote                           = ''';
+    asterisk                        = '*';
+    comma                           = ',';
+    hyphen                          = '-';
+    colon                           = ':';
+    plus_sign                        = '+';
+    minus_sign                       = '-';
+    sign                            = plus_sign | minus_sign;
+    underscore                      = '_';
+
+    nonquotecharacter               = [all - quote];
+    quotesymbol                     = quote quote;
+    datetimeseparator               = 'T';
+    timespanseparator               = '/';
+    durationsymbol                  = 'P';
+
+    geometry_allowed_symbol         = '(' | ' ' | digit | ')';
+
+States /* We use states because we don't want to parse wkt strings directly. We need to tokenize them manually via a Lexer extension. */
+
+    normal, wkt;
+
+Tokens /* Terminals */
+
+/* WKT markers */ /* Place these tokens in front, otherwise they are not recognized. Not sure why but probably another token matches */
+    {normal->wkt, wkt} wkt_point_literal                     = p o i n t;
+    {normal->wkt, wkt} wkt_line_string_literal               = l i n e s t r i n g;
+    {normal->wkt, wkt} wkt_polygon_literal                   = p o l y g o n;
+    //{normal->wkt, wkt} wkt_polyhedral_surface_literal      = p o l y h e d r a l s u r f a c e;
+    //{normal->wkt, wkt} wkt_triangle_literal                = t r i a n g l e;
+    //{normal->wkt, wkt} wkt_tin_literal                     = t i n;
+    {normal->wkt, wkt} wkt_multi_point_literal               = m u l t i p o i n t;
+    {normal->wkt, wkt} wkt_multi_line_string_literal         = m u l t i l i n e s t r i n g;
+    {normal->wkt, wkt} wkt_multi_polygon_literal             = m u l t i p o l y g o n;
+    {normal->wkt, wkt} wkt_geometry_collection_literal       = g e o m e t r y c o l l e c t i o n;
+
+    {normal->wkt, wkt} wkt_empty_set_literal                 = e m p t y;
+
+    blank                                                    = blank;
+    space                                                    = space;
+    newline                                                  = eol;
+
+    sign                                                     = sign;
+    left_paren                                               = '(';
+    right_paren                                              = ')';
+    period                                                   = '.';
+    colon                                                    = colon;
+    comma                                                    = comma;
+
+
+/* COMPARISON OPERATORS */
+    {normal} less_than_operator                              = '<';
+    {normal} equals_operator                                 = '=';
+    {normal} greater_than_operator                           = '>';
+    {normal} not_equals_operator                             = '<>';
+    {normal} greater_than_or_equals_operator                 = '>=';
+    {normal} less_than_or_equals_operator                    = '<=';
+
+/* BOOLEAN OPERATORS */
+    {normal} boolean_not_operator                            = n o t;
+    {normal} boolean_and_operator                            = a n d;
+    {normal} boolean_or_operator                             = o r;
+
+/* TEXT OPERATORS */
+    {normal} text_like_operator                              = l i k e;
+    {normal} text_ilike_operator                             = i l i k e;
+
+/* EXISTENCE OPERATORS */
+    {normal} exists_operator                                 = e x i s t s;
+    {normal} doesnotexist_operator                           = d o e s '-' n o t '-' e x i s t;
+
+/* TEMPORAL OPERATORS */
+    {normal} temporal_before_operator                        = b e f o r e;
+    {normal} temporal_beforeorduring_operator                = b e f o r e space o r  space d u r i n g;
+    {normal} temporal_during_operator                        = d u r i n g;
+    {normal} temporal_duringorafter_operator                 = d u r i n g space o r space a f t e r;
+    {normal} temporal_after_operator                         = a f t e r;
+
+/* NULL OPERATORS */
+    {normal} null_is_operator                                = i s;
+    {normal} null_not_operator                               = n o t;
+
+/* GEO OPERATORS */
+    {normal} geo_equals_operator                             = e q u a l s;
+    {normal} geo_disjoint_operator                           = d i s j o i n t;
+    {normal} geo_intersects_operator                         = i n t e r s e c t s;
+    {normal} geo_touches_operator                            = t o u c h e s;
+    {normal} geo_crosses_operator                            = c r o s s e s;
+    {normal} geo_within_operator                             = w i t h i n;
+    {normal} geo_contains_operator                           = c o n t a i n s;
+    {normal} geo_overlaps_operator                           = o v e r l a p s;
+    {normal} geo_relate_operator                             = r e l a t e;
+
+    {normal} relgeo_dwithin_operator                         = d w i t h i n;
+    {normal} relgeo_beyond_operator                          = b e y o n d;
+
+/* BOOLEAN CONSTANTS */
+    {normal} boolean_true                                    = t r u e;
+    {normal} boolean_false                                   = f a l s e;
+    {normal} boolean_unknown                                 = u n k n o w n;
+
+/* NULL CONSTANT */
+    {normal} null_constant                                   = n u l l;
+
+    signed_numeric_literal                                   = sign? digit* '.'? digit+;
+
+    unsigned_integer                                         = digit+;
+
+    {normal} character_string_literal                        = quote (nonquotecharacter | quotesymbol)+ quote;
+
+    // Not according to the spec for the moment, should allow things like 'A', 'abc', 'a23', 'a:b:c'
+    {normal} identifier                      = simple_latin_letter (simple_latin_letter | underscore | digit)*;   // <identifier> ::= <identifier start [ { <colon> | <identifier part> } ]
+
+    {normal} duration_date_time_separator                    = datetimeseparator;
+    {normal} duration_symbol                                 = durationsymbol;
+    {normal} time_span_separator                             = timespanseparator;
+
+    {normal} datetime                                        = digit digit digit digit hyphen digit digit hyphen digit digit datetimeseparator digit digit colon digit digit colon digit digit ('.' digit+)?;
+
+    //year_digits                                            = ('19' | '20' | '21') digit digit; // 1900 -> 2199
+    //month_digits                                           = '0'['1'-'9'] | '1'('0' | '1' | '2'); // 01 -> 12
+    //day_digits                                             = ['0'-'2']['1'-'9'] | '3'('0' | '1'); // 01 -> 31
+
+    {normal} dur_day_symbol                                  = 'D';
+    {normal} dur_month_symbol                                = 'M';
+    {normal} dur_year_symbol                                 = 'Y';
+
+    {normal} dur_second_symbol                               = 'S';
+    {normal} dur_minute_symbol                               = 'M';
+    {normal} dur_hour_symbol                                 = 'H';
+
+Ignored Tokens
+    blank,
+    space,
+    newline;
+
+
+Productions /* Non-terminals, precede a token by T and a production by P in case of ambiguity */
+
+/* Query capabilities */
+                                                                // <search condition> ::= <boolean value expression>
+    search_condition {-> expr} =
+        boolean_value_expression {-> boolean_value_expression.expr};
+
+                                                                // <boolean value expression> ::= <boolean term> | <boolean value expression> OR <boolean term>
+    boolean_value_expression {-> expr} =
+          {boolean_term} boolean_term {-> boolean_term.expr}
+        | {boolean_value_expression} [left]:boolean_value_expression boolean_or_operator [right]:boolean_term {-> New expr.or(left.expr, right.expr)};
+
+                                                                // <boolean term> ::= <boolean factor> | <boolean term> AND <boolean factor>
+    boolean_term {-> expr} =
+            {boolean_primary} boolean_primary {-> boolean_primary.expr}
+          | {boolean_factor} boolean_factor {-> boolean_factor.expr}
+          | {boolean_term} [left]:boolean_term boolean_and_operator [right]:boolean_factor {-> New expr.and(left.expr, right.expr)};
+
+
+                                                              // <boolean factor> ::= [ NOT ] <boolean primary>
+    boolean_factor {-> expr} =
+          {boolean_factor} [term]:boolean_primary {-> term.expr}
+        | {boolean_factor_not} boolean_not_operator [term]:boolean_primary {-> New expr.not(term.expr)};
+
+                                                                // <boolean primary> ::= <predicate> | <routine invocation> | <left paren> <search condition> | <right paren>
+    boolean_primary {-> expr} =
+          {predicate} predicate  {-> predicate.expr}
+        | {routine_invocation} routine_invocation {-> routine_invocation.expr}
+        | {nested_search_condition} left_paren search_condition right_paren {-> search_condition.expr};
+
+    routine_invocation {-> expr} =
+        geo_equals_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_equals(attr.attr, geometry_literal.geometry_literal)};
+
+                                                                // <predicate> ::= <comparison predicate> | <text predicate> | <null predicate> | <temporal predicate> | <classification predicate> | <existence_predicate>
+    predicate {-> expr} =
+          {comparison_predicate} comparison_predicate {-> comparison_predicate.expr}
+        | {text_predicate} text_predicate {-> text_predicate.expr}
+        | {null_predicate} null_predicate {-> null_predicate.expr}
+        | {existence_predicate} existence_predicate {-> existence_predicate.expr}
+        | {temporal_predicate} temporal_predicate {-> temporal_predicate.expr};
+
+   comparison_predicate {-> expr} =
+          {equals}                 [attr]:attribute_name       equals_operator           [lit]:literal {-> New expr.eq(attr.attr, lit.literal)}
+        | {not_equals}             [attr]:attribute_name     not_equals_operator         [lit]:literal {-> New expr.neq(attr.attr, lit.literal)}
+        | {less_than}              [attr]:attribute_name      less_than_operator         [lit]:literal {-> New expr.lt(attr.attr, lit.literal)}
+        | {greater_than}           [attr]:attribute_name     greater_than_operator       [lit]:literal {-> New expr.gt(attr.attr, lit.literal)}
+        | {less_than_or_equals}    [attr]:attribute_name  less_than_or_equals_operator   [lit]:literal {-> New expr.lte(attr.attr, lit.literal)}
+        | {greater_than_or_equals} [attr]:attribute_name greater_than_or_equals_operator [lit]:literal {-> New expr.gte(attr.attr, lit.literal)};
+
+    null_predicate {-> expr} =
+          {isnull}     [attr]:attribute_name null_is_operator null_constant {-> New expr.is_null(attr.attr)}
+        | {isnotnull}  [attr]:attribute_name null_is_operator null_not_operator null_constant {-> New expr.is_not_null(attr.attr)};
+
+                                                                // <text predicate> ::= <attribute name> [ NOT ] LIKE <character pattern>
+    text_predicate {-> expr} =
+          {like}    [attr]:attribute_name text_like_operator                      [lit]:string_literal {-> New expr.like(attr.attr, lit)}
+        | {notlike} [attr]:attribute_name boolean_not_operator text_like_operator [lit]:string_literal {-> New expr.not_like(attr.attr, lit)}
+        | {ilike}    [attr]:attribute_name text_ilike_operator                      [lit]:string_literal {-> New expr.ilike(attr.attr, lit)}
+        | {notilike} [attr]:attribute_name boolean_not_operator text_ilike_operator [lit]:string_literal {-> New expr.not_ilike(attr.attr, lit)};
+
+
+    existence_predicate {-> expr} =
+          {exists} [attr]:attribute_name exists_operator {-> New expr.exists(attr.attr)}
+        | {does_not_exist} [attr]:attribute_name doesnotexist_operator {-> New expr.does_not_exist(attr.attr)};
+
+                                                                // <temporal predicate> ::= <attribute_name> BEFORE <date-time expression> | <attribute_name> BEFORE OR DURING <period> | <attribute_name> DURING <period> | <attribute_name> DURING OR AFTER <period> | <attribute_name> AFTER <date-time expression>
+    temporal_predicate {-> expr} =
+          {before} [attr]:attribute_name temporal_before_operator datetime_literal {-> New expr.before(attr.attr, datetime_literal.datetime_literal)}
+        | {after} [attr]:attribute_name temporal_after_operator datetime_literal {-> New expr.after(attr.attr, datetime_literal.datetime_literal)}
+        | {during} [attr]:attribute_name temporal_during_operator timespan_literal {-> New expr.during(attr.attr, timespan_literal.timespan_literal)}
+        | {before_or_during} [attr]:attribute_name temporal_beforeorduring_operator timespan_literal {-> New expr.before_or_during(attr.attr, timespan_literal.timespan_literal)}
+        | {during_or_after} [attr]:attribute_name temporal_duringorafter_operator timespan_literal {-> New expr.during_or_after(attr.attr, timespan_literal.timespan_literal)};
+
+
+/* End query capabilities */
+
+    literal {-> literal} =
+          {num} numeric_literal {-> New literal.numeric(numeric_literal.numeric_literal)}
+        | {gen} general_literal {-> general_literal.literal};
+
+    general_literal {-> literal} =
+          {string} string_literal {-> New literal.string(string_literal.string_literal)}
+        | {date} datetime_literal {-> New literal.datetime(datetime_literal.datetime_literal)}
+        | {boolean} boolean_literal {-> New literal.boolean(boolean_literal.boolean_literal)};
+        //| {geometry} geometry_literal {-> New literal.geometry(geometry_literal.geometry_literal)}; // do not allow this for the moment
+
+    numeric_literal {-> numeric_literal} =
+        signed_numeric_literal {-> New numeric_literal.default(signed_numeric_literal)};
+
+    string_literal {-> string_literal} =
+        character_string_literal {-> New string_literal.default(character_string_literal)};
+
+    boolean_literal {-> boolean_literal} =
+        {true} boolean_true {-> New boolean_literal.true()}
+      | {false} boolean_false {-> New boolean_literal.false()}
+      | {unknown} boolean_unknown {-> New boolean_literal.unknown()};
+
+    datetime_literal {-> datetime_literal} =
+        datetime {-> New datetime_literal.default(datetime)};
+
+    duration_literal {-> duration_literal} =
+        duration_symbol [year_digits]:unsigned_integer dur_year_symbol [month_digits]:unsigned_integer dur_month_symbol [day_digits]:unsigned_integer dur_day_symbol [hour_digits]:unsigned_integer dur_hour_symbol [minute_digits]:unsigned_integer dur_minute_symbol [second_digits]:unsigned_integer dur_second_symbol {-> New duration_literal.default(year_digits, month_digits, day_digits, hour_digits, minute_digits, second_digits)};
+
+    timespan_literal {-> timespan_literal} =
+        {from_to} [from]:datetime time_span_separator [to]:datetime {-> New timespan_literal.from_to(from, to)}
+      | {from_duration} datetime time_span_separator duration_literal {-> New timespan_literal.from_duration(datetime, duration_literal.duration_literal)}
+      | {duration_to} duration_literal time_span_separator datetime {-> New timespan_literal.duration_to(duration_literal.duration_literal, datetime)};
+
+    geometry_literal {-> geometry_literal} =
+        {point} wkt_point_literal {-> New geometry_literal.point(wkt_point_literal)}
+      | {line_string} wkt_line_string_literal {-> New geometry_literal.line_string(wkt_line_string_literal)}
+      | {polygon} wkt_polygon_literal {-> New geometry_literal.polygon(wkt_polygon_literal)}
+      //| {polyhedral_surface} wkt_polyhedral_surface_literal {-> New geometry_literal.polyhedral_surface(wkt_polyhedral_surface_literal)}
+      //| {triangle_literal} wkt_triangle_literal {-> New geometry_literal.triangle(wkt_triangle_literal)}
+      //| {tin_literal} wkt_tin_literal {-> New geometry_literal.tin(wkt_tin_literal)}
+      | {multi_point_literal} wkt_multi_point_literal {-> New geometry_literal.multi_point(wkt_multi_point_literal)}
+      | {multi_line_string_literal} wkt_multi_line_string_literal {-> New geometry_literal.multi_line_string(wkt_multi_line_string_literal)}
+      | {multi_polygon_literal} wkt_multi_polygon_literal {-> New geometry_literal.multi_polygon(wkt_multi_polygon_literal)}
+      | {geometry_collection_literal} wkt_geometry_collection_literal {-> New geometry_literal.geometry_collection(wkt_geometry_collection_literal)};
+
+    attribute_name {-> attr} =
+        {simple_attribute} identifier {-> New attr.id(identifier)}
+      | {compound_attribute} identifier period attribute_name {-> New attr.compound_id(identifier, attribute_name.attr)};
+
+Abstract Syntax Tree
+
+    expr = // General comparisons
+           {gt}                 [left]:attr [right]:literal
+         | {lt}                 [left]:attr [right]:literal
+         | {gte}                [left]:attr [right]:literal
+         | {lte}                [left]:attr [right]:literal
+         | {eq}                 [left]:attr [right]:literal
+         | {neq}                [left]:attr [right]:literal
+           // Text comparisons
+         | {like}               [left]:attr [right]:string_literal
+         | {not_like}           [left]:attr [right]:string_literal
+         | {ilike}              [left]:attr [right]:string_literal
+         | {not_ilike}          [left]:attr [right]:string_literal
+           // Null comparisons
+         | {is_null}            [attr]:attr
+         | {is_not_null}        [attr]:attr
+           // Comparison concatenation
+         | {or}                 [left]:expr [right]:expr
+         | {and}                [left]:expr [right]:expr
+         | {not}                [expr]:expr
+           // Attribute existence
+         | {exists}             [attr]:attr
+         | {does_not_exist}     [attr]:attr
+           // Temporal comparisons
+         | {before}             [attr]:attr [date_time]:datetime_literal
+         | {after}              [attr]:attr [date_time]:datetime_literal
+         | {during}             [attr]:attr [time_span]:timespan_literal
+         | {before_or_during}   [attr]:attr [time_span]:timespan_literal
+         | {during_or_after}    [attr]:attr [time_span]:timespan_literal
+         | {geo_equals}         [left]:attr [right]:geometry_literal;
+
+    attr =
+          {id} identifier
+        | {compound_id} identifier attr;
+
+    literal =
+          {numeric} numeric_literal
+        | {string} string_literal
+        | {boolean} boolean_literal
+        | {datetime} datetime_literal
+        | {timespan} timespan_literal;
+        //| {geometry} geometry_literal // not sure how to implement comparisons between all kinds of geometries, so we don't allow it
+
+    numeric_literal =
+        {default} signed_numeric_literal;
+
+    string_literal =
+        {default} character_string_literal;
+
+    boolean_literal =
+        {true}
+      | {false}
+      | {unknown};
+
+    datetime_literal =
+        {default} datetime;
+
+    duration_literal =
+        {default} [years]:unsigned_integer [months]:unsigned_integer [days]:unsigned_integer [hours]:unsigned_integer [minutes]:unsigned_integer [seconds]:unsigned_integer;
+
+    timespan_literal =
+        {from_to} [from]:datetime [to]:datetime
+      | {from_duration} [from]:datetime [duration]:duration_literal
+      | {duration_to} [duration]:duration_literal [to]:datetime;
+
+    geometry_literal =
+        {point} wkt_point_literal
+      | {line_string} wkt_line_string_literal
+      | {polygon} wkt_polygon_literal
+      //| {polyhedral_surface} wkt_polyhedral_surface_literal
+      //| {triangle_literal} wkt_triangle_literal
+      //| {tin_literal} wkt_tin_literal
+      | {multi_point} wkt_multi_point_literal
+      | {multi_line_string} wkt_multi_line_string_literal
+      | {multi_polygon} wkt_multi_polygon_literal
+      | {geometry_collection} wkt_geometry_collection_literal;
+
+
+
+
+
+
+
+
+
+
+
+
