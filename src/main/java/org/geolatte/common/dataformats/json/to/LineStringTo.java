@@ -31,7 +31,6 @@ package org.geolatte.common.dataformats.json.to;
 public class LineStringTo extends GeoJsonTo {
 
     private double[][] coordinates;
-    private double[] bbox;
 
 
     public LineStringTo() {
@@ -61,14 +60,7 @@ public class LineStringTo extends GeoJsonTo {
     public void setCoordinates(double[][] coordinates) {
         this.coordinates = coordinates;
         if (isValid()) {
-            bbox = createBoundingBox(coordinates);
+            setBbox(createBoundingBox(coordinates));
         }
-    }
-
-    /**
-     * @return the bbox for this geometry as it is to be serialized.
-     */
-    public double[] getBbox() {
-        return bbox;
     }
 }

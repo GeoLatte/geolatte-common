@@ -32,7 +32,6 @@ public class PointTo extends GeoJsonTo {
 
     private double[] coordinates;
 
-
     public PointTo() {
     }
 
@@ -47,5 +46,6 @@ public class PointTo extends GeoJsonTo {
 
     public void setCoordinates(double[] coordinates) {
         this.coordinates = coordinates;
+        setBbox(createBoundingBox(coordinates));
     }
 }

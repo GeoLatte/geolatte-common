@@ -597,4 +597,72 @@ public class GeoJsonToDeserializationTest {
         org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiPolygon);
     }
+
+    /**
+     * Tests a valid geometrycollection deserialization
+     *
+     * @throws java.io.IOException If an unexpected exception were thrown (this will fail the test)
+     */
+    @Test
+    public void testGeometryCollection() throws IOException {
+        String testGeomCollection = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
+        GeometryCollection geomCol = (GeometryCollection) JTS.to(factory.fromTo(mapper.readValue(testGeomCollection, GeometryCollectionTo.class)));
+        Assert.assertEquals(LAMBERT72, geomCol.getSRID());
+        Assert.assertEquals(2, geomCol.getNumGeometries());
+        Assert.assertTrue(geomCol.getGeometryN(0) instanceof Point);
+        Assert.assertTrue(geomCol.getGeometryN(1) instanceof LineString);
+
+        // Let's nest soem geometrycollections :)
+        String nestedGeomCol = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},  \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]},    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
+        geomCol = (GeometryCollection) JTS.to(factory.fromTo(mapper.readValue(nestedGeomCol, GeometryCollectionTo.class)));
+        Assert.assertEquals(LAMBERT72, geomCol.getSRID());
+        Assert.assertEquals(2, geomCol.getNumGeometries());
+        Assert.assertTrue(geomCol.getGeometryN(0) instanceof GeometryCollection);
+        Assert.assertEquals(2, geomCol.getGeometryN(0).getNumGeometries());
+        Assert.assertTrue(geomCol.getGeometryN(1) instanceof LineString);
+    }
+
+    /**
+     * Tests various invalid configurations of geometrycollection
+     */
+    @Test
+    public void testInvalidGeometryCollection() throws IOException {
+        List<String> invalidTestStrings = new ArrayList<String>();
+        // Unexisting type
+        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCllection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}");
+        // Wrong type
+        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"LineString\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}");
+        // CRS Overridden in child is not allowed.
+        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",   \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},   \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}");
+        // Not even if it was not specified in the parent!
+        invalidTestStrings.add("{  \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",  \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},   \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}");
+
+        // No type
+        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}");
+        // Invalid crs name
+        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}");
+        // Empty crs name
+        invalidTestStrings.add("{ \"crs\": {}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}");
+        // Missing geometries parameter
+        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\"}");
+        // Invalid geometries array structure
+        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [[    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]]}");
+        // Just an invalid jsonstring :)
+        invalidTestStrings.add("some weird stuff");
+
+        // Each of the above should result in a JsonException being thrown, nothing else!
+        for (String s : invalidTestStrings) {
+            try {
+                GeometryCollection test = (GeometryCollection) JTS.to(factory.fromTo(mapper.readValue(s, GeometryCollectionTo.class)));
+                Assert.fail("Following json is invalid for a GeometryCollection and should not parse: " + s);
+            } catch (JsonProcessingException e) {
+                // Ok!
+            }
+        }
+
+        // Valid geometrycollection, must remain geometrycollection even if linestringto is specified
+        String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
+        org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue(s, LineStringTo.class));
+        Assert.assertTrue(t instanceof org.geolatte.geom.GeometryCollection);
+    }
 }

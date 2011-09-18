@@ -23,6 +23,8 @@ package org.geolatte.common.dataformats.json;
 
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.geolatte.common.dataformats.json.to.GeoJsonTo;
 import org.geolatte.geom.jts.JTS;
@@ -182,10 +184,7 @@ public class GeoJsonToSerializationTest {
     }
 
     /**
-     * Serialization of a polygon
-     */
-    /**
-     * Test serialization of a multiline
+     * Test serialization of a polygon
      *
      * @throws java.io.IOException If any unexpected exception is thrown. this will result in a testfailure
      */
@@ -285,6 +284,54 @@ public class GeoJsonToSerializationTest {
         Assert.assertEquals(0.0, bbox.get(1), 0.00001);
         Assert.assertEquals(1.0, bbox.get(2), 0.00001);
         Assert.assertEquals(1.0, bbox.get(3), 0.00001);
+    }
+
+
+    /*
+     * Tests the serialization of an entire geometrycollection
+     */
+    @Test
+    public void testGeometryCollectionSerializer() {
+        LinearRing l = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.0, 0.0), new Coordinate(1.0, 0.0),
+                new Coordinate(1.0, 1.0), new Coordinate(0.0, 1.0), new Coordinate(0.0, 0.0)}), geomFactory);
+        LinearRing l2 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.1, 0.1), new Coordinate(0.25, 0.1),
+                new Coordinate(0.25, 0.25), new Coordinate(0.1, 0.25), new Coordinate(0.1, 0.1)}), geomFactory);
+        LinearRing l3 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.7, 0.7), new Coordinate(0.95, 0.7),
+                new Coordinate(0.95, 0.95), new Coordinate(0.7, 0.95), new Coordinate(0.7, 0.7)}), geomFactory);
+        Polygon pol1 = new Polygon(l, new LinearRing[]{l2, l3}, geomFactory);
+        Point p = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0)}), geomFactory);
+        Point p2 = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(3.0, 4.0)}), geomFactory);
+        MultiPoint mpt = new MultiPoint(new Point[]{p, p2}, geomFactory);
+        LineString ls = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0), new Coordinate(3.0, 4.0)}), geomFactory);
+        LineString ls2 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(12.0, 13.0), new Coordinate(13.0, 14.0)}), geomFactory);
+        LineString ls3 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(24.0, 5.0), new Coordinate(19.0, 3.0)}), geomFactory);
+        MultiLineString mls = new MultiLineString(new LineString[]{l, ls2, ls3}, geomFactory);
+        GeometryCollection geomCollection = new GeometryCollection(new Geometry[]{pol1, p, mpt, ls, mls}, geomFactory);
+        try {
+            String output = mapper.writeValueAsString(factory.toTo(JTS.from(geomCollection)));
+
+            HashMap map = mapper.readValue(output, HashMap.class);
+            Assert.assertEquals("GeometryCollection", map.get("type"));
+            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+            Assert.assertEquals("name", getFromMap("crs.type", map));
+            List<HashMap> geoms = (List<HashMap>) map.get("geometries");
+            Assert.assertEquals(5, geoms.size());
+            for (int i = 0; i < 5; i++) {
+                Assert.assertNull(geoms.get(i).get("crs"));
+            }
+            Assert.assertEquals("Polygon", geoms.get(0).get("type"));
+            Assert.assertEquals("Point", geoms.get(1).get("type"));
+            Assert.assertEquals("MultiPoint", geoms.get(2).get("type"));
+            Assert.assertEquals("LineString", geoms.get(3).get("type"));
+            Assert.assertEquals("MultiLineString", geoms.get(4).get("type"));
+
+        } catch (JsonMappingException e) {
+            Assert.fail("No exception expected");
+        } catch (JsonParseException e) {
+            Assert.fail("No exception expected");
+        } catch (IOException e) {
+            Assert.fail("No exception expected");
+        }
     }
 
     /**

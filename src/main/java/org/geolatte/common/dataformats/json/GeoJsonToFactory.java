@@ -25,8 +25,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.geolatte.common.dataformats.json.to.*;
 import org.geolatte.geom.*;
 
-import java.io.IOException;
-
 /**
  * Factory which allows conversion between GeoJsonTo objects on the one hand, and Geolatte-geometries or JTS
  * geometries on the other hand.
@@ -57,6 +55,8 @@ public class GeoJsonToFactory {
             return polygonToTo((Polygon) geometry);
         } else if (geometry instanceof MultiPolygon) {
             return multiLinePolygonToTo((MultiPolygon) geometry);
+        } else if (geometry instanceof GeometryCollection) {
+            return geometryCollectionToTo((GeometryCollection) geometry);
         }
         return null;
     }
@@ -65,7 +65,8 @@ public class GeoJsonToFactory {
      * Creates a geolatte geometry object starting from a geojsonto.
      * @param input the geojson to to start from
      * @return the corresponding geometry
-     * @throws IOException If the transfer object is invalid or missing information
+     * @throws org.codehaus.jackson.map.JsonMappingException If the geometry could not be constructed due to an invalid
+     * geojsonto
      */
     public Geometry fromTo(GeoJsonTo input) throws JsonMappingException {
         if (input == null) {
@@ -105,6 +106,13 @@ public class GeoJsonToFactory {
                 polygons[i] = createPolygon(to.getCoordinates()[i], sridValue);
             }
             return MultiPolygon.create(polygons, sridValue);
+        } else if (input instanceof GeometryCollectionTo) {
+            GeometryCollectionTo to = (GeometryCollectionTo) input;
+            Geometry[] geoms = new Geometry[to.getGeometries().length];
+            for (int i=0; i< geoms.length;i++) {
+                geoms[i] = fromTo(to.getGeometries()[i]);
+            }
+            return GeometryCollection.create(geoms, sridValue);
         }
         return null;
     }
@@ -168,6 +176,23 @@ public class GeoJsonToFactory {
             coordinates[i] = polygonToTo(input.getGeometryN(i)).getCoordinates();
         }
         result.setCoordinates(coordinates);
+        result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
+        return result;
+    }
+
+    /**
+     * Creates a geojson to from a multipolygon
+     * @param input the multipolygon
+     * @return the corresponding geojsonto
+     */
+    private GeometryCollectionTo geometryCollectionToTo(GeometryCollection input) {
+        GeometryCollectionTo result = new GeometryCollectionTo();
+        GeoJsonTo[] tos = new GeoJsonTo[input.getNumGeometries()];
+        for (int i=0; i < input.getNumGeometries();i++) {
+            tos[i] = toTo(input.getGeometryN(i));
+            tos[i].setCrs(null); // Crs may not be repeated
+        }
+        result.setGeometries(tos);
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         return result;
     }

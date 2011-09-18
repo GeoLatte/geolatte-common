@@ -31,8 +31,6 @@ package org.geolatte.common.dataformats.json.to;
 public class PolygonTo extends GeoJsonTo {
 
     private double[][][] coordinates;
-    private double[] bbox;
-
 
     public PolygonTo() {
     }
@@ -72,16 +70,7 @@ public class PolygonTo extends GeoJsonTo {
         this.coordinates = coordinates;
         if (isValid()) {
             // Only the boundingbox of the external ring is relevant
-            bbox = createBoundingBox(coordinates[0]);
+            setBbox(createBoundingBox(coordinates[0]));
         }
     }
-
-    /**
-     * @return the bbox for this geometry as it is to be serialized.
-     */
-    public double[] getBbox() {
-        return bbox;
-    }
-
-
 }

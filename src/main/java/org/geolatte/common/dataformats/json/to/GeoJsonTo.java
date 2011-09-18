@@ -39,12 +39,14 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
         @JsonSubTypes.Type(value=LineStringTo.class, name="LineString"),
         @JsonSubTypes.Type(value=MultiLineStringTo.class, name="MultiLineString"),
         @JsonSubTypes.Type(value=PolygonTo.class, name="Polygon"),
-        @JsonSubTypes.Type(value=MultiPolygonTo.class, name="MultiPolygon")
+        @JsonSubTypes.Type(value=MultiPolygonTo.class, name="MultiPolygon"),
+        @JsonSubTypes.Type(value=GeometryCollectionTo.class, name="GeometryCollection")
 
 })
 public abstract class GeoJsonTo {
 
     private CrsTo crs;
+    private double[] bbox;
 
     /**
      * @return whether the transfer object corresponds with a valid GeoJson entity
@@ -66,6 +68,26 @@ public abstract class GeoJsonTo {
     }
 
     /**
+     * @return the boundingbox of this geometry. The value of the bbox member must be a 2*n array where n is
+     * the number of dimensions represented in the contained geometries, with the lowest values for all axes
+     * followed by the highest values. The axes order of a bbox follows the axes order of geometries. In addition,
+     * the coordinate reference system for the bbox is assumed to match the coordinate reference system of the
+     * GeoJSON object of which it is a member.
+     */
+    public double[] getBbox() {
+        return bbox;
+    }
+
+    /**
+     * Sets the boundingbox value for this geometry
+     * @param bbox the given value to set (it is not checked for validity)
+     */
+    public void setBbox(double[] bbox) {
+        this.bbox = bbox;
+    }
+
+
+    /**
      * Convenience method to create a named crs to.
      *
      * @param crsName the name of the crs to use, if null, the default crs for geojson is used.
@@ -80,6 +102,22 @@ public abstract class GeoJsonTo {
         result.setProperties(property);
         return result;
     }
+
+    /**
+     * Creates a boundingbox for a point. In this case, both the lower and higher edges of teh bbox are the point itself
+     * @param coordinates the coordinates of the point
+     * @return the bboundingbox, a list with doubles. the result is a 2*n array where n is the number of dimensions represented
+     *         in the input, with the lowest values for all axes followed by the highest values.
+     */
+    public static double[] createBoundingBox(double[] coordinates) {
+        double[] result = new double[coordinates.length*2];
+        for (int i=0;i<coordinates.length;i++) {
+            result[i] = coordinates[i];
+            result[coordinates.length+i] = coordinates[i];
+        }
+        return result;
+    }
+
 
     /**
      * This method computes the boundingbox of a list of points (such as the coordinates of a multipoint or linestring)
@@ -117,10 +155,7 @@ public abstract class GeoJsonTo {
         double[] bbox = createBoundingBox(input[0]);
         for (int i = 1; i < input.length; i++) {
             double[] current = createBoundingBox(input[i]);
-            for (int j = 0; j < bbox.length / 2; j++) {
-                bbox[j] = Math.min(bbox[j], current[j]);
-                bbox[j + bbox.length / 2] = Math.max(bbox[j + bbox.length / 2], current[j + bbox.length / 2]);
-            }
+            mergeInto(bbox, current);
         }
         return bbox;
     }
@@ -138,11 +173,21 @@ public abstract class GeoJsonTo {
         double[] bbox = createBoundingBox(input[0]);
         for (int i = 1; i < input.length; i++) {
             double[] current = createBoundingBox(input[i]);
-            for (int j = 0; j < bbox.length / 2; j++) {
-                bbox[j] = Math.min(bbox[j], current[j]);
-                bbox[j + bbox.length / 2] = Math.max(bbox[j + bbox.length / 2], current[j + bbox.length / 2]);
-            }
+            mergeInto(bbox, current);
         }
         return bbox;
+    }
+
+    /**
+     * Merges the second boundingbox into the first. Basically, this extends the first boundingbox to also
+     * encapsulate the second
+     * @param first the first boundingbox
+     * @param second the second boundingbox
+     */
+    private static void mergeInto(double[] first, double[] second) {
+        for (int j = 0; j < first.length / 2; j++) {
+            first[j] = Math.min(first[j], second[j]);
+            first[j + first.length / 2] = Math.max(first[j + first.length / 2], second[j + first.length / 2]);
+        }
     }
 }
