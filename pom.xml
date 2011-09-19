@@ -156,8 +156,8 @@
                         <exclude>**/TestFeatureDoubleShape.java</exclude>
                         <exclude>**/CQLTestCase.java</exclude>
                         <exclude>**/WKTParseSpeedTest.java</exclude>
-                        <exclude>**/core/expressions/AbstractStringComparisonTest.java</exclude>
-                        <exclude>**/core/expressions/AbstractBooleanComparisonTest.java</exclude>
+                        <exclude>**/common/expressions/AbstractStringComparisonTest.java</exclude>
+                        <exclude>**/common/expressions/AbstractBooleanComparisonTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
