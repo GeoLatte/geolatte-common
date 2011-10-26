@@ -37,6 +37,11 @@ import java.io.IOException;
  * @since SDK1.5
  */
 public class AnyGeometrySerializer extends JsonSerializer<Geometry> {
+
+    public AnyGeometrySerializer() {
+    }
+
+
     public AnyGeometrySerializer(JsonMapper jsonMapper) {
     }
 
