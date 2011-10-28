@@ -38,10 +38,10 @@ import org.junit.Test;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class CQLFilterTransformationTest {
+public class CqlFilterTransformationTest {
 
     private final String simpleCQLExpression = "(anInteger > 10)";
-    CQLFilterTransformation transformation;
+    CqlFilterTransformation transformation;
 
     @Test
     public void testTransform() throws Exception {
@@ -49,7 +49,7 @@ public class CQLFilterTransformationTest {
         FilterableObject object = new FilterableObject();
         object.setAnInteger(20);
 
-        CQLFilterTransformation transformation = new CQLFilterTransformation(simpleCQLExpression);
+        CqlFilterTransformation transformation = new CqlFilterTransformation(simpleCQLExpression);
 
         Assert.assertEquals(true, transformation.transform(object));
 
