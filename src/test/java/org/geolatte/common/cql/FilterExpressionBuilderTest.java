@@ -71,7 +71,7 @@ public class FilterExpressionBuilderTest extends AbstractCriteriaBuilderTest {
 
 
             try {
-                CqlFilter filter = CQL.toFilter(cqlString);
+                CqlFilter filter = Cql.toFilter(cqlString);
                 Assert.assertEquals(expectedResult, filter.evaluate(testObject));
             }
             catch (ParseException e) {

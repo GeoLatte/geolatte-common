@@ -54,9 +54,9 @@ public abstract class  AbstractCriteriaBuilderTest {
 
         ArrayList<Object[]> list = new ArrayList<Object[]>();
 
-        for (CQLTestCase testCase : CqlTestClassConstructor.loadTestCases()) {
+        for (CqlTestCase testCase : CqlTestClassConstructor.loadTestCases()) {
 
-            for (CQLTestCase.Verification verification : testCase.verifications)
+            for (CqlTestCase.Verification verification : testCase.verifications)
                 list.add(new Object[]{testCase.searchCondition, verification.generateTestObject(), verification.expectedResult});
         }
 
