@@ -74,7 +74,7 @@ public abstract class GeometrySerializer<T extends Geometry> extends JsonSeriali
     public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         // Crs or bbox-information must be placed on the toplevel object, but may not be repeated in contained objects!
-        if (parent.getDepth() == 1)
+        if (!parent.insideGeometryCollection())
         {
             writeCrs(jgen, value);
             writeBbox(jgen, value, provider);
