@@ -65,7 +65,7 @@ public class CqlFilter {
         Filter currentFilter = filterExpressions.get(clazz);
 
         try {
-            Parser p = new Parser( new CQLLexer( new PushbackReader(new StringReader(cqlString), 1024)));
+            Parser p = new Parser( new CqlLexer( new PushbackReader(new StringReader(cqlString), 1024)));
             // Parse the input.
             Start tree = p.parse();
 

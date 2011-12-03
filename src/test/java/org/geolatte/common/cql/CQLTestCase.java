@@ -38,7 +38,7 @@ import java.util.HashMap;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class CQLTestCase {
+public class CqlTestCase {
 
     public String searchCondition;
     public ArrayList<Verification> verifications = new ArrayList<Verification>();

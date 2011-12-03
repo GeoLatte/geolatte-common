@@ -50,6 +50,7 @@ public class JsonMapper {
     private CustomSerializerFactory serializerFactory;
     private CustomDeserializerFactory deserializerFactory;
     private int depth;
+    private boolean insideGeometryCollection;
     private boolean serializeNullValues;
     private boolean ignoreUnknownProperties;
 
@@ -250,6 +251,22 @@ public class JsonMapper {
 
     void decreaseDepth() {
         depth--;
+    }
+
+    /**
+     * Indicates whether a subgeometry is being mapped (used to know whether the CRS property needs to be generated)
+     * @return
+     */
+    boolean insideGeometryCollection() {
+        return insideGeometryCollection;
+    }
+
+    void moveInsideGeometryCollection() {
+        this.insideGeometryCollection = true;
+    }
+
+    void moveOutsideGeometryCollection() {
+        this.insideGeometryCollection = false;
     }
 
     /**

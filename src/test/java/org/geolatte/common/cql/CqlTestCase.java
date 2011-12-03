@@ -21,34 +21,50 @@
 
 package org.geolatte.common.cql;
 
+import org.geolatte.testobjects.FilterableObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
+ * No comment provided yet for this class.
+ * <p/>
  * <p>
- * Simply holds a key/value pair
- * </p>
- * <p>
- * <i>Creation-Date</i>: 26-May-2010<br>
- * <i>Creation-Time</i>:  16:00:26<br>
+ * <i>Creation-Date</i>: 22-Jun-2010<br>
+ * <i>Creation-Time</i>:  19:28:59<br>
  * </p>
  *
  * @author Bert Vanhooff
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class KeyValuePair<K, V> {
+public class CqlTestCase {
 
-    private K key;
-    private V value;
+    public String searchCondition;
+    public ArrayList<Verification> verifications = new ArrayList<Verification>();
 
-    public KeyValuePair(K key, V value) {
-        this.key = key;
-        this.value = value;
-    }
+    public static class Verification {
 
-    public K getKey() {
-        return key;
-    }
+        private HashMap<String, String> propertyMap = new HashMap<String, String>();
+        public Boolean expectedResult;
 
-    public V getValue() {
-        return value;
+        public void addProperty(String propertyName, String propertyValue) {
+
+            propertyMap.put(propertyName, propertyValue);
+        }
+
+        public Object generateTestObject() {
+
+            FilterableObject object = new FilterableObject();
+
+            for (String propertyName : propertyMap.keySet()) {
+
+                String propertyValue = propertyMap.get(propertyName);
+
+                object.setProperty(propertyName, propertyValue);
+            }
+
+            return object;
+        }
     }
 }

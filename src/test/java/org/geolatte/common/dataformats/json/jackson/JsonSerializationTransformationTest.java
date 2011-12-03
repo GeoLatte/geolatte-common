@@ -104,11 +104,22 @@ public class JsonSerializationTransformationTest {
             } catch (IOException e) {
                 Assert.fail("No exception expected");
             }
+
+            Assert.assertEquals("Feature", map.get("type"));
+
             Map props = (Map) map.get("properties");
             for (String name : reader.getProperties()) {
                 Assert.assertTrue(props.containsKey(name));
             }
-        } catch (TransformationException e) {
+
+            Map geom = (Map) map.get("geometry");
+            Assert.assertEquals("LineString", geom.get("type"));
+
+            // Test whether crs is also serialized
+            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", geom));
+
+
+        } catch (Exception e) {
             Assert.fail("No exceptions expected");
         }
     }

@@ -49,9 +49,9 @@ public class CqlTestClassConstructor {
 
     private static final String TEST_DATA_RESOURCE = "/cqlTestInput.xml";
 
-    public static Collection<CQLTestCase> loadTestCases() throws Exception {
+    public static Collection<CqlTestCase> loadTestCases() throws Exception {
 
-        ArrayList<CQLTestCase> testCaseList = new ArrayList<CQLTestCase>();
+        ArrayList<CqlTestCase> testCaseList = new ArrayList<CqlTestCase>();
 
         try {
             InputStream is = FilterExpressionBuilderTest.class.getResourceAsStream(TEST_DATA_RESOURCE);
@@ -65,7 +65,7 @@ public class CqlTestClassConstructor {
             // Iterate over all testcases
             for (int i = 0; i < testCases.getLength(); i++) {
 
-                CQLTestCase testCase = new CQLTestCase();
+                CqlTestCase testCase = new CqlTestCase();
 
                 Element testCaseElement = (Element)testCases.item(i);
                 testCase.searchCondition = testCaseElement.getElementsByTagName("searchCondition").item(0).getTextContent();
@@ -80,7 +80,7 @@ public class CqlTestClassConstructor {
                         if (withNodes.getLength() == 0)
                             continue; // with is not required
                         Node withNode = withNodes.item(0);
-                        CQLTestCase.Verification verification = new CQLTestCase.Verification();
+                        CqlTestCase.Verification verification = new CqlTestCase.Verification();
 
                         // SET ATTRIBUTE VALUES
                         for (int k=0; k < withNode.getChildNodes().getLength(); k++) {
