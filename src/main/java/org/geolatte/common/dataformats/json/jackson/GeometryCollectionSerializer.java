@@ -63,7 +63,9 @@ public class GeometryCollectionSerializer extends GeometrySerializer<GeometryCol
             if (ser != null && ser instanceof GeometrySerializer)
             {
                 getParent().increaseDepth();
+                getParent().moveInsideGeometryCollection();
                 ser.serialize(current, jgen, provider);
+                getParent().moveOutsideGeometryCollection();
                 getParent().decreaseDepth();                
             }
         }

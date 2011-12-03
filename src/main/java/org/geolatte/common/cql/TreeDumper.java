@@ -95,7 +95,7 @@ public class TreeDumper extends DepthFirstAdapter {
         else
             cql = args[0];
 
-        Parser parser = new Parser(new CQLLexer(new PushbackReader(new StringReader(cql), 1000)));
+        Parser parser = new Parser(new CqlLexer(new PushbackReader(new StringReader(cql), 1000)));
 
         try {
             Start start = parser.parse();

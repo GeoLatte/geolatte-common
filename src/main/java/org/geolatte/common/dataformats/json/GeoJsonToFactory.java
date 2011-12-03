@@ -24,6 +24,7 @@ package org.geolatte.common.dataformats.json;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.geolatte.common.dataformats.json.to.*;
 import org.geolatte.geom.*;
+import org.geolatte.geom.crs.CrsId;
 
 /**
  * Factory which allows conversion between GeoJsonTo objects on the one hand, and Geolatte-geometries or JTS
@@ -33,8 +34,6 @@ import org.geolatte.geom.*;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
 public class GeoJsonToFactory {
-
-    public static final int DEFAULT_SRID = 4326;
 
     /**
      * Factorymethod that creates the correct to starting from a geolatte geometry
@@ -72,47 +71,47 @@ public class GeoJsonToFactory {
         if (input == null) {
             return null;
         }
-        Integer srid = getSrid(input);
-        int sridValue = srid == null ? DEFAULT_SRID : srid;
+        CrsId crsId = getCrsId(input);
+        CrsId crsIdValue = crsId == null ? CrsId.UNDEFINED : crsId;
         if (! input.isValid()) {
             throw new JsonMappingException("Input to is not valid and can therefore not be converted to a geometry");
         }
         if (input instanceof PointTo) {
-            return createPoint(((PointTo) input).getCoordinates(), sridValue);
+            return createPoint(((PointTo) input).getCoordinates(), crsIdValue);
         } else if (input instanceof MultiPointTo)  {
             MultiPointTo to = (MultiPointTo) input;
             Point[] points = new Point[to.getCoordinates().length];
             for (int i=0; i< points.length; i++) {
-                points[i] = createPoint(to.getCoordinates()[i], sridValue);
+                points[i] = createPoint(to.getCoordinates()[i], crsIdValue);
             }
-            return MultiPoint.create(points, sridValue);
+            return MultiPoint.create(points, crsIdValue);
         } else if (input instanceof LineStringTo)  {
             LineStringTo to = (LineStringTo) input;
-            return LineString.create(createPointSequence(to.getCoordinates()), sridValue);
+            return LineString.create(createPointSequence(to.getCoordinates()), crsIdValue);
         } else if (input instanceof MultiLineStringTo)  {
             MultiLineStringTo to = (MultiLineStringTo) input;
             LineString[] lineStrings = new LineString[to.getCoordinates().length];
             for (int i =0; i < lineStrings.length;i++) {
-                lineStrings[i] = LineString.create(createPointSequence(to.getCoordinates()[i]), sridValue);
+                lineStrings[i] = LineString.create(createPointSequence(to.getCoordinates()[i]), crsIdValue);
             }
-            return MultiLineString.create(lineStrings, sridValue);
+            return MultiLineString.create(lineStrings, crsIdValue);
         } else if (input instanceof PolygonTo)  {
             PolygonTo to = (PolygonTo) input;
-            return createPolygon(to.getCoordinates(), sridValue);
+            return createPolygon(to.getCoordinates(), crsIdValue);
         } else if (input instanceof MultiPolygonTo)  {
             MultiPolygonTo to = (MultiPolygonTo) input;
             Polygon[] polygons = new Polygon[to.getCoordinates().length];
             for (int i=0; i < polygons.length; i ++) {
-                polygons[i] = createPolygon(to.getCoordinates()[i], sridValue);
+                polygons[i] = createPolygon(to.getCoordinates()[i], crsIdValue);
             }
-            return MultiPolygon.create(polygons, sridValue);
+            return MultiPolygon.create(polygons, crsIdValue);
         } else if (input instanceof GeometryCollectionTo) {
             GeometryCollectionTo to = (GeometryCollectionTo) input;
             Geometry[] geoms = new Geometry[to.getGeometries().length];
             for (int i=0; i< geoms.length;i++) {
                 geoms[i] = fromTo(to.getGeometries()[i]);
             }
-            return GeometryCollection.create(geoms, sridValue);
+            return GeometryCollection.create(geoms, crsIdValue);
         }
         return null;
     }
@@ -120,15 +119,15 @@ public class GeoJsonToFactory {
     /**
      * Creates a polygon starting from its geojson coordinate array
      * @param coordinates the geojson coordinate array
-     * @param sridValue the srid of the crs to use
+     * @param crsId the srid of the crs to use
      * @return a geolatte polygon instance
      */
-    private Polygon createPolygon(double[][][] coordinates, int sridValue) {
+    private Polygon createPolygon(double[][][] coordinates, CrsId crsId) {
         LinearRing[] rings = new LinearRing[coordinates.length];
         for (int i=0; i < coordinates.length;i++) {
-            rings[i] = LinearRing.create(createPointSequence(coordinates[i]), sridValue);
+            rings[i] = LinearRing.create(createPointSequence(coordinates[i]), crsId);
         }
-        return Polygon.create(rings, sridValue);
+        return Polygon.create(rings, crsId);
     }
 
     /**
@@ -143,7 +142,7 @@ public class GeoJsonToFactory {
             return new PointSequenceFactory().createEmpty();
         }
         DimensionalFlag df = coordinates[0].length == 3 ? DimensionalFlag.XYZ : DimensionalFlag.XY;
-        VariableSizePointSequenceBuilder psb = new VariableSizePointSequenceBuilder(df);
+        PointSequenceBuilder psb = PointSequenceBuilderFactory.newVariableSizePointSequenceBuilder(df);
         for (double[] point: coordinates) {
               psb.add(point);
         }
@@ -153,15 +152,18 @@ public class GeoJsonToFactory {
     /**
      * Helpermethod that creates a point starting from its geojsonto coordinate array
      * @param input the coordinate array to convert to a point
-     * @param sridValue the sridvalue of the crs in which the point is defined
+     * @param crsIdValue the sridvalue of the crs in which the point is defined
      * @return an instance of a geolatte point corresponding to the given to or null if the given array is null
      */
-    private Point createPoint(double[] input, int sridValue) {
+    private Point createPoint(double[] input, CrsId crsIdValue) {
         if (input == null) {
             return null;
         }
-        DimensionalFlag df = input.length == 2 ? DimensionalFlag.XY : DimensionalFlag.XYZ;
-        return Point.create(input, df, sridValue);
+        if (input.length == 2) {
+            return Point.create(input[0], input[1], crsIdValue);
+        } else {
+            return Point.create3D(input[0], input[1], input[2], crsIdValue);
+        }
     }
 
     /**
@@ -290,7 +292,7 @@ public class GeoJsonToFactory {
     }
 
    /**
-     * If an srid (crs) is specified in the json object, it is returned. If no srid is found in the current parameter-map
+     * If an CRS (srid) is specified in the json object, it is returned. If no CRS is found in the current parameter-map
      * null is returned. This is a simplified version from the actual GeoJSON specification, since the GeoJSON specification
      * allows for relative links to either URLS or local files in which the crs should be defined. This implementation
      * only supports named crs's: namely:
@@ -310,12 +312,12 @@ public class GeoJsonToFactory {
      * <pre>
      * EPSG:4326
      * </pre>
-     * @return the SRID value of the crs system in the json if it is present, null otherwise.
+     * @return the CrsId of the crs system in the json if it is present. {@link CrsId#UNDEFINED} otherwise.
      * @throws org.codehaus.jackson.map.JsonMappingException If a crs object is present, but deserialization is not possible
      */
-    protected Integer getSrid(GeoJsonTo to) throws JsonMappingException {
+    protected CrsId getCrsId(GeoJsonTo to) throws JsonMappingException {
         if (to.getCrs() == null) {
-            return null;
+            return CrsId.UNDEFINED;
         } else {
             if (to.getCrs().getType() == null || !"name".equals(to.getCrs().getType())) {
                 throw new JsonMappingException("If the crs is specified the type must be specified. Currently, only named crses are supported.");
@@ -329,7 +331,7 @@ public class GeoJsonToFactory {
                 if (srid == null) {
                     throw new JsonMappingException("Unable to derive SRID from crs name");
                 } else {
-                    return srid;
+                    return new CrsId("EPSG", srid);
                 }
             } else if (sridString.startsWith("urn:ogc:def:crs:EPSG:")) {
                 String[] splits = sridString.split(":");
@@ -340,7 +342,7 @@ public class GeoJsonToFactory {
                     if (srid == null) {
                         throw new JsonMappingException("Unable to derive SRID from crs name");
                     }
-                    return srid;
+                    return new CrsId("EPSG", srid);
                 }
             } else {
                 throw new JsonMappingException("Unable to derive SRID from crs name");
