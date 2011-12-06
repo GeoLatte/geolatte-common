@@ -291,14 +291,42 @@ public class TransformerChainFactoryTest {
         TransformerSource<Double> initialSource = new DummyTransformerSource<Double>(input);
         OpenTransformerChain<Integer> chain =
                 TransformerChainFactory.<Double, Integer>newChain().add(initialSource)
-                                                                       .add(numberTransformer)
-                                                                       .add(capitalizeTransformer)
-                                                                       .last(countTransformer);
+                                       .add(numberTransformer)
+                                       .add(capitalizeTransformer)
+                                       .last(countTransformer);
 
         int count = 0;
         for (Integer i : chain) {
 
             Assert.assertEquals(expectedResults.get(count), i);
+            count++;
+        }
+    }
+
+    /**
+     * Checks whether a closed transformer chain can be constructed and executed with a TransformationSource, a Sink and
+     * no transformers in between.
+     */
+    @Test
+    public void test_CompositionWithSourceAndTargetNoTransformers() {
+
+        ArrayList<Double> input = new ArrayList<Double>(Arrays.asList(88.0, 754.8, 0.0, 123456.2));
+
+        // With transformer source
+        TransformerSource<Double> initialSource = new DummyTransformerSource<Double>(input);
+        ArrayList<Double> results = new ArrayList<Double>();
+        DummyTransformerSink<Double> sink = new DummyTransformerSink<Double>(results);
+        ClosedTransformerChain chain =
+                TransformerChainFactory.<Double, Double>newChain()
+                                       .add(initialSource)
+                                       .last(sink);
+
+        chain.run();
+
+        int count = 0;
+        for (Double i : results) {
+
+            Assert.assertEquals(input.get(count), i);
             count++;
         }
     }

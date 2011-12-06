@@ -271,7 +271,14 @@ public class TransformerChainFactory {
         private boolean isConfigured = false;
 
         TransformerChain(ArrayList<Transformer<?, ?>> chain) {
-            this.chain = chain;
+
+            if (chain.size() > 0) {
+                this.chain = chain;
+            } else {
+                ArrayList<Transformer<?, ?>> noOpChain = new ArrayList<Transformer<?, ?>>(1);
+                noOpChain.add(new NoOpTransformer());
+                this.chain = noOpChain;
+            }
         }
 
         /**
@@ -408,9 +415,8 @@ public class TransformerChainFactory {
             if (transformerSource instanceof ObservableTransformerSource) {
                 ((ObservableTransformerSource)transformerSource).addTransformerSourceEventListener(this);
             }
-            transformerChain.setInput(output);
 
-            transformerChain.configure();
+            transformerChain.setInput(output);
             transformerChain.addTransformerEventListener(this);
 
             if (transformerSink instanceof ObservableTransformerSink) {
@@ -466,4 +472,22 @@ public class TransformerChainFactory {
         }
     }
 
+    /**
+     * Helper transformer that directly connects its input to its output (does nothing).
+     */
+    private static class NoOpTransformer extends Transformer {
+
+        private Iterable input;
+
+        @Override
+        protected void setInput(Iterable input) {
+
+            this.input = input;
+        }
+
+        @Override
+        protected Iterable output() {
+            return input;
+        }
+    }
 }

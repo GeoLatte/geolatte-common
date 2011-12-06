@@ -25,9 +25,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Transforms a collection of input elements to a collection of output elements, using a {@link Transformation} to process each element.
+ * Transforms a collection of input elements to a collection of output elements, using a {@link Transformation} to
+ * process each element.
  *
- * Once the input is set (setInput()), output() may be called to get an iterator to set the transformation process in motion. output() will return the same iterable/iterator as long as the input remains the same. This means that one cannot transform the input element multiple times in parallel.
+ * Once the input is set (setInput()), output() may be called to get an iterator to set the transformation process in
+ * motion. output() will return the same iterable/iterator as long as the input remains the same. This means that one
+ * cannot transform the input element multiple times in parallel.
  * <p/>
  * e.g.,
  * <pre>
@@ -55,7 +58,9 @@ import java.util.NoSuchElementException;
  */
 public class DefaultTransformer<Source, Target> extends AbstractObservableTransformer<Source, Target> {
 
+    // One of the two transformations below will be filled in
     private Transformation<? super Source, ? super Target> transformation;
+    private OneToManyTransformation<? super Source, ? super Target> oneToManyTransformation;
 
     private Iterable<? extends Source> currentInput; // The currentInput Iterable set by the client
     private Iterable<Target> currentOutput;
@@ -72,6 +77,21 @@ public class DefaultTransformer<Source, Target> extends AbstractObservableTransf
             throw new IllegalArgumentException("Argument transformation cannot be null");
 
         this.transformation = transformation;
+    }
+
+    /**
+     * Constructs a DefaultTransformer which calls the given transformation. Using a one-to-many transformation means
+     * that for each input element, 0 to x output elements are produced.
+     *
+     * @param transformation Cannot be null
+     * @throws IllegalArgumentException When transformation is null.
+     */
+    public DefaultTransformer(OneToManyTransformation<? super Source, ? super Target> transformation) {
+
+        if (transformation == null)
+            throw new IllegalArgumentException("Argument transformation cannot be null");
+
+        this.oneToManyTransformation = transformation;
     }
 
     /**
@@ -128,7 +148,13 @@ public class DefaultTransformer<Source, Target> extends AbstractObservableTransf
          */
         public Iterator<Target> iterator() {
 
-            return new DefaultTransformerIterator<Target>(inputIterator);
+            if (transformation != null) {
+                return new DefaultTransformerIterator<Target>(inputIterator);
+            } else if (oneToManyTransformation != null) {
+                return new DefaultOneToManyTransformerIterator<Target>(inputIterator);
+            }
+
+            return null;
         }
     }
 
@@ -141,6 +167,7 @@ public class DefaultTransformer<Source, Target> extends AbstractObservableTransf
 
 
         private Iterator<? extends Source> inputIterator;
+        // The next transformed element
         private Target cachedElement = null;
         private boolean isCachedElementValid = false;
 
@@ -193,6 +220,94 @@ public class DefaultTransformer<Source, Target> extends AbstractObservableTransf
             {
                 isCachedElementValid = false;
                 return cachedElement;
+            }
+
+            throw new NoSuchElementException();
+        }
+
+        /**
+         * Not supported.
+         */
+        public void remove() {
+
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * The Iterator implementation that delegates to DefaultTransformer to get its next value.
+     *
+     * @param <Target> Target type that must correspond to the Target type of the corresponding transformer.
+     */
+    private class DefaultOneToManyTransformerIterator<Target> implements Iterator<Target> {
+
+
+        private Iterator<? extends Source> inputIterator;
+        private Iterator<? extends Target> currentTargetIterator;
+
+        private DefaultOneToManyTransformerIterator(Iterator<? extends Source> inputIterator) {
+
+            this.inputIterator = inputIterator;
+            currentTargetIterator = new Iterator<Target>() {
+                public boolean hasNext() {
+                    return false;
+                }
+
+                public Target next() {
+                    throw new NoSuchElementException();
+                }
+
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        }
+
+        /**
+         * Returns <tt>true</tt> if the transformation can produce more elements. (In other
+         * words, returns <tt>true</tt> if <tt>next</tt> would return an element
+         * rather than throwing an exception.)
+         *
+         * @return <tt>true</tt> if the transformation can produce more elements.
+         */
+        @SuppressWarnings("unchecked")
+        public boolean hasNext() {
+
+            // If the current 'one-to-many transformation iterator' still has elements, true
+            if (currentTargetIterator.hasNext())
+                return true;
+
+            // Else go to next input element to get the next 'one-to-many transformation iterator'
+            while (inputIterator.hasNext()) {
+
+                Source nextElement = null;
+                try {
+
+                    nextElement = inputIterator.next();
+                    // Don't know why this cast is actually necassary
+                    currentTargetIterator = (Iterator<? extends Target>) oneToManyTransformation.transform(nextElement);
+                    if (currentTargetIterator.hasNext()) { // if this iterator has elements, ok, else continue
+                        return true;
+                    }
+                }
+                catch (TransformationException e) {
+
+                    onTransformerErrorOccurred(nextElement, e);
+                }
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns the next transformed element.
+         *
+         * @return The next transformed element.
+         */
+        public Target next() {
+
+            if (currentTargetIterator.hasNext()) {
+                return currentTargetIterator.next();
             }
 
             throw new NoSuchElementException();
