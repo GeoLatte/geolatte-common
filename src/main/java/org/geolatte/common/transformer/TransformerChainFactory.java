@@ -118,6 +118,14 @@ public class TransformerChainFactory {
             return add(new DefaultTransformer<Source, IntermediateTarget>(transformation));
         }
 
+        public <IntermediateTarget> TransformerConcatenator<Source, IntermediateTarget, Target> add(OneToManyTransformation<Source, IntermediateTarget> transformation)
+        {
+            if (transformation == null)
+                throw new IllegalArgumentException("transformation cannot be null");
+
+            return add(new DefaultTransformer<Source, IntermediateTarget>(transformation));
+        }
+
         public TransformerConcatenator<Source, Source, Target> addFilter(Transformation<Source, Boolean> filter)
         {
             if (filter == null)
@@ -169,6 +177,14 @@ public class TransformerChainFactory {
         }
 
         public <IntermediateTarget> TransformerConcatenatorWithSource<Source, IntermediateTarget, Target> add(Transformation<IntermediateSource, IntermediateTarget> transformation)
+        {
+            if (transformation == null)
+                throw new IllegalArgumentException("transformation cannot be null");
+
+            return add(new DefaultTransformer<IntermediateSource, IntermediateTarget>(transformation));
+        }
+
+        public <IntermediateTarget> TransformerConcatenatorWithSource<Source, IntermediateTarget, Target> add(OneToManyTransformation<IntermediateSource, IntermediateTarget> transformation)
         {
             if (transformation == null)
                 throw new IllegalArgumentException("transformation cannot be null");
@@ -239,6 +255,14 @@ public class TransformerChainFactory {
             return add(new DefaultTransformer<IntermediateSource, IntermediateTarget>(transformation));
         }
 
+        public <IntermediateTarget> TransformerConcatenator<Source, IntermediateTarget, Target> add(OneToManyTransformation<IntermediateSource, IntermediateTarget> transformation)
+        {
+            if (transformation == null)
+                throw new IllegalArgumentException("transformation cannot be null");
+
+            return add(new DefaultTransformer<IntermediateSource, IntermediateTarget>(transformation));
+        }
+
         public TransformerChain<Source, Target> last(Transformation<IntermediateSource, Target> transformation) {
 
             if (transformation == null)
@@ -271,7 +295,14 @@ public class TransformerChainFactory {
         private boolean isConfigured = false;
 
         TransformerChain(ArrayList<Transformer<?, ?>> chain) {
-            this.chain = chain;
+
+            if (chain.size() > 0) {
+                this.chain = chain;
+            } else {
+                ArrayList<Transformer<?, ?>> noOpChain = new ArrayList<Transformer<?, ?>>(1);
+                noOpChain.add(new NoOpTransformer());
+                this.chain = noOpChain;
+            }
         }
 
         /**
@@ -408,9 +439,8 @@ public class TransformerChainFactory {
             if (transformerSource instanceof ObservableTransformerSource) {
                 ((ObservableTransformerSource)transformerSource).addTransformerSourceEventListener(this);
             }
-            transformerChain.setInput(output);
 
-            transformerChain.configure();
+            transformerChain.setInput(output);
             transformerChain.addTransformerEventListener(this);
 
             if (transformerSink instanceof ObservableTransformerSink) {
@@ -466,4 +496,22 @@ public class TransformerChainFactory {
         }
     }
 
+    /**
+     * Helper transformer that directly connects its input to its output (does nothing).
+     */
+    private static class NoOpTransformer extends Transformer {
+
+        private Iterable input;
+
+        @Override
+        protected void setInput(Iterable input) {
+
+            this.input = input;
+        }
+
+        @Override
+        protected Iterable output() {
+            return input;
+        }
+    }
 }

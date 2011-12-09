@@ -24,6 +24,7 @@ package org.geolatte.common.transformer;
 import org.geolatte.common.transformer.testutil.LoggingTransformerEventListener;
 import org.geolatte.testobjects.CharacterCountTransformation;
 import org.geolatte.testobjects.ExceptionThrowingTransformation;
+import org.geolatte.testobjects.SpellWordTransformation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,7 +55,16 @@ public class DefaultTransformerTest {
 
         try {
 
-            DefaultTransformer<Object, Object> transformer = new DefaultTransformer<Object, Object>(null);
+            DefaultTransformer<Object, Object> transformer = new DefaultTransformer<Object, Object>((Transformation<? super Object,? super Object>) null);
+        }
+        catch (Throwable t) {
+
+            Assert.assertSame(IllegalArgumentException.class, t.getClass());
+        }
+
+        try {
+
+            DefaultTransformer<Object, Object> transformer = new DefaultTransformer<Object, Object>((OneToManyTransformation<? super Object,? super Object>) null);
         }
         catch (Throwable t) {
 
@@ -89,6 +99,36 @@ public class DefaultTransformerTest {
         for (int count : transformer.output()) {
 
             Assert.assertEquals(expectedOutput.get(transformationStep), count);
+            transformationStep++;
+        }
+
+        Assert.assertEquals(expectedOutput.size(), transformationStep);
+
+        // Should not recurse.. the transformation has already provided all of its output values in the previous loop
+        for (int count : transformer.output()) {
+
+            Assert.fail("Transformer should not continue to provide output when the output() method is invoked multiple times.");
+        }
+    }
+
+    /**
+     * Tests basic execution of a Transformer with an OneToManyTransformation by feeding it input data and checking
+     * whether the output is as expected. Also tests whether invoking output() again yields no results.
+     */
+    @Test
+    public void test_ExecuteExpanding() {
+
+        ArrayList<String> input = new ArrayList<String>(Arrays.asList(new String[]{"Rachel", "McAdams"}));
+        ArrayList<Character> expectedOutput = new ArrayList<Character>(Arrays.asList(new Character[]{'R', 'a', 'c',  'h', 'e', 'l', 'M', 'c', 'A', 'd', 'a', 'm', 's'}));
+
+        DefaultTransformer<String, Character> transformer = new DefaultTransformer<String, Character>(new SpellWordTransformation());
+
+        transformer.setInput(input);
+
+        int transformationStep = 0;
+        for (Character element : transformer.output()) {
+
+            Assert.assertEquals(expectedOutput.get(transformationStep), element);
             transformationStep++;
         }
 
