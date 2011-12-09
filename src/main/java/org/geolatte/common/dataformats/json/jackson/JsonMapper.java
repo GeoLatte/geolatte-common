@@ -14,7 +14,7 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.*;
+
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.*;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
@@ -24,6 +24,7 @@ import org.codehaus.jackson.map.ser.CustomSerializerFactory;
 import org.codehaus.jackson.type.TypeReference;
 import org.geolatte.common.Feature;
 import org.geolatte.common.FeatureCollection;
+import org.geolatte.geom.*;
 
 import java.io.IOException;
 import java.io.Reader;

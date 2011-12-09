@@ -47,7 +47,6 @@ public class StringIsEqual extends StringComparisonExpression {
     }
 
     public Boolean evaluate(Object o) {
-
         return getLeft().compareTo(o, getRight().evaluate(o)) == 0;
     }
 }

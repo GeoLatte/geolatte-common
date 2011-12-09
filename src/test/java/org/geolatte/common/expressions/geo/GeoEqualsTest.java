@@ -21,8 +21,10 @@
 
 package org.geolatte.common.expressions.geo;
 
-import com.vividsolutions.jts.geom.*;
+
 import org.geolatte.common.expressions.Expression;
+import org.geolatte.geom.*;
+import org.geolatte.geom.crs.CrsId;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -76,10 +78,10 @@ public class GeoEqualsTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
 
-        geometry = geometryFactory.createPoint(new Coordinate( 1, 1 ));
-        anEqualGeometry = geometryFactory.createPoint(new Coordinate( 1, 1 ));
-        anUnEqualGeometry = geometryFactory.createPoint(new Coordinate( 1, 2));
-        aDifferentTypeOfGeometry = geometryFactory.createLineString(new Coordinate[]{new Coordinate(1,1), new Coordinate(2,2)});
+        geometry = Point.create(1, 1);
+        anEqualGeometry = Point.create(1, 1);
+        anUnEqualGeometry = Point.create(1, 2);
+        aDifferentTypeOfGeometry = LineString.create(PointSequenceFactory.create(new double[]{1, 1, 2, 2}, DimensionalFlag.XY), CrsId.UNDEFINED);
 
 
         geometryExpression = (Expression<Geometry>)context.mock(Expression.class, "geometry");

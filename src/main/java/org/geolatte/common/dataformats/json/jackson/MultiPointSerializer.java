@@ -21,12 +21,11 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.Point;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
+import org.geolatte.geom.MultiPoint;
+import org.geolatte.geom.Point;
 
 import java.io.IOException;
 
@@ -64,14 +63,11 @@ public class MultiPointSerializer extends GeometrySerializer<MultiPoint> {
 		jgen.writeArrayFieldStart( "coordinates");
 		JsonSerializer<Object> ser = provider.findValueSerializer( Float.class);
         for (int i = 0; i < value.getNumGeometries(); i++) {
-            Point ml = (Point) value.getGeometryN(i);
-	        for (int j = 0; j < ml.getNumPoints(); j++) {
-	            Coordinate coordinate = ml.getCoordinate();
-	            jgen.writeStartArray();
-				ser.serialize( (float) coordinate.x, jgen, provider);
-				ser.serialize( (float) coordinate.y, jgen, provider);
-				jgen.writeEndArray();
-	        }
+            Point pnt = value.getGeometryN(i);
+            jgen.writeStartArray();
+            ser.serialize( (float) pnt.getX(), jgen, provider);
+            ser.serialize( (float) pnt.getY(), jgen, provider);
+            jgen.writeEndArray();
         }
 		jgen.writeEndArray();
 	}
@@ -81,14 +77,11 @@ public class MultiPointSerializer extends GeometrySerializer<MultiPoint> {
         // minX, minY, maxX, maxY
         double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
         for (int i = 0; i < shape.getNumGeometries(); i++) {
-            Point ml = (Point) shape.getGeometryN(i);
-            for (int j = 0; j < ml.getNumPoints(); j++) {
-                Coordinate coordinate = ml.getCoordinate();
-                result[0] = Math.min(coordinate.x, result[0]);
-                result[1] = Math.min(coordinate.y, result[1]);
-                result[2] = Math.max(coordinate.x, result[2]);
-                result[3] = Math.max(coordinate.y, result[3]);
-            }
+            Point pnt = shape.getGeometryN(i);
+            result[0] = Math.min(pnt.getX(), result[0]);
+            result[1] = Math.min(pnt.getY(), result[1]);
+            result[2] = Math.max(pnt.getX(), result[2]);
+            result[3] = Math.max(pnt.getY(), result[3]);
         }
         return result;
     }

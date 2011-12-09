@@ -50,7 +50,6 @@ public class StringConstant extends StringExpression implements ConstantExpressi
      * {@inheritDoc}
      */
     public String evaluate(Object o) {
-
         return string;
     }
 }

@@ -27,7 +27,7 @@
     <groupId>org.geolatte</groupId>
     <artifactId>geolatte-common</artifactId>
     <packaging>jar</packaging>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
     <name>geolatte-common</name>
     <description>
         This GeoLatte-common library contains the transformer framework and other common classes used by other
@@ -112,8 +112,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -196,22 +196,6 @@
                 </executions>
             </plugin>
 
-            <!-- sign files -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 
@@ -243,11 +227,6 @@
             <groupId>org.geolatte</groupId>
             <artifactId>geolatte-geom</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
-            <version>1.11</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>

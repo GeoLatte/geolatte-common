@@ -47,6 +47,7 @@ public class NumberExpressionStub extends NumberExpression {
     /**
      * Evaluates the given object against this expression.
      *
+     *
      * @param o The object to evaluate.
      * @return True if the given object matches this expression, false otherwise.
      */

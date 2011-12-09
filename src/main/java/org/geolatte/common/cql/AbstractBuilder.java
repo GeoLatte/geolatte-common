@@ -21,10 +21,11 @@
 
 package org.geolatte.common.cql;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTReader;
 import org.geolatte.common.cql.analysis.DepthFirstAdapter;
 import org.geolatte.common.cql.node.*;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.codec.Wkt;
+import org.geolatte.geom.codec.WktParseException;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -46,7 +47,7 @@ import java.util.*;
 public class AbstractBuilder extends DepthFirstAdapter {
 
     protected HashMap<Node, Object> translatedLiterals = new HashMap<Node, Object>();
-    private WKTReader wktReader = new WKTReader();
+
 
     //
     // Literals
@@ -127,12 +128,11 @@ public class AbstractBuilder extends DepthFirstAdapter {
         String wkt = node.getWktPointLiteral().getText();
         try {
 
-            Geometry geo = wktReader.read(wkt);
+            Geometry geo = Wkt.fromWkt(wkt);
             putLiteral(node, geo);
         }
-        catch (com.vividsolutions.jts.io.ParseException e) {
-
-            throw new RuntimeException("Could not parse WKT: " + wkt);
+        catch (WktParseException e) {
+            throw new RuntimeException("Could not parse WKT: " + wkt, e);
         }
     }
 

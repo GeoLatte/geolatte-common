@@ -14,9 +14,10 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.codehaus.jackson.JsonParser;
 import org.geolatte.common.Feature;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.crs.CrsId;
 
 import java.io.IOException;
 import java.util.Map;
@@ -44,7 +45,8 @@ public class FeatureDeserializer extends GeoJsonDeserializer<Feature> {
         String type = getStringParam("type", "Invalid Feature, type property required.");
         Integer srid = getSrid();
         // Default srd = WGS84 according to the GeoJSON specification        
-        int sridToUse = srid == null ? 5 : srid;
+        int sridToUse = srid == null ? 4326 : srid;
+        CrsId crsId = CrsId.valueOf(sridToUse);
 
         if ("Feature".equals(type)) {
             Geometry theGeom;
@@ -58,9 +60,7 @@ public class FeatureDeserializer extends GeoJsonDeserializer<Feature> {
                 }
 
                 theGeom = parent.fromJson(subJson, Geometry.class);
-                if (srid != null) {
-                    theGeom.setSRID(sridToUse);
-                }
+
                 f.setGeometry("geometry", theGeom);
 
                 Object idValue = getTypedParam("id", null, Object.class);

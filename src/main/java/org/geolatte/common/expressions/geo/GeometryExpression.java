@@ -21,9 +21,9 @@
 
 package org.geolatte.common.expressions.geo;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.geolatte.common.expressions.BasicTypeSwitch;
 import org.geolatte.common.expressions.Expression;
+import org.geolatte.geom.Geometry;
 
 /**
  * <p>
