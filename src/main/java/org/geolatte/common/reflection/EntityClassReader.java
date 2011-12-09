@@ -23,6 +23,7 @@ package org.geolatte.common.reflection;
 
 import org.geolatte.common.Feature;
 import org.geolatte.geom.Geometry;
+import org.geolatte.geom.jts.JTS;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -70,6 +71,9 @@ public class EntityClassReader {
     private Method geometryGetter;
     private Method idGetter;
 
+    // determines whether the read class uses JTS (rather than Geolatte-geom)
+    private boolean usesJTS = false;
+
     // Class mapped by this reader
     private Class entityClass;
     /*
@@ -113,6 +117,12 @@ public class EntityClassReader {
                     if (Geometry.class.isAssignableFrom(m.getReturnType()) && geometryGetter == null) {
                         geometryGetter = m;
                         toAdd = false;
+                        usesJTS = false;
+                    }
+                    if (com.vividsolutions.jts.geom.Geometry.class.isAssignableFrom(m.getReturnType()) && geometryGetter == null) {
+                        geometryGetter = m;
+                        toAdd = false;
+                        usesJTS = true;
                     }
                     if ("id".equals(propertyName)) {
                         idGetter = m;
@@ -123,8 +133,8 @@ public class EntityClassReader {
                     }
                 }
             }
+            }
         }
-    }
 
     /*
      * Create a reader for a given entityclass which allows for easy access to properties of an object of an unknown
@@ -316,6 +326,9 @@ public class EntityClassReader {
             return null;
         } else {
             try {
+                if (usesJTS) {
+                    return JTS.from((com.vividsolutions.jts.geom.Geometry)geometryGetter.invoke(objectToGet, EMPTY));
+                }
                 return (Geometry) geometryGetter.invoke(objectToGet, EMPTY);
             } catch (IllegalAccessException e) {
                 return null;
