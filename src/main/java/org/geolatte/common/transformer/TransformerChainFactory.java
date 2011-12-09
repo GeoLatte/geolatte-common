@@ -118,6 +118,14 @@ public class TransformerChainFactory {
             return add(new DefaultTransformer<Source, IntermediateTarget>(transformation));
         }
 
+        public <IntermediateTarget> TransformerConcatenator<Source, IntermediateTarget, Target> add(OneToManyTransformation<Source, IntermediateTarget> transformation)
+        {
+            if (transformation == null)
+                throw new IllegalArgumentException("transformation cannot be null");
+
+            return add(new DefaultTransformer<Source, IntermediateTarget>(transformation));
+        }
+
         public TransformerConcatenator<Source, Source, Target> addFilter(Transformation<Source, Boolean> filter)
         {
             if (filter == null)
@@ -169,6 +177,14 @@ public class TransformerChainFactory {
         }
 
         public <IntermediateTarget> TransformerConcatenatorWithSource<Source, IntermediateTarget, Target> add(Transformation<IntermediateSource, IntermediateTarget> transformation)
+        {
+            if (transformation == null)
+                throw new IllegalArgumentException("transformation cannot be null");
+
+            return add(new DefaultTransformer<IntermediateSource, IntermediateTarget>(transformation));
+        }
+
+        public <IntermediateTarget> TransformerConcatenatorWithSource<Source, IntermediateTarget, Target> add(OneToManyTransformation<IntermediateSource, IntermediateTarget> transformation)
         {
             if (transformation == null)
                 throw new IllegalArgumentException("transformation cannot be null");
@@ -232,6 +248,14 @@ public class TransformerChainFactory {
         }
 
         public <IntermediateTarget> TransformerConcatenator<Source, IntermediateTarget, Target> add(Transformation<IntermediateSource, IntermediateTarget> transformation)
+        {
+            if (transformation == null)
+                throw new IllegalArgumentException("transformation cannot be null");
+
+            return add(new DefaultTransformer<IntermediateSource, IntermediateTarget>(transformation));
+        }
+
+        public <IntermediateTarget> TransformerConcatenator<Source, IntermediateTarget, Target> add(OneToManyTransformation<IntermediateSource, IntermediateTarget> transformation)
         {
             if (transformation == null)
                 throw new IllegalArgumentException("transformation cannot be null");
