@@ -48,7 +48,6 @@ public class IsEqual extends NumberComparisonExpression {
     }
 
     public Boolean evaluate(Object o) {
-
         return getLeft().compareTo(o, getRight().evaluate(o)) == 0;
     }
 }

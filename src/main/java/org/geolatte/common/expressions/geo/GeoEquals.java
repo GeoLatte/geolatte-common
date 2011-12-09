@@ -21,8 +21,8 @@
 
 package org.geolatte.common.expressions.geo;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.geolatte.common.expressions.Expression;
+import org.geolatte.geom.Geometry;
 
 /**
  * No comment provided yet for this class.
@@ -51,11 +51,11 @@ public class GeoEquals extends BooleanBinaryGeometryExpression {
     /**
      * Evaluates the given object against this expression.
      *
+     *
      * @param o The object to evaluate.
      * @return True if the given object matches this expression, false otherwise.
      */
     public Boolean evaluate(Object o) {
-
         return getLeft().evaluate(o).equals(getRight().evaluate(o));
     }
 }

@@ -21,13 +21,13 @@
 
 package org.geolatte.common.cql;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.geolatte.common.cql.node.*;
 import org.geolatte.common.expressions.ComparableExpression;
 import org.geolatte.common.expressions.EmptyBasicTypeSwitch;
 import org.geolatte.common.expressions.Expression;
 import org.geolatte.common.expressions.Expressions;
 import org.geolatte.common.reflection.EntityClassReader;
-import org.geolatte.common.cql.node.*;
+import org.geolatte.geom.Geometry;
 
 import java.util.Date;
 import java.util.HashMap;

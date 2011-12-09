@@ -14,26 +14,20 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
+
 import junit.framework.Assert;
 import org.geolatte.common.Feature;
 import org.geolatte.common.FeatureCollection;
-import org.geolatte.common.dataformats.json.jackson.JsonException;
-import org.geolatte.common.dataformats.json.jackson.JsonMapper;
+import org.geolatte.geom.*;
+import org.geolatte.geom.jts.JTS;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the GeoJSON deserialization routines.
@@ -88,40 +82,35 @@ public class JsonDeserializationTest {
                 "  }, \"type\": \"Point\", \"coordinates\": [100.0, 0.0, 50.0] }";        
         try {
             Point test = mapper.fromJson(testString, Point.class);
-            Coordinate c = test.getCoordinate();
-            Assert.assertEquals(100.0, c.x, ACCURACY);
-            Assert.assertEquals(0.0, c.y, ACCURACY);
+            Assert.assertEquals(100.0, test.getX(), ACCURACY);
+            Assert.assertEquals(0.0, test.getY(), ACCURACY);
             Assert.assertEquals(WGS84, test.getSRID());
-            Assert.assertTrue(Double.isNaN(c.z));            
+            Assert.assertTrue(Double.isNaN(test.getZ()));
 
             Point test1b = mapper.fromJson(testString1b, Point.class);
-            Coordinate c1b = test1b.getCoordinate();
-            Assert.assertEquals(100.0, c1b.x, ACCURACY);
-            Assert.assertEquals(0.0, c1b.y, ACCURACY);
+            Assert.assertEquals(100.0, test1b.getX(), ACCURACY);
+            Assert.assertEquals(0.0, test1b.getY(), ACCURACY);
             Assert.assertEquals(WGS84, test.getSRID());
-            Assert.assertTrue(Double.isNaN(c1b.z));
+            Assert.assertTrue(Double.isNaN(test1b.getZ()));
 
             Geometry test2 = mapper.fromJson(testString2, Geometry.class);
             Assert.assertTrue(test2 instanceof Point);
             Assert.assertEquals(LAMBERT72, test2.getSRID());
-            Coordinate c2 = test2.getCoordinate();
-            Assert.assertEquals(100.0, c2.x, ACCURACY);
-            Assert.assertEquals(0.0, c2.y, ACCURACY);
-            Assert.assertTrue(Double.isNaN(c2.z));
+            Assert.assertEquals(100.0, ((Point)test2).getX(), ACCURACY);
+            Assert.assertEquals(0.0, ((Point)test2).getY(), ACCURACY);
+            Assert.assertTrue(Double.isNaN(((Point)test2).getZ()));
 
             Geometry test3 = mapper.fromJson(testString3, Point.class);
             Assert.assertEquals(LAMBERT72, test2.getSRID());
-            Coordinate c3 = test3.getCoordinate();
-            Assert.assertEquals(100.0, c3.x, ACCURACY);
-            Assert.assertEquals(0.0, c3.y, ACCURACY);
-            Assert.assertTrue(Double.isNaN(c3.z));
+            Assert.assertEquals(100.0, ((Point)test3).getX(), ACCURACY);
+            Assert.assertEquals(0.0, ((Point)test3).getY(), ACCURACY);
+            Assert.assertTrue(Double.isNaN(((Point)test3).getZ()));
 
             Geometry test4 = mapper.fromJson(testString4, Point.class);
             Assert.assertEquals(LAMBERT72, test4.getSRID());
-            Coordinate c4 = test4.getCoordinate();
-            Assert.assertEquals(100.0, c4.x, ACCURACY);
-            Assert.assertEquals(0.0, c4.y, ACCURACY);
-            Assert.assertEquals(50.0, c4.z, ACCURACY);             
+            Assert.assertEquals(100.0, ((Point)test4).getX(), ACCURACY);
+            Assert.assertEquals(0.0, ((Point)test4).getY(), ACCURACY);
+            Assert.assertEquals(50.0, ((Point)test4).getZ(), ACCURACY);
 
         } catch (JsonException e) {
             Assert.fail("No exception should be thrown");
@@ -205,19 +194,19 @@ public class JsonDeserializationTest {
         {
             LineString ls = mapper.fromJson(validLinestring, LineString.class);
             Assert.assertEquals(WGS84, ls.getSRID());
-            Coordinate[] c = ls.getCoordinates();
-            Assert.assertEquals(100.0, c[0].x, ACCURACY);
-            Assert.assertEquals(0.0, c[0].y, ACCURACY);
-            Assert.assertEquals(101.0, c[1].x, ACCURACY);
-            Assert.assertEquals(1.0, c[1].y, ACCURACY);
+            PointSequence pnts = ls.getPoints();
+            Assert.assertEquals(100.0, pnts.getCoordinate(0, CoordinateComponent.X), ACCURACY);
+            Assert.assertEquals(0.0, pnts.getCoordinate(0, CoordinateComponent.Y), ACCURACY);
+            Assert.assertEquals(101.0, pnts.getCoordinate(1, CoordinateComponent.X), ACCURACY);
+            Assert.assertEquals(1.0, pnts.getCoordinate(1, CoordinateComponent.Y), ACCURACY);
 
             ls = mapper.fromJson(validLineStringLambert, LineString.class);
             Assert.assertEquals(LAMBERT72, ls.getSRID());
-            c = ls.getCoordinates();
-            Assert.assertEquals(100.0, c[0].x, ACCURACY);
-            Assert.assertEquals(0.0, c[0].y, ACCURACY);
-            Assert.assertEquals(101.0, c[1].x, ACCURACY);
-            Assert.assertEquals(1.0, c[1].y, ACCURACY);
+            pnts = ls.getPoints();
+            Assert.assertEquals(100.0,pnts.getCoordinate(0, CoordinateComponent.X), ACCURACY);
+            Assert.assertEquals(0.0,pnts.getCoordinate(0, CoordinateComponent.Y), ACCURACY);
+            Assert.assertEquals(101.0, pnts.getCoordinate(1, CoordinateComponent.X), ACCURACY);
+            Assert.assertEquals(1.0, pnts.getCoordinate(1, CoordinateComponent.Y), ACCURACY);
         } catch (JsonException ex)
         {
             Assert.fail("No exception expected for a valid LineString json.");
@@ -307,23 +296,23 @@ public class JsonDeserializationTest {
             Assert.assertEquals(0, p.getNumInteriorRing());
             LineString ls = p.getExteriorRing();
             Assert.assertEquals(WGS84, ls.getSRID());
-            Coordinate[] coords = ls.getCoordinates();
-            Assert.assertEquals(5, coords.length);
-            Assert.assertEquals(coords[0], coords[4]);
+            PointSequence coords = ls.getPoints();
+            Assert.assertEquals(5, coords.size());
+            Assert.assertEquals(ls.getPointN(0), ls.getPointN(4));
 
             p = mapper.fromJson(withHolesInLambert, Polygon.class);
             Assert.assertEquals(LAMBERT72, p.getSRID());
             Assert.assertEquals(1, p.getNumInteriorRing());
             ls = p.getExteriorRing();
             Assert.assertEquals(LAMBERT72, ls.getSRID());
-            coords = ls.getCoordinates();
-            Assert.assertEquals(5, coords.length);
-            Assert.assertEquals(coords[0], coords[4]);
+            coords = ls.getPoints();
+            Assert.assertEquals(5, coords.size());
+            Assert.assertEquals(ls.getPointN(0), ls.getPointN(4));
             ls = p.getInteriorRingN(0);
             Assert.assertEquals(LAMBERT72, ls.getSRID());
-            coords = ls.getCoordinates();
-            Assert.assertEquals(5, coords.length);
-            Assert.assertEquals(coords[0], coords[4]);
+            coords = ls.getPoints();
+            Assert.assertEquals(5, coords.size());
+            Assert.assertEquals(ls.getPointN(0), ls.getPointN(4));
 
         }catch(JsonException je)
         {
@@ -401,10 +390,10 @@ public class JsonDeserializationTest {
             Assert.assertEquals(LAMBERT72, mp.getGeometryN(1).getSRID());
             Assert.assertTrue(mp.getGeometryN(0) instanceof Point);
             Assert.assertTrue(mp.getGeometryN(1) instanceof Point);
-            Assert.assertEquals(100.0, mp.getGeometryN(0).getCoordinate().x, ACCURACY);
-            Assert.assertEquals(101.0, mp.getGeometryN(1).getCoordinate().x, ACCURACY);
-            Assert.assertEquals(0.0, mp.getGeometryN(0).getCoordinate().y, ACCURACY);
-            Assert.assertEquals(1.0, mp.getGeometryN(1).getCoordinate().y, ACCURACY);             
+            Assert.assertEquals(100.0, mp.getGeometryN(0).getPointN(0).getX(), ACCURACY);
+            Assert.assertEquals(101.0, mp.getGeometryN(1).getPointN(0).getX(), ACCURACY);
+            Assert.assertEquals(0.0, mp.getGeometryN(0).getPointN(0).getY(), ACCURACY);
+            Assert.assertEquals(1.0, mp.getGeometryN(1).getPointN(0).getY(), ACCURACY);
         }
         catch (JsonException ex)
         {
@@ -482,18 +471,18 @@ public class JsonDeserializationTest {
             Geometry second = result.getGeometryN(1);
             Assert.assertTrue(first instanceof LineString);
             Assert.assertTrue(second instanceof LineString);
-            Coordinate[] firstCoords = first.getCoordinates();
-            Coordinate[] secondCoords = second.getCoordinates();
-            Assert.assertEquals(2, firstCoords.length);
-            Assert.assertEquals(100.0,firstCoords[0].x, ACCURACY);
-            Assert.assertEquals(101.0,firstCoords[1].x, ACCURACY);
-            Assert.assertEquals(0.0,firstCoords[0].y, ACCURACY);
-            Assert.assertEquals(1.0,firstCoords[1].y, ACCURACY);             
-            Assert.assertEquals(2, secondCoords.length);
-            Assert.assertEquals(102.0,secondCoords[0].x, ACCURACY);
-            Assert.assertEquals(103.0,secondCoords[1].x, ACCURACY);
-            Assert.assertEquals(2.0,secondCoords[0].y, ACCURACY);
-            Assert.assertEquals(3.0,secondCoords[1].y, ACCURACY);
+            PointSequence firstCoords = first.getPoints();
+            PointSequence secondCoords = second.getPoints();
+            Assert.assertEquals(2, firstCoords.size());
+            Assert.assertEquals(100.0,firstCoords.getCoordinate(0, CoordinateComponent.X), ACCURACY);
+            Assert.assertEquals(101.0,firstCoords.getCoordinate(1, CoordinateComponent.X), ACCURACY);
+            Assert.assertEquals(0.0,firstCoords.getCoordinate(0, CoordinateComponent.Y), ACCURACY);
+            Assert.assertEquals(1.0,firstCoords.getCoordinate(1, CoordinateComponent.Y), ACCURACY);
+            Assert.assertEquals(2, secondCoords.size());
+            Assert.assertEquals(102.0,secondCoords.getCoordinate(0, CoordinateComponent.X), ACCURACY);
+            Assert.assertEquals(103.0,secondCoords.getCoordinate(1, CoordinateComponent.X), ACCURACY);
+            Assert.assertEquals(2.0,secondCoords.getCoordinate(0, CoordinateComponent.Y), ACCURACY);
+            Assert.assertEquals(3.0,secondCoords.getCoordinate(1, CoordinateComponent.Y), ACCURACY);
         } catch (JsonException e) {
             Assert.fail("No exception should be thrown deserializing a valid multilinestring");
         }
@@ -574,24 +563,21 @@ public class JsonDeserializationTest {
             Assert.assertEquals(0, polygon.getNumInteriorRing());
             LineString ls = polygon.getExteriorRing();
             Assert.assertEquals(LAMBERT72, ls.getSRID());
-            Coordinate[] coords = ls.getCoordinates();
-            Assert.assertEquals(5, coords.length);
-            Assert.assertEquals(coords[0], coords[4]);
+            PointSequence coords = ls.getPoints();
+            Assert.assertEquals(5, coords.size());
+            Assert.assertEquals(ls.getPointN(0), ls.getPointN(4));
 
             polygon = (Polygon) second;
             Assert.assertEquals(LAMBERT72, polygon.getSRID());
             Assert.assertEquals(1, polygon.getNumInteriorRing());
             ls = polygon.getExteriorRing();
             Assert.assertEquals(LAMBERT72, ls.getSRID());
-            coords = ls.getCoordinates();
-            Assert.assertEquals(5, coords.length);
-            Assert.assertEquals(coords[0], coords[4]);
+            Assert.assertEquals(5, ls.getNumPoints());
+            Assert.assertEquals(ls.getPointN(0),ls.getPointN(4));
             ls = polygon.getInteriorRingN(0);
             Assert.assertEquals(LAMBERT72, ls.getSRID());
-            coords = ls.getCoordinates();
-            Assert.assertEquals(5, coords.length);
-            Assert.assertEquals(coords[0], coords[4]);
-
+            Assert.assertEquals(5, ls.getNumPoints());
+            Assert.assertEquals(ls.getPointN(0),ls.getPointN(4));
         } catch (JsonException e) {
             Assert.fail("No exception should be thrown for a valid multipolygon.");
         }
@@ -634,6 +620,7 @@ public class JsonDeserializationTest {
         for (String s : invalidTestStrings) {
             try {
                 MultiPolygon test = mapper.fromJson(s, MultiPolygon.class);
+                assertTrue(JTS.to(test).isValid());
                 Assert.fail("Following json is invalid for a MultiPolygon and should not parse: " + s);
             } catch (JsonException e) {
                 count++;
@@ -675,7 +662,7 @@ public class JsonDeserializationTest {
             Assert.assertEquals(LAMBERT72, geomCol.getSRID());
             Assert.assertEquals(2, geomCol.getNumGeometries());
             Assert.assertTrue(geomCol.getGeometryN(0) instanceof GeometryCollection);
-            Assert.assertEquals(2, geomCol.getGeometryN(0).getNumGeometries());            
+            Assert.assertEquals(2, ((GeometryCollection)geomCol.getGeometryN(0)).getNumGeometries());
             Assert.assertTrue(geomCol.getGeometryN(1) instanceof LineString);
         } catch (JsonException e) {
             Assert.fail("No exception expected for a valid geometrycollection specification.");

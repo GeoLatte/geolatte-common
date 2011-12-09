@@ -21,8 +21,8 @@
 
 package org.geolatte.common.expressions.geo;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTReader;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.codec.Wkt;
 import org.geolatte.testobjects.FilterableObject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +38,6 @@ import org.junit.Test;
  */
 public class GeometryPropertyTest {
     FilterableObject filterableObject = new FilterableObject();
-    private WKTReader wktReader = new WKTReader();
 
     @Test
     public void testGetPropertyName() throws Exception {
@@ -53,7 +52,7 @@ public class GeometryPropertyTest {
 
         GeometryProperty prop = new GeometryProperty(FilterableObject.Properties.aGeometry.toString());
 
-        Geometry geometry = wktReader.read("POINT (5 10)");
+        Geometry geometry = Wkt.fromWkt("POINT (5 10)");
 
         filterableObject.setaGeometry(geometry);
 

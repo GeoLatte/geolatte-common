@@ -21,10 +21,10 @@
 
 package org.geolatte.common.expressions.geo;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.geolatte.common.expressions.PropertyExpression;
 import org.geolatte.common.reflection.EntityClassReader;
 import org.geolatte.common.reflection.InvalidObjectReaderException;
+import org.geolatte.geom.Geometry;
 
 /**
  * No comment provided yet for this class.
@@ -63,10 +63,11 @@ public class GeometryProperty extends GeometryExpression implements PropertyExpr
     /**
      * Evaluates the given object against this expression.
      *
+     *
      * @param o The object to evaluate.
      * @return True if the given object matches this expression, false otherwise.
      */
-    public Geometry evaluate(Object o) {
+    public org.geolatte.geom.Geometry evaluate(Object o) {
 
         EntityClassReader classReader = EntityClassReader.getClassReaderFor(o.getClass(), null, "id");
         Object result = null;

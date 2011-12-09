@@ -21,8 +21,7 @@
 
 package org.geolatte.common.geo;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
+import org.geolatte.geom.Envelope;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,8 +64,8 @@ public class EnvelopeConverterTest {
             Envelope en = ec.convert("10.0,11.0,15.3,18,25,25");
             Assert.assertEquals(10, en.getMinX(), 0.001);
             Assert.assertEquals(11, en.getMinY(), 0.001);
-            Assert.assertEquals(15.3, en.getMaxX(), 0.001);
-            Assert.assertEquals(18, en.getMaxY(), 0.001);
+            Assert.assertEquals(25, en.getMaxX(), 0.001);
+            Assert.assertEquals(25, en.getMaxY(), 0.001);
         } catch (TypeConversionException e) {
             Assert.fail("No exception should be thrown here!");
         }
@@ -87,11 +86,8 @@ public class EnvelopeConverterTest {
     @Test
     public void testCreateEnvelope()
     {
-        Coordinate first = new Coordinate(10.0,11.0,12.0);
-        Coordinate second = new Coordinate(5.0,28.0,42.0);
-        Coordinate third = new Coordinate(30,30,30);
         try {
-            Envelope en = ec.createEnvelope(new Coordinate[]{first, second});
+            Envelope en = ec.createEnvelope(new double[]{10.0,11.0, 5.0, 28.0});
             Assert.assertEquals(5, en.getMinX(), 0.001);
             Assert.assertEquals(11, en.getMinY(), 0.001);
             Assert.assertEquals(10, en.getMaxX(), 0.001);
@@ -99,17 +95,17 @@ public class EnvelopeConverterTest {
         } catch (TypeConversionException e) {
             Assert.fail("No exception expected");
         }
+//        try {
+//            Envelope en = ec.createEnvelope(new Coordinate[]{first, second,third});
+//            Assert.assertEquals(5, en.getMinX(), 0.001);
+//            Assert.assertEquals(11, en.getMinY(), 0.001);
+//            Assert.assertEquals(10, en.getMaxX(), 0.001);
+//            Assert.assertEquals(28, en.getMaxY(), 0.001);
+//        } catch (TypeConversionException e) {
+//            Assert.fail("No exception expected");
+//        }
         try {
-            Envelope en = ec.createEnvelope(new Coordinate[]{first, second,third});
-            Assert.assertEquals(5, en.getMinX(), 0.001);
-            Assert.assertEquals(11, en.getMinY(), 0.001);
-            Assert.assertEquals(10, en.getMaxX(), 0.001);
-            Assert.assertEquals(28, en.getMaxY(), 0.001);
-        } catch (TypeConversionException e) {
-            Assert.fail("No exception expected");
-        }
-        try {
-            Envelope en = ec.createEnvelope(new Coordinate[]{first});
+            Envelope en = ec.createEnvelope(new double[]{10.0, 11.0});
             Assert.fail("Exception should have been thrown");
         } catch (TypeConversionException e) {
             // Ok!
@@ -120,14 +116,14 @@ public class EnvelopeConverterTest {
     public void testGetCoordinate()
     {
         try {
-            Coordinate[] list = ec.getCoordinates("10.0,11.0,15.3,18,25,25,13.3");
-            Assert.assertEquals(3, list.length);
-            Assert.assertEquals(10.0,list[0].x,0.001);
-            Assert.assertEquals(11.0,list[0].y,0.001);
-            Assert.assertEquals(15.3,list[1].x,0.001);
-            Assert.assertEquals(18,list[1].y,0.001);
-            Assert.assertEquals(25,list[2].x,0.001);
-            Assert.assertEquals(25,list[2].y,0.001);
+            double[] list = ec.getCoordinates("10.0,11.0,15.3,18,25,25,13.3");
+            Assert.assertEquals(6, list.length);
+            Assert.assertEquals(10.0,list[0],0.001);
+            Assert.assertEquals(11.0,list[1],0.001);
+            Assert.assertEquals(15.3,list[2],0.001);
+            Assert.assertEquals(18,list[3],0.001);
+            Assert.assertEquals(25,list[4],0.001);
+            Assert.assertEquals(25,list[5],0.001);
         } catch (TypeConversionException e) {
             Assert.fail("No exception expected");
         }

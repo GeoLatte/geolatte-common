@@ -21,8 +21,9 @@
 
 package org.geolatte.testobjects;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTReader;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.codec.Wkt;
+import org.geolatte.geom.codec.WktParseException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -47,8 +48,6 @@ import java.util.Date;
 public class FilterableObject {
 
     private int id;
-
-    private WKTReader wktReader = new WKTReader();
 
     public enum Properties {
         anInteger,
@@ -157,10 +156,9 @@ public class FilterableObject {
 
                 Geometry geometry = null;
                 try {
-                    geometry = wktReader.read(propertyValue.toString());
+                    geometry = Wkt.fromWkt(propertyValue.toString());
                 }
-                catch (com.vividsolutions.jts.io.ParseException e) {
-
+                catch (WktParseException e) {
                     System.err.println(e.getMessage());
                 }
                 setaGeometry(geometry);

@@ -21,8 +21,8 @@
 
 package org.geolatte.common.geo;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
+
+import org.geolatte.geom.Envelope;
 
 /**
  * Class that converts a series of (bbox)-coordinates in a string into an Envelope. The class also offers some 
@@ -52,26 +52,38 @@ public class EnvelopeConverter implements TypeConverter<Envelope>{
      */
     public Envelope convert(String inputString)
             throws TypeConversionException {
-        Coordinate[] coordinates = getCoordinates(inputString);
+        double[] coordinates = getCoordinates(inputString);
         return createEnvelope(coordinates);
     }
 
     /**
      * Creates an envelope based on a list of coordinates. If less than two coordinates are in the list,
-     * a typeconversion exception is thrown. If more than two coordinates are in the list, only the first two
-     * are considered and the rest is ignored
+     * a typeconversion exception is thrown. If more than two coordinates are in the list, the minimum X- and
+     * Y-coordinates are searched.
+     *
      * @param coordinates A list with the coordinates of the envelope
      * @return An envelope with the given coordinates
      * @throws TypeConversionException If the creation of the envelope failed
      */
-    public Envelope createEnvelope(Coordinate[] coordinates)
+    public Envelope createEnvelope(double[] coordinates)
             throws TypeConversionException {
-        if (coordinates.length < 2) {
+        if (coordinates.length < 4) {
             throw new TypeConversionException("Not enough coordinates in inputstring");
         } else {
-            Envelope envelope = new Envelope(coordinates[0]);
-            envelope.expandToInclude(coordinates[1]);
-            return envelope;
+            double minX = Double.MAX_VALUE;
+            double minY = Double.MAX_VALUE;
+            double maxX = Double.MIN_VALUE;
+            double maxY = Double.MIN_VALUE;
+            for (int i = 0 ; i < coordinates.length; i++){
+                if (i % 2 == 0) {
+                    if (coordinates[i] < minX) minX = coordinates[i];
+                    if (coordinates[i] > maxX) maxX = coordinates[i];
+                } else {
+                    if (coordinates[i] < minY) minY = coordinates[i];
+                    if (coordinates[i] > maxY) maxY = coordinates[i];
+                }
+            }
+            return new Envelope(minX, minY, maxX, maxY);
         }
     }
 
@@ -83,14 +95,20 @@ public class EnvelopeConverter implements TypeConverter<Envelope>{
      * @return A list of coordinates
      * @throws TypeConversionException If the conversion failed
      */
-    public Coordinate[] getCoordinates(String inputString)
+    public double[] getCoordinates(String inputString)
             throws TypeConversionException {
         String[] cstr = inputString.split(",");
-        Coordinate[] coordinates = new Coordinate[cstr.length/2];
+        int coordLength;
+        if (cstr.length % 2 == 0) {
+            coordLength = cstr.length;
+        } else {
+            coordLength = cstr.length -1;
+        }
+
+        double[] coordinates = new double[coordLength];
         try {
-            for (int index = 0; index < cstr.length / 2; index++) {
-                coordinates[index] =
-                        new Coordinate(Double.parseDouble(cstr[2 * index]), Double.parseDouble(cstr[2 * index + 1]));
+            for (int index = 0; index < coordLength; index++) {
+                coordinates[index] = Double.parseDouble(cstr[index]);
             }
             return coordinates;
         } catch (NumberFormatException e) {

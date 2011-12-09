@@ -21,12 +21,9 @@
 
 package org.geolatte.common.reflection;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import org.geolatte.common.Feature;
+import org.geolatte.geom.*;
+import org.geolatte.geom.crs.CrsId;
 import org.geolatte.testobjects.TestFeature;
 import org.geolatte.testobjects.TestFeatureDoubleShape;
 import org.geolatte.testobjects.TestFeatureNoShape;
@@ -57,8 +54,8 @@ public class EntityClassReaderTest {
 
     @Before
     public void setUp() {
-        LineString shape = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(5.0, 6.0),
-                new Coordinate(6.0, 7.0), new Coordinate(7.0, 8.0)}), new GeometryFactory());
+        PointSequence pnts = PointSequenceFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
+        LineString shape = LineString.create(pnts, CrsId.UNDEFINED);
         testFeature = new TestFeature("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, shape, 5, "sub", "subsub");
         reader = EntityClassReader.getClassReaderFor(testFeature.getClass());
     }
@@ -242,10 +239,10 @@ public class EntityClassReaderTest {
 
     @Test
     public void NoShapeDoubleShapeTest() {
-        LineString shape2 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(8.0, 9.0),
-                new Coordinate(9.0, 10.0), new Coordinate(10.0, 11.0)}), new GeometryFactory());
-        LineString shape = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(5.0, 6.0),
-                new Coordinate(6.0, 7.0), new Coordinate(7.0, 8.0)}), new GeometryFactory());
+        PointSequence points = PointSequenceFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.XY);
+        LineString shape2 = LineString.create(points, CrsId.UNDEFINED);
+        points = PointSequenceFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
+        LineString shape = LineString.create(points, CrsId.UNDEFINED);
         Object noShape = new TestFeatureNoShape("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, 5, "sub", "subsub");
         Object doubleShape = new TestFeatureDoubleShape("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, shape, 5, shape2, "sub");
         reader = EntityClassReader.getClassReaderFor(noShape.getClass());

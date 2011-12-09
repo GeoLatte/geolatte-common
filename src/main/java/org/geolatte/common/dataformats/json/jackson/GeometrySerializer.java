@@ -21,11 +21,11 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
+import org.geolatte.geom.Geometry;
 
 import java.io.IOException;
 
