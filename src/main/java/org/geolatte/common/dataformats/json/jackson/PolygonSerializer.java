@@ -21,12 +21,12 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
+import org.geolatte.geom.LineString;
+import org.geolatte.geom.Point;
+import org.geolatte.geom.Polygon;
 
 import java.io.IOException;
 
@@ -61,10 +61,10 @@ public class PolygonSerializer extends GeometrySerializer<Polygon> {
         LineString exterior = value.getExteriorRing();
          jgen.writeStartArray();
 	        for (int j = 0; j < exterior.getNumPoints(); j++) {
-	            Coordinate coordinate = exterior.getPointN(j).getCoordinate();
+	            Point point = exterior.getPointN(j);
 	            jgen.writeStartArray();
-				ser.serialize(  coordinate.x, jgen, provider);
-				ser.serialize(  coordinate.y, jgen, provider);
+				ser.serialize(  point.getX(), jgen, provider);
+				ser.serialize(  point.getY(), jgen, provider);
 				jgen.writeEndArray();
 	        }
 			jgen.writeEndArray();
@@ -73,10 +73,10 @@ public class PolygonSerializer extends GeometrySerializer<Polygon> {
             LineString ml = value.getInteriorRingN(i);
             jgen.writeStartArray();
 	        for (int j = 0; j < ml.getNumPoints(); j++) {
-	            Coordinate coordinate = ml.getPointN(j).getCoordinate();
+	            Point point = ml.getPointN(j);
 	            jgen.writeStartArray();
-				ser.serialize(  coordinate.x, jgen, provider);
-				ser.serialize(  coordinate.y, jgen, provider);
+				ser.serialize(  point.getX(), jgen, provider);
+				ser.serialize(  point.getY(), jgen, provider);
 				jgen.writeEndArray();
 	        }
 			jgen.writeEndArray();
@@ -92,11 +92,11 @@ public class PolygonSerializer extends GeometrySerializer<Polygon> {
         // minX, minY, maxX, maxY
         double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
         for (int j = 0; j < exterior.getNumPoints(); j++) {
-                Coordinate coordinate = exterior.getPointN(j).getCoordinate();
-                result[0] = Math.min(coordinate.x, result[0]);
-                result[1] = Math.min(coordinate.y, result[1]);
-                result[2] = Math.max(coordinate.x, result[2]);
-                result[3] = Math.max(coordinate.y, result[3]);
+                Point point = exterior.getPointN(j);
+                result[0] = Math.min(point.getX(), result[0]);
+                result[1] = Math.min(point.getY(), result[1]);
+                result[2] = Math.max(point.getX(), result[2]);
+                result[3] = Math.max(point.getY(), result[3]);
             }
         return result;
     }

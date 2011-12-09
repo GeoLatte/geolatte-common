@@ -21,7 +21,7 @@
 
 package org.geolatte.common;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.geolatte.geom.Geometry;
 
 import java.util.Collection;
 

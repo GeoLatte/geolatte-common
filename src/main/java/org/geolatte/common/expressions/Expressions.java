@@ -21,10 +21,10 @@
 
 package org.geolatte.common.expressions;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.geolatte.common.expressions.geo.GeoEquals;
 import org.geolatte.common.expressions.geo.GeometryConstant;
 import org.geolatte.common.expressions.geo.GeometryProperty;
+import org.geolatte.geom.Geometry;
 
 import java.util.Date;
 

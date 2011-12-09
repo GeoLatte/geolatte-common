@@ -21,8 +21,8 @@
 
 package org.geolatte.common.reflection;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.geolatte.common.Feature;
+import org.geolatte.geom.Geometry;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

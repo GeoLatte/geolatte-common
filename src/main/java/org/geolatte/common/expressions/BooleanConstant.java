@@ -48,7 +48,6 @@ public class BooleanConstant extends BooleanExpression implements ConstantExpres
     }
 
     public Boolean evaluate(Object o) {
-
         return bool;
     }
 }

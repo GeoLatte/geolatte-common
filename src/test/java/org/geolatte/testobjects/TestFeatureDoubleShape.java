@@ -21,7 +21,8 @@
 
 package org.geolatte.testobjects;
 
-import com.vividsolutions.jts.geom.Geometry;
+
+import org.geolatte.geom.Geometry;
 
 /**
  * No comment provided yet for this class.

@@ -47,13 +47,6 @@ public class FeatureCollectionDeserializer extends GeoJsonDeserializer<FeatureCo
         if ("FeatureCollection".equals(type)) {
             try {
                 List<Feature> features =  parent.collectionFromJson(getSubJson("features", "A geometry field is required for a Feature"), Feature.class);
-                if (srid !=null)
-                {
-                    for (Feature f: features)
-                    {
-                        f.getGeometry().setSRID(sridToUse);
-                    }
-                }
                 return new DefaultFeatureCollection(features);
             } catch (JsonException e) {
                 throw new IOException("Problem deserializing individual features in collection", e);

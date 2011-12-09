@@ -21,11 +21,12 @@
 
 package org.geolatte.common.dataformats.csv;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.geolatte.common.reflection.EntityClassReader;
 import org.geolatte.common.reflection.InvalidObjectReaderException;
 import org.geolatte.common.transformer.Transformation;
 import org.geolatte.common.transformer.TransformationException;
+import org.geolatte.geom.Geometry;
+
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -134,7 +135,7 @@ public class CsvSerializationTransformation<T> implements Transformation<T, Stri
                         sb.append(separator);
                     } else if (column.equalsIgnoreCase(reader.getGeometryName())) {
                         Geometry geom = reader.getGeometry(input);
-                        sb.append(geom == null ? "" : geom.toText());
+                        sb.append(geom == null ? "" : geom.asText());
                         sb.append(separator);
                     } else {
                         Object value = reader.getPropertyValue(input, column);
@@ -165,7 +166,7 @@ public class CsvSerializationTransformation<T> implements Transformation<T, Stri
                 }
                 if (reader.getGeometryName() != null) {
                     Geometry geom = reader.getGeometry(input);
-                    sb.append(geom == null ? "" : geom.toText());
+                    sb.append(geom == null ? "" : geom.asText());
                     sb.append(separator);
                 }
             }

@@ -13,15 +13,11 @@
  */
 
 package org.geolatte.common.dataformats.json.jackson;
-import com.vividsolutions.jts.geom.Geometry;
-import org.geolatte.common.Feature;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import org.geolatte.common.Feature;
+import org.geolatte.geom.Geometry;
+
+import java.util.*;
 
 /**
  * A default feature is a simple implementation of the {@link Feature} interface that does not use reflection.

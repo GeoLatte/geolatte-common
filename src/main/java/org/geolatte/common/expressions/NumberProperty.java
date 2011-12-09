@@ -54,6 +54,7 @@ public class NumberProperty extends NumberExpression implements PropertyExpressi
     /**
      * Evaluates the property with name propertyName on the given object.
      *
+     *
      * @param o The object to evaluate a property on.
      * @return The value of the property on the given object.
      */

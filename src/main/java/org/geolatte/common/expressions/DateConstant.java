@@ -49,7 +49,6 @@ public class DateConstant extends DateExpression implements ConstantExpression<D
     }
 
     public Date evaluate(Object o) {
-        
         return date;
     }
 }

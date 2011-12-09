@@ -21,8 +21,8 @@
 
 package org.geolatte.testobjects;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import org.geolatte.geom.*;
+import org.geolatte.geom.crs.CrsId;
 
 /**
  * Base feature
@@ -47,11 +47,8 @@ public class TestFeature extends TestFeatureNoShape {
      */
     public TestFeature() {
         super("Antwerpen", 50, new String[]{"Belgium", "Flanders"}, 125, "name", "subName");
-        shape = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(5.0, 6.0),
-                                                                            new Coordinate(6.0, 7.0),
-                                                                            new Coordinate(7.0, 8.0)}),
-                                                           new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING),
-                                                                               900913));
+        PointSequence pnts = PointSequenceFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
+        shape = LineString.create(pnts, CrsId.valueOf(900913));
     }
 
     public TestFeature(String name, int length, String[] ownerNames, Geometry shape, int idValue, String subObjectName, String subSubObjectName) {
