@@ -41,7 +41,7 @@ import java.util.HashMap;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class ObjectToFeatureTransformation implements Transformation<Object, Feature> {
+public class ObjectToFeatureTransformation<Source> implements Transformation<Source, Feature> {
 
     HashMap<Class, EntityClassReader> readers = new HashMap<Class, EntityClassReader>();
 
@@ -51,7 +51,7 @@ public class ObjectToFeatureTransformation implements Transformation<Object, Fea
      * @return a feature-wrapper around the given object
      * @throws TransformationException if the object can not be completed
      */
-    public Feature transform(Object input) throws TransformationException {
+    public Feature transform(Source input) throws TransformationException {
         if (input == null) {
             return null;
         } else {

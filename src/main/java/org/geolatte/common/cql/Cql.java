@@ -47,7 +47,7 @@ import java.text.ParseException;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class CQL {
+public class Cql {
 
      /**
       * Creates an executable object filter based on the given CQL expression.

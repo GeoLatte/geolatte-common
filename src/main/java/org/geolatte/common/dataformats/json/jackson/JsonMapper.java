@@ -14,7 +14,7 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.*;
+
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.*;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
@@ -24,6 +24,7 @@ import org.codehaus.jackson.map.ser.CustomSerializerFactory;
 import org.codehaus.jackson.type.TypeReference;
 import org.geolatte.common.Feature;
 import org.geolatte.common.FeatureCollection;
+import org.geolatte.geom.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -50,6 +51,7 @@ public class JsonMapper {
     private CustomSerializerFactory serializerFactory;
     private CustomDeserializerFactory deserializerFactory;
     private int depth;
+    private boolean insideGeometryCollection;
     private boolean serializeNullValues;
     private boolean ignoreUnknownProperties;
 
@@ -250,6 +252,22 @@ public class JsonMapper {
 
     void decreaseDepth() {
         depth--;
+    }
+
+    /**
+     * Indicates whether a subgeometry is being mapped (used to know whether the CRS property needs to be generated)
+     * @return
+     */
+    boolean insideGeometryCollection() {
+        return insideGeometryCollection;
+    }
+
+    void moveInsideGeometryCollection() {
+        this.insideGeometryCollection = true;
+    }
+
+    void moveOutsideGeometryCollection() {
+        this.insideGeometryCollection = false;
     }
 
     /**

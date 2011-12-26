@@ -39,7 +39,7 @@ import java.text.ParseException;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class CQLFilterTransformation<T> implements Transformation<T, Boolean> {
+public class CqlFilterTransformation<T> implements Transformation<T, Boolean> {
 
     private CqlFilter cqlFilter;
 
@@ -48,9 +48,9 @@ public class CQLFilterTransformation<T> implements Transformation<T, Boolean> {
      * @param cqlExpression The cql expression
      * @throws java.text.ParseException When the given cqlExpression could not be parsed.
      */
-    public CQLFilterTransformation(String cqlExpression) throws ParseException {
+    public CqlFilterTransformation(String cqlExpression) throws ParseException {
 
-        cqlFilter = CQL.toFilter(cqlExpression);
+        cqlFilter = Cql.toFilter(cqlExpression);
     }
 
     /**

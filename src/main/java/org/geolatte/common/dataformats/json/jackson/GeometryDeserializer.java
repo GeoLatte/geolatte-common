@@ -14,21 +14,10 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
-import org.codehaus.jackson.JsonParser;
 
+import org.codehaus.jackson.JsonParser;
+import org.geolatte.geom.*;
+import org.geolatte.geom.crs.CrsId;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,8 +36,6 @@ import java.util.List;
  */
 public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserializer<T> {
 
-    private GeometryFactory geomFact;
-
     public GeometryDeserializer(JsonMapper owner, Class<T> clazz) {
         super(owner, clazz);
     }
@@ -57,13 +44,13 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
     @SuppressWarnings({"unchecked"})
     protected T deserialize(JsonParser jsonParser) throws IOException {
         String type = getStringParam("type", "Invalid GeoJSON, type property required.");
+        //TODO -- spec also states that if CRS element is null, no CRS should be assumed.
         // Default srd = WGS84 according to the GeoJSON specification
         Integer srid = getSrid();
         int sridValue = srid == null ? DEFAULT_SRID : srid;
-
-        geomFact = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), sridValue);
+        CrsId crsId = CrsId.valueOf(sridValue);
         if ("GeometryCollection".equals(type)) {
-            GeometryCollection result = asGeomCollection();
+            GeometryCollection result = asGeomCollection(crsId);
             if (getDeserializerClass().isAssignableFrom(GeometryCollection.class)) {
                 return (T) result;
             } else {
@@ -76,7 +63,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
             // he needs.
             try {
                 if ("Point".equals(type)) {
-                    Point p = asPoint(coordinates);
+                    Point p = asPoint(coordinates, crsId);
                     if (getDeserializerClass().isAssignableFrom(Point.class)) {
                         return (T) p;
                     } else {
@@ -84,7 +71,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                                 "the expected outputtype of the deserializer (" + getDeserializerClass().getSimpleName() + ")");
                     }
                 } else if ("MultiPoint".equals(type)) {
-                    MultiPoint result = asMultiPoint(coordinates);
+                    MultiPoint result = asMultiPoint(coordinates, crsId);
                     if (getDeserializerClass().isAssignableFrom(MultiPoint.class)) {
                         return (T) result;
                     } else {
@@ -92,7 +79,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                                 "the expected outputtype of the deserializer (" + getDeserializerClass().getSimpleName() + ")");
                     }
                 } else if ("LineString".equals(type)) {
-                    LineString result = asLineString(coordinates);
+                    LineString result = asLineString(coordinates, crsId);
                     if (getDeserializerClass().isAssignableFrom(LineString.class)) {
                         return (T) result;
                     } else {
@@ -101,7 +88,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
 
                     }
                 } else if ("MultiLineString".equals(type)) {
-                    MultiLineString result = asMultiLineString(coordinates);
+                    MultiLineString result = asMultiLineString(coordinates, crsId);
                     if (getDeserializerClass().isAssignableFrom(MultiLineString.class)) {
                         return (T) result;
                     } else {
@@ -110,7 +97,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
 
                     }
                 } else if ("Polygon".equals(type)) {
-                    Polygon result = asPolygon(coordinates);
+                    Polygon result = asPolygon(coordinates, crsId);
                     if (getDeserializerClass().isAssignableFrom(Polygon.class)) {
                         return (T) result;
                     } else {
@@ -119,7 +106,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
 
                     }
                 } else if ("MultiPolygon".equals(type)) {
-                    MultiPolygon result = asMultiPolygon(coordinates);
+                    MultiPolygon result = asMultiPolygon(coordinates, crsId);
                     if (getDeserializerClass().isAssignableFrom(MultiPolygon.class)) {
                         return (T) result;
                     } else {
@@ -145,8 +132,9 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
      *
      * @return an instance of a geometrycollection
      * @throws IOException if the given json does not correspond to a geometrycollection or can be parsed as such
+     * @param crsId
      */
-    private GeometryCollection asGeomCollection() throws IOException {
+    private GeometryCollection asGeomCollection(CrsId crsId) throws IOException {
         try {
             String subJson = getSubJson("geometries", "A geometrycollection requires a geometries parameter").replaceAll(" ", "");
             String noSpaces = subJson.replace(" ", "");
@@ -155,7 +143,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                 throw new IOException("Specification of the crs information is forbidden in child elements. Either leave it out, or specify it at the toplevel object.");
             }
             List<Geometry> geometries = parent.collectionFromJson(subJson, Geometry.class);
-            return new GeometryCollection(geometries.toArray(new Geometry[geometries.size()]), geomFact);
+            return GeometryCollection.create(geometries.toArray(new Geometry[geometries.size()]), crsId);
 
         } catch (JsonException e) {
             throw new IOException(e);
@@ -166,61 +154,64 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
     /**
      * Parses the JSON as a MultiPolygon geometry
      *
+     *
      * @param coords the coordinates of a multipolygon which is just a list of coordinates of polygons.
+     * @param crsId
      * @return an instance of multipolygon
      * @throws IOException if the given json does not correspond to a multipolygon or can be parsed as such
      */
-    private MultiPolygon asMultiPolygon(List<List<List<List>>> coords) throws IOException {
+    private MultiPolygon asMultiPolygon(List<List<List<List>>> coords, CrsId crsId) throws IOException {
         if (coords == null || coords.isEmpty()) {
             throw new IOException("A multipolygon should have at least one polyon.");
         }
         Polygon[] polygons = new Polygon[coords.size()];
         for (int i = 0; i < coords.size(); i++) {
-            polygons[i] = asPolygon(coords.get(i));
+            polygons[i] = asPolygon(coords.get(i), crsId);
         }
-        return new MultiPolygon(polygons, geomFact);
+        return MultiPolygon.create(polygons, crsId);
     }
 
     /**
      * Parses the JSON as a MultiLineString geometry
      *
+     *
      * @param coords the coordinates of a multlinestring (which is a list of coordinates of linestrings)
+     * @param crsId
      * @return an instance of multilinestring
      * @throws IOException if the given json does not correspond to a multilinestring or can be parsed as such
      */
-    private MultiLineString asMultiLineString(List<List<List>> coords) throws IOException {
+    private MultiLineString asMultiLineString(List<List<List>> coords, CrsId crsId) throws IOException {
         if (coords == null || coords.isEmpty()) {
             throw new IOException("A multilinestring requires at least one line string");
         }
         LineString[] lineStrings = new LineString[coords.size()];
         for (int i = 0; i < lineStrings.length; i++) {
-            lineStrings[i] = asLineString(coords.get(i));
+            lineStrings[i] = asLineString(coords.get(i), crsId);
         }
-        return new MultiLineString(lineStrings, geomFact);
+        return MultiLineString.create(lineStrings, crsId);
     }
 
     /**
      * Parses the JSON as a polygon geometry
      *
+     *
      * @param coords the coordinate array corresponding with the polygon (a list containing rings, each of which
      *               contains a list of coordinates (which in turn are lists of numbers)).
+     * @param crsId
      * @return An instance of polygon
      * @throws IOException if the given json does not correspond to a polygon or can be parsed as such.
      */
-    private Polygon asPolygon(List<List<List>> coords) throws IOException {
+    private Polygon asPolygon(List<List<List>> coords, CrsId crsId) throws IOException {
         if (coords == null || coords.isEmpty()) {
             throw new IOException("A polygon requires the specification of its outer ring");
         }
         List<LinearRing> rings = new ArrayList<LinearRing>();
         try { 
         for (List<List> ring : coords) {
-            Coordinate[] ringCoords = getCoordArray(ring);
-            rings.add(new LinearRing(new CoordinateArraySequence(ringCoords), geomFact));
+            PointSequence ringCoords = getPointSequence(ring);
+            rings.add(LinearRing.create(ringCoords, crsId));
         }
-        LinearRing[] holes = rings.size() > 1 ? rings.subList(1, rings.size()).toArray(new LinearRing[rings.size() - 1]) :
-                new LinearRing[0];
-
-            return new Polygon(rings.get(0), holes, geomFact);
+            return Polygon.create(rings.toArray(new LinearRing[]{}), crsId);
         } catch (IllegalArgumentException e) {
             throw new IOException("Invalid Polygon: " + e.getMessage(), e);
         }
@@ -230,15 +221,17 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
     /**
      * Parses the JSON as a point geometry.
      *
+     *
      * @param coords the coordinates (a list with an x and y value)
+     * @param crsId
      * @return An instance of point
      * @throws IOException if the given json does not correspond to a point or can not be parsed to a point.
      */
-    private Point asPoint(List coords) throws IOException {
+    private Point asPoint(List coords, CrsId crsId) throws IOException {
         if (coords != null && coords.size() >= 2) {
             ArrayList<List> coordinates = new ArrayList<List>();
             coordinates.add(coords);
-            return new Point(new CoordinateArraySequence(getCoordArray(coordinates)), geomFact);
+            return Point.create(getPointSequence(coordinates), crsId);
         } else {
             throw new IOException("A point must has exactly one coordinate (an x, a y and possibly a z value). Additional numbers in the coordinate are permitted but ignored.");
         }
@@ -247,39 +240,43 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
     /**
      * Parses the JSON as a linestring geometry
      *
+     *
      * @param coords The coordinates for the linestring, which is a list of coordinates (which in turn are lists of
      *               two values, x and y)
+     * @param crsId
      * @return An instance of linestring
      * @throws IOException if the given json does not correspond to a linestring or can be parsed as such.
      */
-    private LineString asLineString(List<List> coords) throws IOException {
+    private LineString asLineString(List<List> coords, CrsId crsId) throws IOException {
         if (coords == null || coords.size() < 2) {
             throw new IOException("A linestring requires a valid series of coordinates (at least two coordinates)");
         }
-        CoordinateArraySequence coordinates = new CoordinateArraySequence(getCoordArray(coords));
-        return new LineString(coordinates, geomFact);
+        PointSequence coordinates = getPointSequence(coords);
+        return LineString.create(coordinates, crsId);
     }
 
     /**
      * Parses the JSON as a linestring geometry
      *
+     *
      * @param coords A list of coordinates of points.
+     * @param crsId
      * @return An instance of linestring
      * @throws IOException if the given json does not correspond to a linestring or can be parsed as such.
      */
-    private MultiPoint asMultiPoint(List<List> coords) throws IOException {
+    private MultiPoint asMultiPoint(List<List> coords, CrsId crsId) throws IOException {
         if (coords == null || coords.isEmpty()) {
             throw new IOException("A multipoint contains at least one point");
         }
         Point[] points = new Point[coords.size()];
         for (int i = 0; i < coords.size(); i++) {
-            points[i] = asPoint(coords.get(i));
+            points[i] = asPoint(coords.get(i), crsId);
         }
-        return new MultiPoint(points, geomFact);
+        return MultiPoint.create(points, crsId);
     }
 
     /**
-     * This method takes in a list of lists and returns a coordinate array that correspond with that list.  The elements
+     * This method takes in a list of lists and returns a <code>PointSequence</code> that correspond with that list.  The elements
      * in the outer list are lists that contain numbers (either integers or doubles). Each of those lists must have
      * at least two values, which are interpreted as x and y. If a third value is present, it is interpreted as the z value.
      * If more than three values are present, they are ignored. This is consistent with the geojson specification that states:
@@ -291,14 +288,16 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
      *  elements is beyond the scope of this specification
      * </i>
      *
-     * @param entry a list of lists of numbers
-     * @return an array of coordinates
+     * @param entry a list of lists of numbers representing a list of points.
+     * @return an <code>PointSequence</code> containing the list of points.
      * @throws IOException if the conversion can not be executed (eg because one of the innerlists contains more or
      *                     less than two doubles.
      */
-    private Coordinate[] getCoordArray(List<List> entry) throws IOException {
+    private PointSequence getPointSequence(List<List> entry) throws IOException {
         {
-            Coordinate[] result = new Coordinate[entry.size()];
+            double[] coordinates2d = new double[entry.size()*2];
+            double[] zValues = new double[entry.size()];
+            boolean haszValues = false;
             for (int i = 0; i < entry.size(); i++) {
                 List current = entry.get(i);
                 if (current.size() < 2) {
@@ -320,14 +319,24 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                     // I don't see how this is possible....So you won't be able to unittest this case I think.
                     throw new IOException("Unexpected number format for coordinate?");
                 }
-                if (z == null) {
-                    result[i] = new Coordinate(x, y);
+                coordinates2d[2*i] = x;
+                coordinates2d[2*i+1] = y;
+                if (z != null) {
+                    zValues[i] = z;
+                    haszValues = true;
                 } else {
-                    result[i] = new Coordinate(x, y, z);
+                    zValues[i] = Double.NaN;
                 }
-
             }
-            return result;
+            if (haszValues) {
+                PointSequenceBuilder builder = PointSequenceBuilderFactory.newFixedSizePointSequenceBuilder(entry.size(), DimensionalFlag.XYZ);
+                for (int i = 0; i < entry.size(); i++){
+                    builder.add(coordinates2d[2*i], coordinates2d[2*i+1], zValues[i]);
+                }
+                return builder.toPointSequence();
+            }  else {
+                return PointSequenceFactory.create(coordinates2d, DimensionalFlag.XY);
+            }
         }
     }
 }

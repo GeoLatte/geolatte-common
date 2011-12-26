@@ -21,7 +21,11 @@
 
 package org.geolatte.common.transformer;
 /**
- * This interface is the basic representation of a transformation that takes a single input element and transforms it into a single output element.
+ * This interface is the basic representation of a 1-to-1 transformation that takes a single input element and
+ * transforms it into a single output element.
+ *
+ * Use {@link OneToManyTransformation} for a 1-to-many transformation
+ *
  * @param <Source> The input type of this Transformation.
  * @param <Target> The output type of this Transformation.
  *

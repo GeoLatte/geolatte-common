@@ -14,9 +14,9 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
-import org.geolatte.common.dataformats.json.jackson.DefaultFeature;
+
+import org.geolatte.geom.*;
+import org.geolatte.geom.crs.CrsId;
 import org.jmock.Mockery;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class DefaultFeatureTest {
     @BeforeClass
     public static void setupOnce()
     {
-        geomFact = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 31370);
+        geomFact = new GeometryFactory(CrsId.valueOf(31370));
     }
 
     @Before
@@ -62,7 +62,7 @@ public class DefaultFeatureTest {
         Assert.assertNull(f.getProperty("geometry"));
         Assert.assertEquals(0, f.getProperties().size());
 
-        Point p = geomFact.createPoint(new Coordinate(3.0, 2.0));
+        Point p = geomFact.createPoint(PointSequenceFactory.create(new double[]{3.0d, 2.0d}, DimensionalFlag.XY));
         f.setGeometry("geometry", p);
 
         Assert.assertTrue(f.hasGeometry());
@@ -167,8 +167,7 @@ public class DefaultFeatureTest {
 
         Object idValue = new Object();
         Object propertyValue = new Object();
-        Geometry geomValue = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(8.0, 9.0)}),
-                                       new GeometryFactory());
+        Geometry geomValue = Point.create(8.0d, 9.0d, CrsId.valueOf(31370));
 
         f.setId("id", idValue);
         f.setGeometry("myGeometry", geomValue);

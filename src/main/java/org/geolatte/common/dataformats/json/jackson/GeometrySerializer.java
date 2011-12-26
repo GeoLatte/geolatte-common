@@ -21,11 +21,11 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
+import org.geolatte.geom.Geometry;
 
 import java.io.IOException;
 
@@ -74,7 +74,7 @@ public abstract class GeometrySerializer<T extends Geometry> extends JsonSeriali
     public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         // Crs or bbox-information must be placed on the toplevel object, but may not be repeated in contained objects!
-        if (parent.getDepth() == 1)
+        if (!parent.insideGeometryCollection())
         {
             writeCrs(jgen, value);
             writeBbox(jgen, value, provider);

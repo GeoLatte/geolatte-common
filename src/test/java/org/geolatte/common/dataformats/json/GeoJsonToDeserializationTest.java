@@ -27,6 +27,7 @@ import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.geolatte.common.dataformats.json.to.*;
+import org.geolatte.geom.crs.CrsId;
 import org.geolatte.geom.jts.JTS;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,8 +51,7 @@ public class GeoJsonToDeserializationTest {
     private static GeoJsonToFactory factory;
     private static ObjectMapper mapper;
     private static final double ACCURACY = 0.0000005;
-    private static final int WGS84 = 4326;
-    private static final int LAMBERT72 = 31370;
+    private static final CrsId LAMBERT72 = new CrsId("EPSG", 31370);
 
     @BeforeClass
     public static void setupSuite() {
@@ -95,14 +95,14 @@ public class GeoJsonToDeserializationTest {
         Coordinate c = test.getCoordinate();
         Assert.assertEquals(100.0, c.x, ACCURACY);
         Assert.assertEquals(0.0, c.y, ACCURACY);
-        Assert.assertEquals(WGS84, test.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED.getCode(), test.getSRID());
         Assert.assertTrue(Double.isNaN(c.z));
 
         Point test1b = (Point) JTS.to(factory.fromTo(mapper.readValue(testString1b, PointTo.class)));
         Coordinate c1b = test1b.getCoordinate();
         Assert.assertEquals(100.0, c1b.x, ACCURACY);
         Assert.assertEquals(0.0, c1b.y, ACCURACY);
-        Assert.assertEquals(WGS84, test1b.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED.getCode(), test1b.getSRID());
         Assert.assertTrue(Double.isNaN(c1b.z));
 
         // We deserialize to a geojsonto instead of a
@@ -111,14 +111,14 @@ public class GeoJsonToDeserializationTest {
         Coordinate c2 = test2.getCoordinate();
         Assert.assertEquals(100.0, c2.x, ACCURACY);
         Assert.assertEquals(0.0, c2.y, ACCURACY);
-        Assert.assertEquals(LAMBERT72, test2.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), test2.getSRID());
         Assert.assertTrue(Double.isNaN(c2.z));
 
         Point test3 = (Point) JTS.to(factory.fromTo(mapper.readValue(testString3, PointTo.class)));
         Coordinate c3 = test3.getCoordinate();
         Assert.assertEquals(100.0, c3.x, ACCURACY);
         Assert.assertEquals(0.0, c3.y, ACCURACY);
-        Assert.assertEquals(LAMBERT72, test3.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), test3.getSRID());
         Assert.assertTrue(Double.isNaN(c3.z));
 
         Point test4 = (Point) JTS.to(factory.fromTo(mapper.readValue(testString4, PointTo.class)));
@@ -126,7 +126,7 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(100.0, c4.x, ACCURACY);
         Assert.assertEquals(0.0, c4.y, ACCURACY);
         Assert.assertEquals(50.0, c4.z, ACCURACY);
-        Assert.assertEquals(LAMBERT72, test4.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), test4.getSRID());
     }
 
     /**
@@ -202,7 +202,7 @@ public class GeoJsonToDeserializationTest {
                 "  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]\n" +
                 "  }";
         LineString ls = (LineString) JTS.to(factory.fromTo(mapper.readValue(validLinestring, LineStringTo.class)));
-        Assert.assertEquals(WGS84, ls.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED.getCode(), ls.getSRID());
         Coordinate[] c = ls.getCoordinates();
         Assert.assertEquals(100.0, c[0].x, ACCURACY);
         Assert.assertEquals(0.0, c[0].y, ACCURACY);
@@ -210,7 +210,7 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(1.0, c[1].y, ACCURACY);
 
         ls = (LineString) JTS.to(factory.fromTo(mapper.readValue(validLineStringLambert, LineStringTo.class)));
-        Assert.assertEquals(LAMBERT72, ls.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), ls.getSRID());
         c = ls.getCoordinates();
         Assert.assertEquals(100.0, c[0].x, ACCURACY);
         Assert.assertEquals(0.0, c[0].y, ACCURACY);
@@ -290,24 +290,24 @@ public class GeoJsonToDeserializationTest {
                 "    }\n" +
                 "  }, \"type\": \"Polygon\",  \"coordinates\": [[ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],[ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]    ] }";
         Polygon p = (Polygon) JTS.to(factory.fromTo(mapper.readValue(noHoles, PolygonTo.class)));
-        Assert.assertEquals(WGS84, p.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED.getCode(), p.getSRID());
         Assert.assertEquals(0, p.getNumInteriorRing());
         LineString ls = p.getExteriorRing();
-        Assert.assertEquals(WGS84, ls.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED.getCode(), ls.getSRID());
         Coordinate[] coords = ls.getCoordinates();
         Assert.assertEquals(5, coords.length);
         Assert.assertEquals(coords[0], coords[4]);
 
         p = (Polygon) JTS.to(factory.fromTo(mapper.readValue(withHolesInLambert, PolygonTo.class)));
-        Assert.assertEquals(LAMBERT72, p.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), p.getSRID());
         Assert.assertEquals(1, p.getNumInteriorRing());
         ls = p.getExteriorRing();
-        Assert.assertEquals(LAMBERT72, ls.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), ls.getSRID());
         coords = ls.getCoordinates();
         Assert.assertEquals(5, coords.length);
         Assert.assertEquals(coords[0], coords[4]);
         ls = p.getInteriorRingN(0);
-        Assert.assertEquals(LAMBERT72, ls.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), ls.getSRID());
         coords = ls.getCoordinates();
         Assert.assertEquals(5, coords.length);
         Assert.assertEquals(coords[0], coords[4]);
@@ -369,10 +369,10 @@ public class GeoJsonToDeserializationTest {
     public void validMultiPointDeserialization() throws IOException {
         String testString = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }";
         MultiPoint mp = (MultiPoint) JTS.to(factory.fromTo(mapper.readValue(testString, MultiPointTo.class)));
-        Assert.assertEquals(LAMBERT72, mp.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), mp.getSRID());
         Assert.assertEquals(2, mp.getNumPoints());
-        Assert.assertEquals(LAMBERT72, mp.getGeometryN(0).getSRID());
-        Assert.assertEquals(LAMBERT72, mp.getGeometryN(1).getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), mp.getGeometryN(0).getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), mp.getGeometryN(1).getSRID());
         Assert.assertTrue(mp.getGeometryN(0) instanceof Point);
         Assert.assertTrue(mp.getGeometryN(1) instanceof Point);
         Assert.assertEquals(100.0, mp.getGeometryN(0).getCoordinate().x, ACCURACY);
@@ -445,7 +445,7 @@ public class GeoJsonToDeserializationTest {
     public void testValidMultiLineString() throws IOException {
         String multiLineString = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiLineString\", \"coordinates\": [[ [100.0, 0.0], [101.0, 1.0] ], [ [102.0, 2.0], [103.0, 3.0] ] ]}";
         MultiLineString result = (MultiLineString) JTS.to(factory.fromTo(mapper.readValue(multiLineString, MultiLineStringTo.class)));
-        Assert.assertEquals(LAMBERT72, result.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), result.getSRID());
         Assert.assertEquals(2, result.getNumGeometries());
         com.vividsolutions.jts.geom.Geometry first = result.getGeometryN(0);
         com.vividsolutions.jts.geom.Geometry second = result.getGeometryN(1);
@@ -522,7 +522,7 @@ public class GeoJsonToDeserializationTest {
     public void testMultiPolygon() throws IOException {
         String testString = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiPolygon\", \"coordinates\": [    [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],    [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],     [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]    ]}";
         MultiPolygon result = (MultiPolygon) JTS.to(factory.fromTo(mapper.readValue(testString, MultiPolygonTo.class)));
-        Assert.assertEquals(LAMBERT72, result.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), result.getSRID());
         Assert.assertEquals(2, result.getNumGeometries());
         com.vividsolutions.jts.geom.Geometry first = result.getGeometryN(0);
         com.vividsolutions.jts.geom.Geometry second = result.getGeometryN(1);
@@ -530,24 +530,24 @@ public class GeoJsonToDeserializationTest {
         Assert.assertTrue(second instanceof Polygon);
 
         Polygon polygon = (Polygon) first;
-        Assert.assertEquals(LAMBERT72, polygon.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), polygon.getSRID());
         Assert.assertEquals(0, polygon.getNumInteriorRing());
         LineString ls = polygon.getExteriorRing();
-        Assert.assertEquals(LAMBERT72, ls.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), ls.getSRID());
         Coordinate[] coords = ls.getCoordinates();
         Assert.assertEquals(5, coords.length);
         Assert.assertEquals(coords[0], coords[4]);
 
         polygon = (Polygon) second;
-        Assert.assertEquals(LAMBERT72, polygon.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), polygon.getSRID());
         Assert.assertEquals(1, polygon.getNumInteriorRing());
         ls = polygon.getExteriorRing();
-        Assert.assertEquals(LAMBERT72, ls.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), ls.getSRID());
         coords = ls.getCoordinates();
         Assert.assertEquals(5, coords.length);
         Assert.assertEquals(coords[0], coords[4]);
         ls = polygon.getInteriorRingN(0);
-        Assert.assertEquals(LAMBERT72, ls.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), ls.getSRID());
         coords = ls.getCoordinates();
         Assert.assertEquals(5, coords.length);
         Assert.assertEquals(coords[0], coords[4]);
@@ -607,7 +607,7 @@ public class GeoJsonToDeserializationTest {
     public void testGeometryCollection() throws IOException {
         String testGeomCollection = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
         GeometryCollection geomCol = (GeometryCollection) JTS.to(factory.fromTo(mapper.readValue(testGeomCollection, GeometryCollectionTo.class)));
-        Assert.assertEquals(LAMBERT72, geomCol.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), geomCol.getSRID());
         Assert.assertEquals(2, geomCol.getNumGeometries());
         Assert.assertTrue(geomCol.getGeometryN(0) instanceof Point);
         Assert.assertTrue(geomCol.getGeometryN(1) instanceof LineString);
@@ -615,7 +615,7 @@ public class GeoJsonToDeserializationTest {
         // Let's nest soem geometrycollections :)
         String nestedGeomCol = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},  \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]},    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
         geomCol = (GeometryCollection) JTS.to(factory.fromTo(mapper.readValue(nestedGeomCol, GeometryCollectionTo.class)));
-        Assert.assertEquals(LAMBERT72, geomCol.getSRID());
+        Assert.assertEquals(LAMBERT72.getCode(), geomCol.getSRID());
         Assert.assertEquals(2, geomCol.getNumGeometries());
         Assert.assertTrue(geomCol.getGeometryN(0) instanceof GeometryCollection);
         Assert.assertEquals(2, geomCol.getGeometryN(0).getNumGeometries());

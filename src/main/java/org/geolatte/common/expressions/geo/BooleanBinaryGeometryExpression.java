@@ -21,9 +21,9 @@
 
 package org.geolatte.common.expressions.geo;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.geolatte.common.expressions.BooleanExpression;
 import org.geolatte.common.expressions.Expression;
+import org.geolatte.geom.Geometry;
 
 /**
  * <p>
@@ -62,7 +62,6 @@ public abstract class BooleanBinaryGeometryExpression extends BooleanExpression 
      */
     @Override
     public Expression<Geometry> getLeft() {
-
         return left;
     }
 
@@ -72,7 +71,6 @@ public abstract class BooleanBinaryGeometryExpression extends BooleanExpression 
      */
     @Override
     public Expression<Geometry> getRight() {
-
         return right;
     }
 }

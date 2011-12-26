@@ -21,31 +21,18 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializerProvider;
-import org.geolatte.common.reflection.EntityClassReader;
 import org.geolatte.common.Feature;
+import org.geolatte.common.reflection.EntityClassReader;
 import org.geolatte.common.reflection.InvalidObjectReaderException;
 import org.geolatte.common.transformer.TransformationException;
+import org.geolatte.geom.*;
+import org.geolatte.geom.crs.CrsId;
 import org.geolatte.testobjects.TestFeature;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -74,13 +61,13 @@ public class JsonSerializationTransformationTest {
     private JsonSerializationTransformation transformation;
     private Feature testFeature;
     private static EntityClassReader reader;
-    private static GeometryFactory geomFactory;
+    private static GeometryFactory geomFactory = new GeometryFactory(CrsId.valueOf(900913));
     private static ObjectMapper mapper;
 
     @BeforeClass
     public static void setupSuite() {
         reader = EntityClassReader.getClassReaderFor(TestFeature.class);
-        geomFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 900913);
+        geomFactory = new GeometryFactory(CrsId.valueOf(900913));
         mapper = new ObjectMapper();
     }
 
@@ -104,11 +91,22 @@ public class JsonSerializationTransformationTest {
             } catch (IOException e) {
                 Assert.fail("No exception expected");
             }
+
+            Assert.assertEquals("Feature", map.get("type"));
+
             Map props = (Map) map.get("properties");
             for (String name : reader.getProperties()) {
                 Assert.assertTrue(props.containsKey(name));
             }
-        } catch (TransformationException e) {
+
+            Map geom = (Map) map.get("geometry");
+            Assert.assertEquals("LineString", geom.get("type"));
+
+            // Test whether crs is also serialized
+            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", geom));
+
+
+        } catch (Exception e) {
             Assert.fail("No exceptions expected");
         }
     }
@@ -117,56 +115,47 @@ public class JsonSerializationTransformationTest {
      * Test serialization of a point
      */
     @Test
-    public void testPointSerializer() {
-        try {
-            Point p = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0)}), geomFactory);
-            String output = transformation.transform(p);
-
-            try {
-                HashMap map = mapper.readValue(output, HashMap.class);
-                Assert.assertEquals("Point", map.get("type"));
-                Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
-                Assert.assertEquals("name", getFromMap("crs.type", map));
-                List<Double> coords = (List<Double>) map.get("coordinates");
-                Assert.assertNotNull(coords);
-                Assert.assertEquals(2.0, coords.get(0), 0.00001);
-                Assert.assertEquals(3.0, coords.get(1), 0.00001);
-
-            } catch (Exception ignored) {
-                Assert.fail("No exception expected");
-            }
-        } catch (TransformationException e) {
-            Assert.fail("No exception expected");
-        }
+    public void testPointSerializer() throws Exception {
+        Point p = Point.create(2.0, 3.0, CrsId.valueOf(900913));
+        String output = transformation.transform(p);
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals("Point", map.get("type"));
+        Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+        Assert.assertEquals("name", getFromMap("crs.type", map));
+        List<Double> coords = (List<Double>) map.get("coordinates");
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, coords.get(0), 0.00001);
+        Assert.assertEquals(3.0, coords.get(1), 0.00001);
     }
 
     /**
      * Test serialization of a linestring
      */
     @Test
-    public void testLineStringSerializer() {
-        try {
-            LineString l = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0), new Coordinate(3.0, 4.0)}), geomFactory);
-            String output = transformation.transform(l);
-            HashMap map = mapper.readValue(output, HashMap.class);
-            Assert.assertEquals("LineString", map.get("type"));
-            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
-            Assert.assertEquals("name", getFromMap("crs.type", map));
-            List<List<Double>> coords = (List<List<Double>>) map.get("coordinates");
-            Assert.assertNotNull(coords);
-            Assert.assertEquals(2.0, coords.get(0).get(0), 0.00001);
-            Assert.assertEquals(3.0, coords.get(0).get(1), 0.00001);
-            Assert.assertEquals(3.0, coords.get(1).get(0), 0.00001);
-            Assert.assertEquals(4.0, coords.get(1).get(1), 0.00001);
-            List<Double> bbox = (List<Double>) map.get("bbox");
-            Assert.assertNotNull(coords);
-            Assert.assertEquals(2.0, bbox.get(0), 0.00001);
-            Assert.assertEquals(3.0, bbox.get(1), 0.00001);
-            Assert.assertEquals(3.0, bbox.get(2), 0.00001);
-            Assert.assertEquals(4.0, bbox.get(3), 0.00001);
-        } catch (Exception ignored) {
-            Assert.fail("No exception expected");
-        }
+    public void testLineStringSerializer() throws Exception {
+//        try {
+        LineString l = geomFactory.createLineString(PointSequenceFactory.create(new double[]{2.0, 3.0, 3.0, 4.0},
+                DimensionalFlag.XY));
+        String output = transformation.transform(l);
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals("LineString", map.get("type"));
+        Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+        Assert.assertEquals("name", getFromMap("crs.type", map));
+        List<List<Double>> coords = (List<List<Double>>) map.get("coordinates");
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, coords.get(0).get(0), 0.00001);
+        Assert.assertEquals(3.0, coords.get(0).get(1), 0.00001);
+        Assert.assertEquals(3.0, coords.get(1).get(0), 0.00001);
+        Assert.assertEquals(4.0, coords.get(1).get(1), 0.00001);
+        List<Double> bbox = (List<Double>) map.get("bbox");
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, bbox.get(0), 0.00001);
+        Assert.assertEquals(3.0, bbox.get(1), 0.00001);
+        Assert.assertEquals(3.0, bbox.get(2), 0.00001);
+        Assert.assertEquals(4.0, bbox.get(3), 0.00001);
+//        } catch (Exception ignored) {
+//            Assert.fail("No exception expected");
+//        }
 
     }
 
@@ -205,44 +194,44 @@ public class JsonSerializationTransformationTest {
      * Test serialization of a multiline
      */
     @Test
-    public void testMultiLineStringSerializer() {
-        LineString l = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0), new Coordinate(3.0, 4.0)}), geomFactory);
-        LineString l2 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(12.0, 13.0), new Coordinate(13.0, 14.0)}), geomFactory);
-        LineString l3 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(24.0, 5.0), new Coordinate(19.0, 3.0)}), geomFactory);
-        MultiLineString mls = new MultiLineString(new LineString[]{l, l2, l3}, geomFactory);
-        try {
-            String output = transformation.transform(mls);
+    public void testMultiLineStringSerializer() throws Exception {
+        PointSequence pnts = PointSequenceFactory.create(new double[]{2, 3, 3, 4}, DimensionalFlag.XY);
+        LineString l = geomFactory.createLineString(pnts);
+        pnts = PointSequenceFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.XY);
+        LineString l2 = geomFactory.createLineString(pnts);
+        pnts = PointSequenceFactory.create(new double[]{24, 5, 19, 3}, DimensionalFlag.XY);
+        LineString l3 = geomFactory.createLineString(pnts);
+        MultiLineString mls = geomFactory.createMultiLineString(new LineString[]{l, l2, l3});
+        String output = transformation.transform(mls);
 
-            HashMap map = mapper.readValue(output, HashMap.class);
-            Assert.assertEquals("MultiLineString", map.get("type"));
-            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
-            Assert.assertEquals("name", getFromMap("crs.type", map));
-            List<List<List<Double>>> coords = (List<List<List<Double>>>) map.get("coordinates");
-            Assert.assertNotNull(coords);
-            Assert.assertEquals(2.0, coords.get(0).get(0).get(0), 0.00001);
-            Assert.assertEquals(3.0, coords.get(0).get(0).get(1), 0.00001);
-            Assert.assertEquals(3.0, coords.get(0).get(1).get(0), 0.00001);
-            Assert.assertEquals(4.0, coords.get(0).get(1).get(1), 0.00001);
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals("MultiLineString", map.get("type"));
+        Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+        Assert.assertEquals("name", getFromMap("crs.type", map));
+        List<List<List<Double>>> coords = (List<List<List<Double>>>) map.get("coordinates");
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, coords.get(0).get(0).get(0), 0.00001);
+        Assert.assertEquals(3.0, coords.get(0).get(0).get(1), 0.00001);
+        Assert.assertEquals(3.0, coords.get(0).get(1).get(0), 0.00001);
+        Assert.assertEquals(4.0, coords.get(0).get(1).get(1), 0.00001);
 
-            Assert.assertEquals(12.0, coords.get(1).get(0).get(0), 0.00001);
-            Assert.assertEquals(13.0, coords.get(1).get(0).get(1), 0.00001);
-            Assert.assertEquals(13.0, coords.get(1).get(1).get(0), 0.00001);
-            Assert.assertEquals(14.0, coords.get(1).get(1).get(1), 0.00001);
+        Assert.assertEquals(12.0, coords.get(1).get(0).get(0), 0.00001);
+        Assert.assertEquals(13.0, coords.get(1).get(0).get(1), 0.00001);
+        Assert.assertEquals(13.0, coords.get(1).get(1).get(0), 0.00001);
+        Assert.assertEquals(14.0, coords.get(1).get(1).get(1), 0.00001);
 
-            Assert.assertEquals(24.0, coords.get(2).get(0).get(0), 0.00001);
-            Assert.assertEquals(5.0, coords.get(2).get(0).get(1), 0.00001);
-            Assert.assertEquals(19.0, coords.get(2).get(1).get(0), 0.00001);
-            Assert.assertEquals(3.0, coords.get(2).get(1).get(1), 0.00001);
-            List<Double> bbox = (List<Double>) map.get("bbox");
-            // lowx, lowy, highx, highy
-            Assert.assertNotNull(coords);
-            Assert.assertEquals(2.0, bbox.get(0), 0.00001);
-            Assert.assertEquals(3.0, bbox.get(1), 0.00001);
-            Assert.assertEquals(24.0, bbox.get(2), 0.00001);
-            Assert.assertEquals(14.0, bbox.get(3), 0.00001);
-        } catch (Exception ignored) {
-            Assert.fail("No exception expected");
-        }
+        Assert.assertEquals(24.0, coords.get(2).get(0).get(0), 0.00001);
+        Assert.assertEquals(5.0, coords.get(2).get(0).get(1), 0.00001);
+        Assert.assertEquals(19.0, coords.get(2).get(1).get(0), 0.00001);
+        Assert.assertEquals(3.0, coords.get(2).get(1).get(1), 0.00001);
+        List<Double> bbox = (List<Double>) map.get("bbox");
+        // lowx, lowy, highx, highy
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, bbox.get(0), 0.00001);
+        Assert.assertEquals(3.0, bbox.get(1), 0.00001);
+        Assert.assertEquals(24.0, bbox.get(2), 0.00001);
+        Assert.assertEquals(14.0, bbox.get(3), 0.00001);
+
     }
 
 //    /**
@@ -296,32 +285,27 @@ public class JsonSerializationTransformationTest {
      * Serialization of a multipoint
      */
     @Test
-    public void testMultiPointSerializer() {
-        Point p = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0)}), geomFactory);
-        Point p2 = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(3.0, 4.0)}), geomFactory);
-        MultiPoint l = new MultiPoint(new Point[]{p, p2}, geomFactory);
-        try {
-            String output = transformation.transform(l);
-
-            HashMap map = mapper.readValue(output, HashMap.class);
-            Assert.assertEquals("MultiPoint", map.get("type"));
-            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
-            Assert.assertEquals("name", getFromMap("crs.type", map));
-            List<List<Double>> coords = (List<List<Double>>) map.get("coordinates");
-            Assert.assertNotNull(coords);
-            Assert.assertEquals(2.0, coords.get(0).get(0), 0.00001);
-            Assert.assertEquals(3.0, coords.get(0).get(1), 0.00001);
-            Assert.assertEquals(3.0, coords.get(1).get(0), 0.00001);
-            Assert.assertEquals(4.0, coords.get(1).get(1), 0.00001);
-            List<Double> bbox = (List<Double>) map.get("bbox");
-            Assert.assertNotNull(coords);
-            Assert.assertEquals(2.0, bbox.get(0), 0.00001);
-            Assert.assertEquals(3.0, bbox.get(1), 0.00001);
-            Assert.assertEquals(3.0, bbox.get(2), 0.00001);
-            Assert.assertEquals(4.0, bbox.get(3), 0.00001);
-        } catch (Exception ignored) {
-            Assert.fail("No exception expected");
-        }
+    public void testMultiPointSerializer() throws TransformationException, IOException {
+        Point p = Point.create(2, 3, CrsId.valueOf(900913));
+        Point p2 = Point.create(3, 4, CrsId.valueOf(900913));
+        MultiPoint l = geomFactory.createMultiPoint(new Point[]{p, p2});
+        String output = transformation.transform(l);
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals("MultiPoint", map.get("type"));
+        Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+        Assert.assertEquals("name", getFromMap("crs.type", map));
+        List<List<Double>> coords = (List<List<Double>>) map.get("coordinates");
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, coords.get(0).get(0), 0.00001);
+        Assert.assertEquals(3.0, coords.get(0).get(1), 0.00001);
+        Assert.assertEquals(3.0, coords.get(1).get(0), 0.00001);
+        Assert.assertEquals(4.0, coords.get(1).get(1), 0.00001);
+        List<Double> bbox = (List<Double>) map.get("bbox");
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, bbox.get(0), 0.00001);
+        Assert.assertEquals(3.0, bbox.get(1), 0.00001);
+        Assert.assertEquals(3.0, bbox.get(2), 0.00001);
+        Assert.assertEquals(4.0, bbox.get(3), 0.00001);
     }
 
     /**
@@ -331,186 +315,167 @@ public class JsonSerializationTransformationTest {
      * Test serialization of a multiline
      */
     @Test
-    public void testPolygonSerializer() {
-        LinearRing l = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.0, 0.0), new Coordinate(1.0, 0.0),
-                new Coordinate(1.0, 1.0), new Coordinate(0.0, 1.0), new Coordinate(0.0, 0.0)}), geomFactory);
-        LinearRing l2 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.1, 0.1), new Coordinate(0.25, 0.1),
-                new Coordinate(0.25, 0.25), new Coordinate(0.1, 0.25), new Coordinate(0.1, 0.1)}), geomFactory);
-        LinearRing l3 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.7, 0.7), new Coordinate(0.95, 0.7),
-                new Coordinate(0.95, 0.95), new Coordinate(0.7, 0.95), new Coordinate(0.7, 0.7)}), geomFactory);
-        Polygon mls = new Polygon(l, new LinearRing[]{l2, l3}, geomFactory);
-        try {
-            String output = transformation.transform(mls);
+    public void testPolygonSerializer() throws Exception {
+        PointSequence pnts = PointSequenceFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.XY);
+        LinearRing l = geomFactory.createLinearRing(pnts);
+        pnts = PointSequenceFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.XY);
+        LinearRing l2 = geomFactory.createLinearRing(pnts);
+        pnts = PointSequenceFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.XY);
+        LinearRing l3 = geomFactory.createLinearRing(pnts);
+        Polygon mls = geomFactory.createPolygon(new LinearRing[]{l, l2, l3});
 
-            HashMap map = mapper.readValue(output, HashMap.class);
-            Assert.assertEquals("Polygon", map.get("type"));
-            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
-            Assert.assertEquals("name", getFromMap("crs.type", map));
-            List<List<List<Double>>> coords = (List<List<List<Double>>>) map.get("coordinates");
-            Assert.assertNotNull(coords);
-            // First array must be the exterior ring! Three rings in total, order not specified
-            Assert.assertEquals(0.0, coords.get(0).get(0).get(0), 0.00001);
-            Assert.assertEquals(0.0, coords.get(0).get(0).get(1), 0.00001);
-            Assert.assertEquals(1.0, coords.get(0).get(1).get(0), 0.00001);
-            Assert.assertEquals(0.0, coords.get(0).get(1).get(1), 0.00001);
+        String output = transformation.transform(mls);
 
-            Assert.assertEquals(3, coords.size());
-            Assert.assertEquals(5, coords.get(1).size());
-            Assert.assertEquals(5, coords.get(2).size());
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals("Polygon", map.get("type"));
+        Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+        Assert.assertEquals("name", getFromMap("crs.type", map));
+        List<List<List<Double>>> coords = (List<List<List<Double>>>) map.get("coordinates");
+        Assert.assertNotNull(coords);
+        // First array must be the exterior ring! Three rings in total, order not specified
+        Assert.assertEquals(0.0, coords.get(0).get(0).get(0), 0.00001);
+        Assert.assertEquals(0.0, coords.get(0).get(0).get(1), 0.00001);
+        Assert.assertEquals(1.0, coords.get(0).get(1).get(0), 0.00001);
+        Assert.assertEquals(0.0, coords.get(0).get(1).get(1), 0.00001);
 
-            List<Double> bbox = (List<Double>) map.get("bbox");
-            // lowx, lowy, highx, highy
-            Assert.assertNotNull(coords);
-            Assert.assertEquals(0.0, bbox.get(0), 0.00001);
-            Assert.assertEquals(0.0, bbox.get(1), 0.00001);
-            Assert.assertEquals(1.0, bbox.get(2), 0.00001);
-            Assert.assertEquals(1.0, bbox.get(3), 0.00001);
-        } catch (Exception ignored) {
-            Assert.fail("No exception expected");
-        }
+        Assert.assertEquals(3, coords.size());
+        Assert.assertEquals(5, coords.get(1).size());
+        Assert.assertEquals(5, coords.get(2).size());
+
+        List<Double> bbox = (List<Double>) map.get("bbox");
+        // lowx, lowy, highx, highy
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(0.0, bbox.get(0), 0.00001);
+        Assert.assertEquals(0.0, bbox.get(1), 0.00001);
+        Assert.assertEquals(1.0, bbox.get(2), 0.00001);
+        Assert.assertEquals(1.0, bbox.get(3), 0.00001);
+
     }
 
 
     @Test
-    public void testMultiPolygonSerialize() {
-        LinearRing l = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.0, 0.0), new Coordinate(1.0, 0.0),
-                new Coordinate(1.0, 1.0), new Coordinate(0.0, 1.0), new Coordinate(0.0, 0.0)}), geomFactory);
-        LinearRing l2 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.1, 0.1), new Coordinate(0.25, 0.1),
-                new Coordinate(0.25, 0.25), new Coordinate(0.1, 0.25), new Coordinate(0.1, 0.1)}), geomFactory);
-        LinearRing l3 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.7, 0.7), new Coordinate(0.95, 0.7),
-                new Coordinate(0.95, 0.95), new Coordinate(0.7, 0.95), new Coordinate(0.7, 0.7)}), geomFactory);
-        LinearRing l4 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.1, 0.1), new Coordinate(0.9, 0.1),
-                new Coordinate(0.9, 0.9), new Coordinate(0.1, 0.9), new Coordinate(0.1, 0.1)}), geomFactory);
-        Polygon p1 = new Polygon(l, new LinearRing[]{l2, l3}, geomFactory);
-        Polygon p2 = new Polygon(l, new LinearRing[]{l4}, geomFactory);
-        MultiPolygon mp = new MultiPolygon(new Polygon[]{p1, p2}, geomFactory);
-        try {
-            String output = transformation.transform(mp);
+    public void testMultiPolygonSerialize() throws Exception {
+        PointSequence pnts = PointSequenceFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.XY);
+        LinearRing l = geomFactory.createLinearRing(pnts);
+        pnts = PointSequenceFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.XY);
+        LinearRing l2 = geomFactory.createLinearRing(pnts);
+        pnts = PointSequenceFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.XY);
+        LinearRing l3 = geomFactory.createLinearRing(pnts);
+        pnts = PointSequenceFactory.create(new double[]{0.1, 0.1, 0.9, 0.1, 0.9, 0.9, 0.1, 0.9, 0.1, 0.1}, DimensionalFlag.XY);
+        LinearRing l4 = geomFactory.createLinearRing(pnts);
+        Polygon p1 = geomFactory.createPolygon(new LinearRing[]{l, l2, l3});
+        Polygon p2 = geomFactory.createPolygon(new LinearRing[]{l, l4});
+        MultiPolygon mp = geomFactory.createMultiPolygon(new Polygon[]{p1, p2});
 
-            HashMap map = mapper.readValue(output, HashMap.class);
-            Assert.assertEquals("MultiPolygon", map.get("type"));
-            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
-            Assert.assertEquals("name", getFromMap("crs.type", map));
-            // an array of polygons = array of array of linerings = array of array of array of coordinates
-            // is an array of array of array of array of doubles!
-            List<List<List<List<Double>>>> coords = (List<List<List<List<Double>>>>) map.get("coordinates");
-            Assert.assertNotNull(coords);
-            // First array is the first polygon. We check the external ring! and we check that there are a total of 3
-            // rings!
-            Assert.assertEquals(0.0, coords.get(0).get(0).get(0).get(0), 0.00001);
-            Assert.assertEquals(0.0, coords.get(0).get(0).get(0).get(1), 0.00001);
-            Assert.assertEquals(1.0, coords.get(0).get(0).get(1).get(0), 0.00001);
-            Assert.assertEquals(0.0, coords.get(0).get(0).get(1).get(1), 0.00001);
-            Assert.assertEquals(2, coords.size());
-            Assert.assertEquals(3, coords.get(0).size());
-            Assert.assertEquals(2, coords.get(1).size());
+        String output = transformation.transform(mp);
 
-            Assert.assertEquals(0.0, coords.get(1).get(0).get(0).get(0), 0.00001);
-            Assert.assertEquals(0.0, coords.get(1).get(0).get(0).get(1), 0.00001);
-            Assert.assertEquals(1.0, coords.get(1).get(0).get(1).get(0), 0.00001);
-            Assert.assertEquals(0.0, coords.get(1).get(0).get(1).get(1), 0.00001);
-            // inner ring of the second polygon!
-            Assert.assertEquals(0.1, coords.get(1).get(1).get(0).get(0), 0.00001);
-            Assert.assertEquals(0.1, coords.get(1).get(1).get(0).get(1), 0.00001);
-            Assert.assertEquals(0.9, coords.get(1).get(1).get(1).get(0), 0.00001);
-            Assert.assertEquals(0.1, coords.get(1).get(1).get(1).get(1), 0.00001);
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals("MultiPolygon", map.get("type"));
+        Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+        Assert.assertEquals("name", getFromMap("crs.type", map));
+        // an array of polygons = array of array of linerings = array of array of array of coordinates
+        // is an array of array of array of array of doubles!
+        List<List<List<List<Double>>>> coords = (List<List<List<List<Double>>>>) map.get("coordinates");
+        Assert.assertNotNull(coords);
+        // First array is the first polygon. We check the external ring! and we check that there are a total of 3
+        // rings!
+        Assert.assertEquals(0.0, coords.get(0).get(0).get(0).get(0), 0.00001);
+        Assert.assertEquals(0.0, coords.get(0).get(0).get(0).get(1), 0.00001);
+        Assert.assertEquals(1.0, coords.get(0).get(0).get(1).get(0), 0.00001);
+        Assert.assertEquals(0.0, coords.get(0).get(0).get(1).get(1), 0.00001);
+        Assert.assertEquals(2, coords.size());
+        Assert.assertEquals(3, coords.get(0).size());
+        Assert.assertEquals(2, coords.get(1).size());
 
-            Assert.assertEquals(5, coords.get(0).get(1).size());
-            Assert.assertEquals(5, coords.get(0).get(2).size());
-            Assert.assertEquals(5, coords.get(1).get(1).size());
+        Assert.assertEquals(0.0, coords.get(1).get(0).get(0).get(0), 0.00001);
+        Assert.assertEquals(0.0, coords.get(1).get(0).get(0).get(1), 0.00001);
+        Assert.assertEquals(1.0, coords.get(1).get(0).get(1).get(0), 0.00001);
+        Assert.assertEquals(0.0, coords.get(1).get(0).get(1).get(1), 0.00001);
+        // inner ring of the second polygon!
+        Assert.assertEquals(0.1, coords.get(1).get(1).get(0).get(0), 0.00001);
+        Assert.assertEquals(0.1, coords.get(1).get(1).get(0).get(1), 0.00001);
+        Assert.assertEquals(0.9, coords.get(1).get(1).get(1).get(0), 0.00001);
+        Assert.assertEquals(0.1, coords.get(1).get(1).get(1).get(1), 0.00001);
 
-            List<Double> bbox = (List<Double>) map.get("bbox");
-            // lowx, lowy, highx, highy
-            Assert.assertNotNull(coords);
-            Assert.assertEquals(0.0, bbox.get(0), 0.00001);
-            Assert.assertEquals(0.0, bbox.get(1), 0.00001);
-            Assert.assertEquals(1.0, bbox.get(2), 0.00001);
-            Assert.assertEquals(1.0, bbox.get(3), 0.00001);
-        } catch (Exception ignored) {
-            Assert.fail("No exception expected");
-        }
+        Assert.assertEquals(5, coords.get(0).get(1).size());
+        Assert.assertEquals(5, coords.get(0).get(2).size());
+        Assert.assertEquals(5, coords.get(1).get(1).size());
+
+        List<Double> bbox = (List<Double>) map.get("bbox");
+        // lowx, lowy, highx, highy
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(0.0, bbox.get(0), 0.00001);
+        Assert.assertEquals(0.0, bbox.get(1), 0.00001);
+        Assert.assertEquals(1.0, bbox.get(2), 0.00001);
+        Assert.assertEquals(1.0, bbox.get(3), 0.00001);
+
     }
 
     @Test
-    public void testSerializerAddition() {
-        try {
-            TestFeature t = new TestFeature();
-            String output = transformation.transform(t);
-            Assert.assertFalse(output.contains("Customserialization"));
-            transformation.addClassSerializer(TestFeature.class, new TestSerializer());
-            output = transformation.transform(t);
-            Assert.assertTrue(output.contains("CustomSerialization"));
-        } catch (TransformationException e) {
-            Assert.fail("No exception expected");
-        }
+    public void testSerializerAddition() throws Exception {
+        TestFeature t = new TestFeature();
+        String output = transformation.transform(t);
+        Assert.assertFalse(output.contains("Customserialization"));
+        transformation.addClassSerializer(TestFeature.class, new TestSerializer());
+        output = transformation.transform(t);
+        Assert.assertTrue(output.contains("CustomSerialization"));
     }
 
     /**
      * Tests the geojson encoder for recursive objects.
      */
     @Test
-    public void testRecursion() {
+    public void testRecursion() throws Exception {
         // create circular reference.
         RecursionTestC c = new RecursionTestC("c_content");
         RecursionTestA a = new RecursionTestA(new RecursionTestB(c, "b_content"), "a_content");
         c.setA(a);
         String output;
-        try {
-            EntityClassReader cReader = EntityClassReader.getClassReaderFor(RecursionTestC.class);
-            output = transformation.transform(cReader.asFeature(c));
-            HashMap map = mapper.readValue(output, HashMap.class);
-            Assert.assertEquals(2, ((Map) map.get("properties")).size());
-        } catch (Exception ignored) {
-            Assert.fail("No exception should be thrown!");
-        }
-
+        EntityClassReader cReader = EntityClassReader.getClassReaderFor(RecursionTestC.class);
+        output = transformation.transform(cReader.asFeature(c));
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals(2, ((Map) map.get("properties")).size());
     }
 
     @Test
-    public void testGeometryCollectionSerializer() {
-        LinearRing l = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.0, 0.0), new Coordinate(1.0, 0.0),
-                new Coordinate(1.0, 1.0), new Coordinate(0.0, 1.0), new Coordinate(0.0, 0.0)}), geomFactory);
-        LinearRing l2 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.1, 0.1), new Coordinate(0.25, 0.1),
-                new Coordinate(0.25, 0.25), new Coordinate(0.1, 0.25), new Coordinate(0.1, 0.1)}), geomFactory);
-        LinearRing l3 = new LinearRing(new CoordinateArraySequence(new Coordinate[]{new Coordinate(0.7, 0.7), new Coordinate(0.95, 0.7),
-                new Coordinate(0.95, 0.95), new Coordinate(0.7, 0.95), new Coordinate(0.7, 0.7)}), geomFactory);
-        Polygon pol1 = new Polygon(l, new LinearRing[]{l2, l3}, geomFactory);
-        Point p = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0)}), geomFactory);
-        Point p2 = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(3.0, 4.0)}), geomFactory);
-        MultiPoint mpt = new MultiPoint(new Point[]{p, p2}, geomFactory);
-        LineString ls = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0), new Coordinate(3.0, 4.0)}), geomFactory);
-        LineString ls2 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(12.0, 13.0), new Coordinate(13.0, 14.0)}), geomFactory);
-        LineString ls3 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(24.0, 5.0), new Coordinate(19.0, 3.0)}), geomFactory);
-        MultiLineString mls = new MultiLineString(new LineString[]{l, ls2, ls3}, geomFactory);
-        GeometryCollection geomCollection = new GeometryCollection(new Geometry[]{pol1, p, mpt, ls, mls}, geomFactory);
-        try {
-            String output = transformation.transform(geomCollection);
+    public void testGeometryCollectionSerializer() throws Exception {
+        PointSequence pnts = PointSequenceFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.XY);
+        LinearRing l = geomFactory.createLinearRing(pnts);
+        pnts = PointSequenceFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.XY);
+        LinearRing l2 = geomFactory.createLinearRing(pnts);
+        pnts = PointSequenceFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.XY);
+        LinearRing l3 = geomFactory.createLinearRing(pnts);
+        Polygon pol1 = geomFactory.createPolygon(new LinearRing[]{l, l2, l3});
+        Point p = Point.create(2, 3, CrsId.valueOf(900913));
+        Point p2 = Point.create(3, 4, CrsId.valueOf(900913));
+        MultiPoint mpt = geomFactory.createMultiPoint(new Point[]{p, p2});
+        pnts = PointSequenceFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.XY);
+        LineString ls = geomFactory.createLineString(pnts);
+        pnts = PointSequenceFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.XY);
+        LineString ls2 = geomFactory.createLineString(pnts);
+        pnts = PointSequenceFactory.create(new double[]{4, 5, 19, 3}, DimensionalFlag.XY);
+        LineString ls3 = geomFactory.createLineString(pnts);
+        MultiLineString mls = geomFactory.createMultiLineString(new LineString[]{l, ls2, ls3});
+        GeometryCollection geomCollection = geomFactory.createGeometryCollection(new Geometry[]{pol1, p, mpt, ls, mls});
 
-            HashMap map = mapper.readValue(output, HashMap.class);
-            Assert.assertEquals("GeometryCollection", map.get("type"));
-            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
-            Assert.assertEquals("name", getFromMap("crs.type", map));
-            List<HashMap> geoms = (List<HashMap>) map.get("geometries");
-            Assert.assertEquals(5, geoms.size());
-            for (int i = 0; i < 5; i++) {
-                Assert.assertNull(geoms.get(i).get("crs"));
-                Assert.assertNull(geoms.get(i).get("bbox"));
-            }
-            Assert.assertEquals("Polygon", geoms.get(0).get("type"));
-            Assert.assertEquals("Point", geoms.get(1).get("type"));
-            Assert.assertEquals("MultiPoint", geoms.get(2).get("type"));
-            Assert.assertEquals("LineString", geoms.get(3).get("type"));
-            Assert.assertEquals("MultiLineString", geoms.get(4).get("type"));
+        String output = transformation.transform(geomCollection);
 
-        } catch (JsonMappingException e) {
-            Assert.fail("No exception expected");
-        } catch (JsonParseException e) {
-            Assert.fail("No exception expected");
-        } catch (IOException e) {
-            Assert.fail("No exception expected");
-        } catch (TransformationException e) {
-            Assert.fail("No exception expected");
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals("GeometryCollection", map.get("type"));
+        Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+        Assert.assertEquals("name", getFromMap("crs.type", map));
+        List<HashMap> geoms = (List<HashMap>) map.get("geometries");
+        Assert.assertEquals(5, geoms.size());
+        for (int i = 0; i < 5; i++) {
+            Assert.assertNull(geoms.get(i).get("crs"));
+            Assert.assertNull(geoms.get(i).get("bbox"));
         }
+        Assert.assertEquals("Polygon", geoms.get(0).get("type"));
+        Assert.assertEquals("Point", geoms.get(1).get("type"));
+        Assert.assertEquals("MultiPoint", geoms.get(2).get("type"));
+        Assert.assertEquals("LineString", geoms.get(3).get("type"));
+        Assert.assertEquals("MultiLineString", geoms.get(4).get("type"));
+
     }
 
 

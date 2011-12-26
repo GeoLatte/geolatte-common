@@ -21,7 +21,8 @@
 
 package org.geolatte.common.expressions;
 
-import com.vividsolutions.jts.geom.Geometry;
+
+import org.geolatte.geom.Geometry;
 
 import java.util.Date;
 

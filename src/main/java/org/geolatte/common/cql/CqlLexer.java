@@ -40,13 +40,13 @@ import java.io.PushbackReader;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class CQLLexer extends Lexer {
+public class CqlLexer extends Lexer {
 
     private Token wktToken = null;
     private int openBraces = 0;
     private String accumulatedWktText = "";
 
-    public CQLLexer(@SuppressWarnings("hiding") PushbackReader in) {
+    public CqlLexer(@SuppressWarnings("hiding") PushbackReader in) {
         super(in);
     }
 

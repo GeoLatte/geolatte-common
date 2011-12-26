@@ -21,11 +21,11 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
+import org.geolatte.geom.LineString;
+import org.geolatte.geom.Point;
 
 import java.io.IOException;
 
@@ -64,10 +64,10 @@ public class LineStringSerializer extends GeometrySerializer<LineString> {
         jgen.writeArrayFieldStart("coordinates");
         JsonSerializer<Object> ser = provider.findValueSerializer(Double.class);
         for (int j = 0; j < value.getNumPoints(); j++) {
-            Coordinate coordinate = value.getPointN(j).getCoordinate();
+            Point coordinate = value.getPointN(j);
             jgen.writeStartArray();
-            ser.serialize(coordinate.x, jgen, provider);
-            ser.serialize(coordinate.y, jgen, provider);
+            ser.serialize(coordinate.getX(), jgen, provider);
+            ser.serialize(coordinate.getY(), jgen, provider);
             jgen.writeEndArray();
         }
         jgen.writeEndArray();
@@ -78,11 +78,11 @@ public class LineStringSerializer extends GeometrySerializer<LineString> {
         // minX, minY, maxX, maxY
         double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
         for (int j = 0; j < shape.getNumPoints(); j++) {
-                Coordinate coordinate = shape.getPointN(j).getCoordinate();
-                result[0] = Math.min(coordinate.x, result[0]);
-                result[1] = Math.min(coordinate.y, result[1]);
-                result[2] = Math.max(coordinate.x, result[2]);
-                result[3] = Math.max(coordinate.y, result[3]);
+                Point coordinate = shape.getPointN(j);
+                result[0] = Math.min(coordinate.getX(), result[0]);
+                result[1] = Math.min(coordinate.getY(), result[1]);
+                result[2] = Math.max(coordinate.getX(), result[2]);
+                result[3] = Math.max(coordinate.getY(), result[3]);
             }
         return result;
     }
