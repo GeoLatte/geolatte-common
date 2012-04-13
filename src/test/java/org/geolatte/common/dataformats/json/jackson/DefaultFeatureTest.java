@@ -167,7 +167,7 @@ public class DefaultFeatureTest {
 
         Object idValue = new Object();
         Object propertyValue = new Object();
-        Geometry geomValue = Point.create(8.0d, 9.0d, CrsId.valueOf(31370));
+        Geometry geomValue = Points.create(8.0d, 9.0d, CrsId.valueOf(31370));
 
         f.setId("id", idValue);
         f.setGeometry("myGeometry", geomValue);

@@ -68,50 +68,61 @@ public class GeoJsonToFactory {
      * geojsonto
      */
     public Geometry fromTo(GeoJsonTo input) throws JsonMappingException {
+        
+        return fromTo(input, null);
+    }
+
+    /**
+     * Creates a geolatte geometry object starting from a geojsonto.
+     * @param input the geojson to to start from
+     * @return the corresponding geometry
+     * @throws org.codehaus.jackson.map.JsonMappingException If the geometry could not be constructed due to an invalid
+     * geojsonto
+     */
+    public Geometry fromTo(GeoJsonTo input, CrsId givenCrsId) throws JsonMappingException {
         if (input == null) {
             return null;
         }
-        CrsId crsId = getCrsId(input);
-        CrsId crsIdValue = crsId == null ? CrsId.UNDEFINED : crsId;
+        CrsId crsId = givenCrsId == null ? getCrsId(input) : givenCrsId;
         if (! input.isValid()) {
             throw new JsonMappingException("Input to is not valid and can therefore not be converted to a geometry");
         }
         if (input instanceof PointTo) {
-            return createPoint(((PointTo) input).getCoordinates(), crsIdValue);
+            return createPoint(((PointTo) input).getCoordinates(), crsId);
         } else if (input instanceof MultiPointTo)  {
             MultiPointTo to = (MultiPointTo) input;
             Point[] points = new Point[to.getCoordinates().length];
             for (int i=0; i< points.length; i++) {
-                points[i] = createPoint(to.getCoordinates()[i], crsIdValue);
+                points[i] = createPoint(to.getCoordinates()[i], crsId);
             }
-            return MultiPoint.create(points, crsIdValue);
+            return new MultiPoint(points);
         } else if (input instanceof LineStringTo)  {
             LineStringTo to = (LineStringTo) input;
-            return LineString.create(createPointSequence(to.getCoordinates()), crsIdValue);
+            return new LineString(createPointSequence(to.getCoordinates()), crsId);
         } else if (input instanceof MultiLineStringTo)  {
             MultiLineStringTo to = (MultiLineStringTo) input;
             LineString[] lineStrings = new LineString[to.getCoordinates().length];
             for (int i =0; i < lineStrings.length;i++) {
-                lineStrings[i] = LineString.create(createPointSequence(to.getCoordinates()[i]), crsIdValue);
+                lineStrings[i] = new LineString(createPointSequence(to.getCoordinates()[i]), crsId);
             }
-            return MultiLineString.create(lineStrings, crsIdValue);
+            return new MultiLineString(lineStrings);
         } else if (input instanceof PolygonTo)  {
             PolygonTo to = (PolygonTo) input;
-            return createPolygon(to.getCoordinates(), crsIdValue);
+            return createPolygon(to.getCoordinates(), crsId);
         } else if (input instanceof MultiPolygonTo)  {
             MultiPolygonTo to = (MultiPolygonTo) input;
             Polygon[] polygons = new Polygon[to.getCoordinates().length];
             for (int i=0; i < polygons.length; i ++) {
-                polygons[i] = createPolygon(to.getCoordinates()[i], crsIdValue);
+                polygons[i] = createPolygon(to.getCoordinates()[i], crsId);
             }
-            return MultiPolygon.create(polygons, crsIdValue);
+            return new MultiPolygon(polygons);
         } else if (input instanceof GeometryCollectionTo) {
             GeometryCollectionTo to = (GeometryCollectionTo) input;
             Geometry[] geoms = new Geometry[to.getGeometries().length];
             for (int i=0; i< geoms.length;i++) {
-                geoms[i] = fromTo(to.getGeometries()[i]);
+                geoms[i] = fromTo(to.getGeometries()[i], crsId);
             }
-            return GeometryCollection.create(geoms, crsIdValue);
+            return new GeometryCollection(geoms);
         }
         return null;
     }
@@ -125,9 +136,9 @@ public class GeoJsonToFactory {
     private Polygon createPolygon(double[][][] coordinates, CrsId crsId) {
         LinearRing[] rings = new LinearRing[coordinates.length];
         for (int i=0; i < coordinates.length;i++) {
-            rings[i] = LinearRing.create(createPointSequence(coordinates[i]), crsId);
+            rings[i] = new LinearRing(createPointSequence(coordinates[i]), crsId);
         }
-        return Polygon.create(rings, crsId);
+        return new Polygon(rings);
     }
 
     /**
@@ -142,7 +153,7 @@ public class GeoJsonToFactory {
             return new PointSequenceFactory().createEmpty();
         }
         DimensionalFlag df = coordinates[0].length == 3 ? DimensionalFlag.XYZ : DimensionalFlag.XY;
-        PointSequenceBuilder psb = PointSequenceBuilderFactory.newVariableSizePointSequenceBuilder(df);
+        PointSequenceBuilder psb = PointSequenceBuilders.variableSized(df);
         for (double[] point: coordinates) {
               psb.add(point);
         }
@@ -160,9 +171,9 @@ public class GeoJsonToFactory {
             return null;
         }
         if (input.length == 2) {
-            return Point.create(input[0], input[1], crsIdValue);
+            return Points.create(input[0], input[1], crsIdValue);
         } else {
-            return Point.create3D(input[0], input[1], input[2], crsIdValue);
+            return Points.create3D(input[0], input[1], input[2], crsIdValue);
         }
     }
 

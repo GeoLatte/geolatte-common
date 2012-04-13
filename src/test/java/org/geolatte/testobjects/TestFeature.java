@@ -48,7 +48,7 @@ public class TestFeature extends TestFeatureNoShape {
     public TestFeature() {
         super("Antwerpen", 50, new String[]{"Belgium", "Flanders"}, 125, "name", "subName");
         PointSequence pnts = PointSequenceFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
-        shape = LineString.create(pnts, CrsId.valueOf(900913));
+        shape = new LineString(pnts, CrsId.valueOf(900913));
     }
 
     public TestFeature(String name, int length, String[] ownerNames, Geometry shape, int idValue, String subObjectName, String subSubObjectName) {
