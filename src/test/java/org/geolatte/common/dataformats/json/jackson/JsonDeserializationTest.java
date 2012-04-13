@@ -651,7 +651,9 @@ public class JsonDeserializationTest {
             Assert.assertEquals(LAMBERT72, geomCol.getSRID());
             Assert.assertEquals(2, geomCol.getNumGeometries());
             Assert.assertTrue(geomCol.getGeometryN(0) instanceof Point);
-            Assert.assertTrue(geomCol.getGeometryN(1) instanceof LineString);            
+            Assert.assertTrue(geomCol.getGeometryN(1) instanceof LineString);
+            Assert.assertEquals(LAMBERT72, geomCol.getGeometryN(0).getSRID());
+            Assert.assertEquals(LAMBERT72, geomCol.getGeometryN(1).getSRID());
         } catch (JsonException e) {
             Assert.fail("No exception expected for a valid geometrycollection specification.");
         }
@@ -662,13 +664,16 @@ public class JsonDeserializationTest {
             Assert.assertEquals(LAMBERT72, geomCol.getSRID());
             Assert.assertEquals(2, geomCol.getNumGeometries());
             Assert.assertTrue(geomCol.getGeometryN(0) instanceof GeometryCollection);
+            Assert.assertEquals(LAMBERT72, geomCol.getGeometryN(0).getSRID());
+            Assert.assertEquals(LAMBERT72, geomCol.getGeometryN(1).getSRID());
             Assert.assertEquals(2, ((GeometryCollection)geomCol.getGeometryN(0)).getNumGeometries());
+            Assert.assertEquals(LAMBERT72, (geomCol.getGeometryN(0)).getSRID());
+            Assert.assertEquals(LAMBERT72, (geomCol.getGeometryN(1)).getSRID());
             Assert.assertTrue(geomCol.getGeometryN(1) instanceof LineString);
+
         } catch (JsonException e) {
             Assert.fail("No exception expected for a valid geometrycollection specification.");
         }
-
-
     }
 
     /**

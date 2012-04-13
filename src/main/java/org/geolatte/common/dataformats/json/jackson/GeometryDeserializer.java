@@ -21,6 +21,7 @@ import org.geolatte.geom.crs.CrsId;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -128,26 +129,66 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
 
 
     /**
-     * Parses the JSON as a GeometryCollection
+     * Parses the JSON as a GeometryCollection.
      *
-     * @return an instance of a geometrycollection
+     * @param crsId the crsId of this collection.
      * @throws IOException if the given json does not correspond to a geometrycollection or can be parsed as such
-     * @param crsId
+     * @return an instance of a geometrycollection
      */
     private GeometryCollection asGeomCollection(CrsId crsId) throws IOException {
         try {
-            String subJson = getSubJson("geometries", "A geometrycollection requires a geometries parameter").replaceAll(" ", "");
+            String subJson = getSubJson("geometries", "A geometrycollection requires a geometries parameter")
+                    .replaceAll(" ", "");
             String noSpaces = subJson.replace(" ", "");
             if (noSpaces.contains("\"crs\":{"))
             {
-                throw new IOException("Specification of the crs information is forbidden in child elements. Either leave it out, or specify it at the toplevel object.");
+                throw new IOException("Specification of the crs information is forbidden in child elements. Either " +
+                                      "leave it out, or specify it at the toplevel object.");
             }
+
+            // add crs to each of the json geometries, otherwise they are deserialized with an undefined crs and the
+            // collection will then also have an undefined crs.
+            subJson = setCrsIds(subJson, crsId);
+
             List<Geometry> geometries = parent.collectionFromJson(subJson, Geometry.class);
-            return GeometryCollection.create(geometries.toArray(new Geometry[geometries.size()]), crsId);
+
+            return new GeometryCollection(geometries.toArray(new Geometry[geometries.size()]));
 
         } catch (JsonException e) {
             throw new IOException(e);
         }
+    }
+
+    /**
+     * Adds the given crs to all json objects. Used in {@link #asGeomCollection(org.geolatte.geom.crs.CrsId)}.
+     *
+     * @param json  the json string representing an array of geometry objects without crs property.
+     * @param crsId the crsId
+     * @return the same json string with the crs property filled in for each of the geometries.
+     */
+    private String setCrsIds(String json, CrsId crsId) throws IOException, JsonException {
+
+        /* Prepare a geojson crs structure
+        "crs": {
+            "type": "name",
+                    "properties": {
+                "name": "EPSG:xxxx"
+            }
+        }
+        */
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put("name", crsId.getAuthority() + ":" + crsId.getCode());
+        HashMap<String, Object> type = new HashMap<String, Object>();
+        type.put("type", "name");
+        type.put("properties", properties);
+
+        List<HashMap> result = parent.collectionFromJson(json, HashMap.class);
+        
+        for (HashMap geometryJson : result) {
+            geometryJson.put("crs", type);
+        }
+
+        return parent.toJson(result);
     }
 
 
@@ -168,7 +209,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         for (int i = 0; i < coords.size(); i++) {
             polygons[i] = asPolygon(coords.get(i), crsId);
         }
-        return MultiPolygon.create(polygons, crsId);
+        return new MultiPolygon(polygons);
     }
 
     /**
@@ -188,7 +229,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         for (int i = 0; i < lineStrings.length; i++) {
             lineStrings[i] = asLineString(coords.get(i), crsId);
         }
-        return MultiLineString.create(lineStrings, crsId);
+        return new MultiLineString(lineStrings);
     }
 
     /**
@@ -209,9 +250,9 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         try { 
         for (List<List> ring : coords) {
             PointSequence ringCoords = getPointSequence(ring);
-            rings.add(LinearRing.create(ringCoords, crsId));
+            rings.add(new LinearRing(ringCoords, crsId));
         }
-            return Polygon.create(rings.toArray(new LinearRing[]{}), crsId);
+            return new Polygon(rings.toArray(new LinearRing[]{}));
         } catch (IllegalArgumentException e) {
             throw new IOException("Invalid Polygon: " + e.getMessage(), e);
         }
@@ -231,7 +272,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         if (coords != null && coords.size() >= 2) {
             ArrayList<List> coordinates = new ArrayList<List>();
             coordinates.add(coords);
-            return Point.create(getPointSequence(coordinates), crsId);
+            return new Point(getPointSequence(coordinates), crsId);
         } else {
             throw new IOException("A point must has exactly one coordinate (an x, a y and possibly a z value). Additional numbers in the coordinate are permitted but ignored.");
         }
@@ -252,7 +293,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
             throw new IOException("A linestring requires a valid series of coordinates (at least two coordinates)");
         }
         PointSequence coordinates = getPointSequence(coords);
-        return LineString.create(coordinates, crsId);
+        return new LineString(coordinates, crsId);
     }
 
     /**
@@ -272,7 +313,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         for (int i = 0; i < coords.size(); i++) {
             points[i] = asPoint(coords.get(i), crsId);
         }
-        return MultiPoint.create(points, crsId);
+        return new MultiPoint(points);
     }
 
     /**
@@ -329,7 +370,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                 }
             }
             if (haszValues) {
-                PointSequenceBuilder builder = PointSequenceBuilderFactory.newFixedSizePointSequenceBuilder(entry.size(), DimensionalFlag.XYZ);
+                PointSequenceBuilder builder = PointSequenceBuilders.fixedSized(entry.size(), DimensionalFlag.XYZ);
                 for (int i = 0; i < entry.size(); i++){
                     builder.add(coordinates2d[2*i], coordinates2d[2*i+1], zValues[i]);
                 }
