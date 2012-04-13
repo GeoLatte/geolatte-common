@@ -21,11 +21,12 @@
 
 package org.geolatte.common.cql;
 
-import org.geolatte.common.expressions.Filter;
+import org.geolatte.common.cql.lexer.Lexer;
 import org.geolatte.common.cql.lexer.LexerException;
 import org.geolatte.common.cql.node.Start;
 import org.geolatte.common.cql.parser.Parser;
 import org.geolatte.common.cql.parser.ParserException;
+import org.geolatte.common.expressions.Filter;
 
 import java.io.IOException;
 import java.io.PushbackReader;
@@ -65,7 +66,7 @@ public class CqlFilter {
         Filter currentFilter = filterExpressions.get(clazz);
 
         try {
-            Parser p = new Parser( new CqlLexer( new PushbackReader(new StringReader(cqlString), 1024)));
+            Parser p = new Parser( new Lexer( new PushbackReader(new StringReader(cqlString), 1024)));
             // Parse the input.
             Start tree = p.parse();
 

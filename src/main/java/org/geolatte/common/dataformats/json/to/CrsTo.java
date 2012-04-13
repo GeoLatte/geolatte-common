@@ -53,6 +53,14 @@ public class CrsTo {
         return "name";
     }
 
+    /**
+     * Internal, do not use.
+     * @param type The type
+     */
+    public void setType(String type) {
+
+    }
+
     public NamedCrsPropertyTo getProperties() {
         return properties;
     }

@@ -78,11 +78,10 @@ public class GeoEqualsTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
 
-        geometry = Point.create(1, 1);
-        anEqualGeometry = Point.create(1, 1);
-        anUnEqualGeometry = Point.create(1, 2);
-        aDifferentTypeOfGeometry = LineString.create(PointSequenceFactory.create(new double[]{1, 1, 2, 2}, DimensionalFlag.XY), CrsId.UNDEFINED);
-
+        geometry = Points.create(1, 1);
+        anEqualGeometry = Points.create(1, 1);
+        anUnEqualGeometry = Points.create(1, 2);
+        aDifferentTypeOfGeometry = new LineString(PointSequenceFactory.create(new double[]{1, 1, 2, 2}, DimensionalFlag.XY), CrsId.UNDEFINED);
 
         geometryExpression = (Expression<Geometry>)context.mock(Expression.class, "geometry");
         anEqualGeometryExpression = (Expression<Geometry>)context.mock(Expression.class, "anEqualGeometry");

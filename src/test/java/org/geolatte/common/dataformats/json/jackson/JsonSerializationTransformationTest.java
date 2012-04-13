@@ -116,7 +116,7 @@ public class JsonSerializationTransformationTest {
      */
     @Test
     public void testPointSerializer() throws Exception {
-        Point p = Point.create(2.0, 3.0, CrsId.valueOf(900913));
+        Point p = Points.create(2.0, 3.0, CrsId.valueOf(900913));
         String output = transformation.transform(p);
         HashMap map = mapper.readValue(output, HashMap.class);
         Assert.assertEquals("Point", map.get("type"));
@@ -286,8 +286,8 @@ public class JsonSerializationTransformationTest {
      */
     @Test
     public void testMultiPointSerializer() throws TransformationException, IOException {
-        Point p = Point.create(2, 3, CrsId.valueOf(900913));
-        Point p2 = Point.create(3, 4, CrsId.valueOf(900913));
+        Point p = Points.create(2, 3, CrsId.valueOf(900913));
+        Point p2 = Points.create(3, 4, CrsId.valueOf(900913));
         MultiPoint l = geomFactory.createMultiPoint(new Point[]{p, p2});
         String output = transformation.transform(l);
         HashMap map = mapper.readValue(output, HashMap.class);
@@ -446,8 +446,8 @@ public class JsonSerializationTransformationTest {
         pnts = PointSequenceFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.XY);
         LinearRing l3 = geomFactory.createLinearRing(pnts);
         Polygon pol1 = geomFactory.createPolygon(new LinearRing[]{l, l2, l3});
-        Point p = Point.create(2, 3, CrsId.valueOf(900913));
-        Point p2 = Point.create(3, 4, CrsId.valueOf(900913));
+        Point p = Points.create(2, 3, CrsId.valueOf(900913));
+        Point p2 = Points.create(3, 4, CrsId.valueOf(900913));
         MultiPoint mpt = geomFactory.createMultiPoint(new Point[]{p, p2});
         pnts = PointSequenceFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.XY);
         LineString ls = geomFactory.createLineString(pnts);
