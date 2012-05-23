@@ -134,7 +134,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new IsEqual binary expression.
      */
-    public static IsEqual isEqual(ComparableExpression<Number> left, ComparableExpression<Number> right) {
+    public static IsEqual isEqual(NumberExpression left, NumberExpression right) {
         return new IsEqual(left, right);
     }
 
@@ -172,7 +172,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new BooleanIsEqual binary expression.
      */
-    public static BooleanIsEqual isEqual(ComparableExpression<Boolean> left, ComparableExpression<Boolean> right) {
+    public static BooleanIsEqual isEqual(BooleanExpression left, BooleanExpression right) {
         return new BooleanIsEqual(left, right);
     }
 
@@ -210,7 +210,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new StringIsEqual binary expression.
      */
-    public static StringIsEqual isEqual(ComparableExpression<String> left, ComparableExpression<String> right) {
+    public static StringIsEqual isEqual(StringExpression left, StringExpression right) {
 
         return new StringIsEqual(left, right);
     }
@@ -249,7 +249,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new IsGreaterThan binary expression.
      */
-    public static BooleanIsGreaterThan isGreaterThan(ComparableExpression<Boolean> left, ComparableExpression<Boolean> right) {
+    public static BooleanIsGreaterThan isGreaterThan(BooleanExpression left, BooleanExpression right) {
         return new BooleanIsGreaterThan(left, right);
     }
 
@@ -260,7 +260,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new IsGreaterThan binary expression.
      */
-    public static StringIsGreaterThan isGreaterThan(ComparableExpression<String> left, ComparableExpression<String> right) {
+    public static StringIsGreaterThan isGreaterThan(StringExpression left, StringExpression right) {
         return new StringIsGreaterThan(left, right);
     }
 
@@ -282,7 +282,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new BooleanIsGreaterThanOrEqual binary expression.
      */
-    public static BooleanIsGreaterThanOrEqual isGreaterThanOrEqual(ComparableExpression<Boolean> left, ComparableExpression<Boolean> right) {
+    public static BooleanIsGreaterThanOrEqual isGreaterThanOrEqual(BooleanExpression left, BooleanExpression right) {
         return new BooleanIsGreaterThanOrEqual(left, right);
     }
 
@@ -309,7 +309,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new StringIsGreaterThanOrEqual binary expression.
      */
-    public static StringIsGreaterThanOrEqual isGreaterThanOrEqual(ComparableExpression<String> left, ComparableExpression<String> right) {
+    public static StringIsGreaterThanOrEqual isGreaterThanOrEqual(StringExpression left, StringExpression right) {
         return new StringIsGreaterThanOrEqual(left, right);
     }
 
@@ -347,7 +347,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new is less than binary expression.
      */
-    public static BooleanIsLessThan isLessThan(ComparableExpression<Boolean> left, ComparableExpression<Boolean> right) {
+    public static BooleanIsLessThan isLessThan(BooleanExpression left, BooleanExpression right) {
         return new BooleanIsLessThan(left, right);
     }
 
@@ -359,7 +359,7 @@ public class Expressions {
      * @throws IllegalArgumentException If the constant is not a Number
      * @return A new is less than binary expression.
      */
-    public static BooleanIsLessThan isLessThan(ComparableExpression<Boolean> left, Object constant) {
+    public static BooleanIsLessThan isLessThan(BooleanExpression left, Object constant) {
 
         if (!(constant instanceof Boolean))
             throw new IllegalArgumentException("constant is not a Boolean");
@@ -374,7 +374,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new is less than binary expression.
      */
-    public static StringIsLessThan isLessThan(ComparableExpression<String> left, ComparableExpression<String> right) {
+    public static StringIsLessThan isLessThan(StringExpression left, StringExpression right) {
         return new StringIsLessThan(left, right);
     }
 
@@ -386,7 +386,7 @@ public class Expressions {
      * @throws IllegalArgumentException If the constant is not a String
      * @return A new is less than binary expression.
      */
-    public static StringIsLessThan isLessThan(ComparableExpression<String> left, Object constant) {
+    public static StringIsLessThan isLessThan(StringExpression left, Object constant) {
 
         if (!(constant instanceof String))
             throw new IllegalArgumentException("constant is not a String");
@@ -401,7 +401,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new IsLessThanOrEqual binary expression.
      */
-    public static IsLessThanOrEqual isLessThanOrEqual(ComparableExpression<Number> left, ComparableExpression<Number> right) {
+    public static IsLessThanOrEqual isLessThanOrEqual(NumberExpression left, NumberExpression right) {
         return new IsLessThanOrEqual(left, right);
     }
 
@@ -413,7 +413,7 @@ public class Expressions {
      * @throws IllegalArgumentException If the constant is not a Number
      * @return A new is less than binary expression.
      */
-    public static IsLessThanOrEqual isLessThanOrEqual(ComparableExpression<Number> left, Object constant) {
+    public static IsLessThanOrEqual isLessThanOrEqual(NumberExpression left, Object constant) {
 
         if (!(constant instanceof Number))
             throw new IllegalArgumentException("constant is not a Number");
@@ -430,7 +430,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new StringIsLessThanOrEqual binary expression.
      */
-    public static StringIsLessThanOrEqual isLessThanOrEqual(ComparableExpression<String> left, ComparableExpression<String> right) {
+    public static StringIsLessThanOrEqual isLessThanOrEqual(StringExpression left, StringExpression right) {
         return new StringIsLessThanOrEqual(left, right);
     }
 
@@ -442,7 +442,7 @@ public class Expressions {
      * @throws IllegalArgumentException If the constant is not a String
      * @return A new is less than binary expression.
      */
-    public static StringIsLessThanOrEqual isLessThanOrEqual(ComparableExpression<String> left, Object constant) {
+    public static StringIsLessThanOrEqual isLessThanOrEqual(StringExpression left, Object constant) {
 
         if (!(constant instanceof String))
             throw new IllegalArgumentException("constant is not a String");
@@ -457,7 +457,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new IsNotEqual binary expression.
      */
-    public static IsNotEqual isNotEqual(ComparableExpression<Number> left, ComparableExpression<Number> right) {
+    public static IsNotEqual isNotEqual(NumberExpression left, NumberExpression right) {
         return new IsNotEqual(left, right);
     }
 
@@ -495,7 +495,7 @@ public class Expressions {
      * @param right The right expression.
      * @return A new StringIsNotEqual binary expression.
      */
-    public static StringIsNotEqual isNotEqual(ComparableExpression<String> left, ComparableExpression<String> right) {
+    public static StringIsNotEqual isNotEqual(StringExpression left, StringExpression right) {
         return new StringIsNotEqual(left, right);
     }
 
