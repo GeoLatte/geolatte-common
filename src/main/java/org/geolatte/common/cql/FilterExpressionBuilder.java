@@ -22,10 +22,7 @@
 package org.geolatte.common.cql;
 
 import org.geolatte.common.cql.node.*;
-import org.geolatte.common.expressions.ComparableExpression;
-import org.geolatte.common.expressions.EmptyBasicTypeSwitch;
-import org.geolatte.common.expressions.Expression;
-import org.geolatte.common.expressions.Expressions;
+import org.geolatte.common.expressions.*;
 import org.geolatte.common.reflection.EntityClassReader;
 import org.geolatte.geom.Geometry;
 
@@ -106,15 +103,15 @@ class FilterExpressionBuilder extends AbstractBuilder {
         translatedExpressions.get(node.getLeft()).switchOn(new EmptyBasicTypeSwitch() {
             @Override
             public void caseNumber(Expression<Number> expr) {
-                translatedExpressions.put(node, Expressions.isGreaterThan((ComparableExpression<Number>)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isGreaterThan((NumberExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseBoolean(Expression<Boolean> expr) {
-                translatedExpressions.put(node, Expressions.isGreaterThan((ComparableExpression<Boolean>)translatedExpressions.get(node.getLeft()), Expressions.constant((Boolean)Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isGreaterThan((BooleanExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseString(Expression<String> expr) {
-                translatedExpressions.put(node, Expressions.isGreaterThan((ComparableExpression<String>)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
+                translatedExpressions.put(node, Expressions.isGreaterThan((StringExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
             }
         });
     }
@@ -125,15 +122,15 @@ class FilterExpressionBuilder extends AbstractBuilder {
         translatedExpressions.get(node.getLeft()).switchOn(new EmptyBasicTypeSwitch() {
             @Override
             public void caseNumber(Expression<Number> expr) {
-                translatedExpressions.put(node, Expressions.isLessThan((ComparableExpression<Number>)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isLessThan((NumberExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseBoolean(Expression<Boolean> expr) {
-                translatedExpressions.put(node, Expressions.isLessThan((ComparableExpression<Boolean>)translatedExpressions.get(node.getLeft()), Expressions.constant((Boolean)Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isLessThan((BooleanExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseString(Expression<String> expr) {
-                translatedExpressions.put(node, Expressions.isLessThan((ComparableExpression<String>)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
+                translatedExpressions.put(node, Expressions.isLessThan((StringExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
             }
         });
     }
@@ -144,15 +141,15 @@ class FilterExpressionBuilder extends AbstractBuilder {
         translatedExpressions.get(node.getLeft()).switchOn(new EmptyBasicTypeSwitch() {
             @Override
             public void caseNumber(Expression<Number> expr) {
-                translatedExpressions.put(node, Expressions.isGreaterThanOrEqual((ComparableExpression<Number>)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isGreaterThanOrEqual((NumberExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseBoolean(Expression<Boolean> expr) {
-                translatedExpressions.put(node, Expressions.isGreaterThanOrEqual((ComparableExpression<Boolean>)translatedExpressions.get(node.getLeft()), Expressions.constant((Boolean)Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isGreaterThanOrEqual((BooleanExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseString(Expression<String> expr) {
-                translatedExpressions.put(node, Expressions.isGreaterThanOrEqual((ComparableExpression<String>)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
+                translatedExpressions.put(node, Expressions.isGreaterThanOrEqual((StringExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
             }
         });
     }
@@ -163,15 +160,15 @@ class FilterExpressionBuilder extends AbstractBuilder {
         translatedExpressions.get(node.getLeft()).switchOn(new EmptyBasicTypeSwitch() {
             @Override
             public void caseNumber(Expression<Number> expr) {
-                translatedExpressions.put(node, Expressions.isLessThanOrEqual((ComparableExpression<Number>)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isLessThanOrEqual((NumberExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseBoolean(Expression<Boolean> expr) {
-                translatedExpressions.put(node, Expressions.isLessThanOrEqual((ComparableExpression<Boolean>)translatedExpressions.get(node.getLeft()), Expressions.constant((Boolean)Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isLessThanOrEqual((BooleanExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseString(Expression<String> expr) {
-                translatedExpressions.put(node, Expressions.isLessThanOrEqual((ComparableExpression<String>)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
+                translatedExpressions.put(node, Expressions.isLessThanOrEqual((StringExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
             }
         });
     }
@@ -182,15 +179,15 @@ class FilterExpressionBuilder extends AbstractBuilder {
         translatedExpressions.get(node.getLeft()).switchOn(new EmptyBasicTypeSwitch() {
             @Override
             public void caseNumber(Expression<Number> expr) {
-                translatedExpressions.put(node, Expressions.isEqual((ComparableExpression<Number>)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isEqual((NumberExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseBoolean(Expression<Boolean> expr) {
-                translatedExpressions.put(node, Expressions.isEqual((ComparableExpression<Boolean>)translatedExpressions.get(node.getLeft()), Expressions.constant((Boolean)Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isEqual((BooleanExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseString(Expression<String> expr) {
-                translatedExpressions.put(node, Expressions.isEqual((ComparableExpression<String>)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
+                translatedExpressions.put(node, Expressions.isEqual((StringExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
             }
         });
     }
@@ -201,15 +198,15 @@ class FilterExpressionBuilder extends AbstractBuilder {
         translatedExpressions.get(node.getLeft()).switchOn(new EmptyBasicTypeSwitch() {
             @Override
             public void caseNumber(Expression<Number> expr) {
-                translatedExpressions.put(node, Expressions.isNotEqual((ComparableExpression<Number>)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isNotEqual((NumberExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Double.parseDouble(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseBoolean(Expression<Boolean> expr) {
-                translatedExpressions.put(node, Expressions.isNotEqual((ComparableExpression<Boolean>)translatedExpressions.get(node.getLeft()), Expressions.constant((Boolean)Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
+                translatedExpressions.put(node, Expressions.isNotEqual((BooleanExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(Boolean.parseBoolean(getLiteral(node.getRight()).toString()))));
             }
             @Override
             public void caseString(Expression<String> expr) {
-                translatedExpressions.put(node, Expressions.isNotEqual((ComparableExpression<String>)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
+                translatedExpressions.put(node, Expressions.isNotEqual((StringExpression)translatedExpressions.get(node.getLeft()), Expressions.constant(getLiteral(node.getRight()).toString())));
             }
         });
     }
@@ -264,7 +261,7 @@ class FilterExpressionBuilder extends AbstractBuilder {
             lowDate = parseDate(fromToTimespan.getFrom().getText().trim());
             highDate = parseDate(fromToTimespan.getTo().getText().trim());
 
-            translatedExpressions.put(node, Expressions.isBetween((ComparableExpression<Date>)translatedExpressions.get(node.getAttr()), (ComparableExpression<Date>)Expressions.constant(lowDate), (ComparableExpression<Date>)Expressions.constant(highDate)));
+            translatedExpressions.put(node, Expressions.isBetween((ComparableExpression<Date>)translatedExpressions.get(node.getAttr()), Expressions.constant(lowDate), Expressions.constant(highDate)));
         }
     }
 
