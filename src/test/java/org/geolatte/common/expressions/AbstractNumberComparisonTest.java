@@ -52,10 +52,10 @@ public abstract class AbstractNumberComparisonTest {
     };
 
     @SuppressWarnings("unchecked")
-    protected final ComparableExpression<Number> highNumberExpression = (ComparableExpression<Number>)context.mock(ComparableExpression.class, "HighNumber");
+    protected final NumberExpression highNumberExpression = (NumberExpression)context.mock(NumberExpression.class, "HighNumber");
 
     @SuppressWarnings("unchecked")
-    protected final ComparableExpression<Number> lowNumberExpression = (ComparableExpression<Number>)context.mock(ComparableExpression.class, "LowNumber");
+    protected final NumberExpression lowNumberExpression = (NumberExpression)context.mock(NumberExpression.class, "LowNumber");
 
     protected Object theObjectToEvaluate = new Object();
 
