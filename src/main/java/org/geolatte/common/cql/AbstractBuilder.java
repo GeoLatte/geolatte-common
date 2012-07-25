@@ -228,8 +228,8 @@ public class AbstractBuilder extends DepthFirstAdapter {
 
     /**
      * Creates a dot-separated string of the given parts.
-     * @param parts
-     * @return
+     * @param parts A collections of parts.
+     * @return a dot-separated string of the parts.
      */
     protected String getPropertyPath(Collection<String> parts) {
 

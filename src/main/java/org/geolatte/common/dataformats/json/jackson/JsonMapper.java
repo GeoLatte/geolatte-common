@@ -152,8 +152,8 @@ public class JsonMapper {
     /**
      * Converts a JsonString into a corresponding javaobject of the requested type.
      *
-     * @param json     the inputstring to be converted to a javaobject
-     * @param clazz<T> the class to which the resulting object should belong to
+     * @param json  the inputstring to be converted to a javaobject
+     * @param clazz the class to which the resulting object should belong to
      * @return An object of type T that corresponds with the given json string.
      * @throws JsonException If something went wrong converting the jsonstring into an object
      */
