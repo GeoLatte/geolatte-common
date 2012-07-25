@@ -242,10 +242,4 @@
 
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>Hibernate Spatial repo</id>
-            <url>http://www.hibernatespatial.org/repository</url>
-        </repository>
-    </repositories>
 </project>
