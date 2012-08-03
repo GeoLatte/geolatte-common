@@ -81,7 +81,7 @@ public class GeoEqualsTest {
         geometry = Points.create(1, 1);
         anEqualGeometry = Points.create(1, 1);
         anUnEqualGeometry = Points.create(1, 2);
-        aDifferentTypeOfGeometry = new LineString(PointSequenceFactory.create(new double[]{1, 1, 2, 2}, DimensionalFlag.XY), CrsId.UNDEFINED);
+        aDifferentTypeOfGeometry = new LineString(PointCollectionFactory.create(new double[]{1, 1, 2, 2}, DimensionalFlag.XY), CrsId.UNDEFINED);
 
         geometryExpression = (Expression<Geometry>)context.mock(Expression.class, "geometry");
         anEqualGeometryExpression = (Expression<Geometry>)context.mock(Expression.class, "anEqualGeometry");

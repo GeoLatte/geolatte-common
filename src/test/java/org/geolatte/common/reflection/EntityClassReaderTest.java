@@ -54,7 +54,7 @@ public class EntityClassReaderTest {
 
     @Before
     public void setUp() {
-        PointSequence pnts = PointSequenceFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
+        PointSequence pnts = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
         LineString shape = new LineString(pnts, CrsId.UNDEFINED);
         testFeature = new TestFeature("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, shape, 5, "sub", "subsub");
         reader = EntityClassReader.getClassReaderFor(testFeature.getClass());
@@ -239,9 +239,9 @@ public class EntityClassReaderTest {
 
     @Test
     public void NoShapeDoubleShapeTest() {
-        PointSequence points = PointSequenceFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.XY);
+        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.XY);
         LineString shape2 = new LineString(points, CrsId.UNDEFINED);
-        points = PointSequenceFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
+        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
         LineString shape = new LineString(points, CrsId.UNDEFINED);
         Object noShape = new TestFeatureNoShape("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, 5, "sub", "subsub");
         Object doubleShape = new TestFeatureDoubleShape("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, shape, 5, shape2, "sub");
