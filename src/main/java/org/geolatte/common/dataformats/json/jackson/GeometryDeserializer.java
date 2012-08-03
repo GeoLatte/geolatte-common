@@ -376,7 +376,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                 }
                 return builder.toPointSequence();
             }  else {
-                return PointSequenceFactory.create(coordinates2d, DimensionalFlag.XY);
+                return PointCollectionFactory.create(coordinates2d, DimensionalFlag.XY);
             }
         }
     }

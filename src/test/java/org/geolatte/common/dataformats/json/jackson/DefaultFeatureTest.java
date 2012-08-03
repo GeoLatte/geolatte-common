@@ -62,7 +62,7 @@ public class DefaultFeatureTest {
         Assert.assertNull(f.getProperty("geometry"));
         Assert.assertEquals(0, f.getProperties().size());
 
-        Point p = geomFact.createPoint(PointSequenceFactory.create(new double[]{3.0d, 2.0d}, DimensionalFlag.XY));
+        Point p = geomFact.createPoint(PointCollectionFactory.create(new double[]{3.0d, 2.0d}, DimensionalFlag.XY));
         f.setGeometry("geometry", p);
 
         Assert.assertTrue(f.hasGeometry());

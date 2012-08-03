@@ -471,8 +471,8 @@ public class JsonDeserializationTest {
             Geometry second = result.getGeometryN(1);
             Assert.assertTrue(first instanceof LineString);
             Assert.assertTrue(second instanceof LineString);
-            PointSequence firstCoords = first.getPoints();
-            PointSequence secondCoords = second.getPoints();
+            PointSequence firstCoords = (PointSequence)first.getPoints();
+            PointSequence secondCoords = (PointSequence)second.getPoints();
             Assert.assertEquals(2, firstCoords.size());
             Assert.assertEquals(100.0,firstCoords.getCoordinate(0, CoordinateComponent.X), ACCURACY);
             Assert.assertEquals(101.0,firstCoords.getCoordinate(1, CoordinateComponent.X), ACCURACY);

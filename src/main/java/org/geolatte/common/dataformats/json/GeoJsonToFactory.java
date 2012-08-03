@@ -150,7 +150,7 @@ public class GeoJsonToFactory {
         if (coordinates == null) {
             return null;
         } else if (coordinates.length == 0) {
-            return new PointSequenceFactory().createEmpty();
+            return new PointCollectionFactory().createEmpty();
         }
         DimensionalFlag df = coordinates[0].length == 3 ? DimensionalFlag.XYZ : DimensionalFlag.XY;
         PointSequenceBuilder psb = PointSequenceBuilders.variableSized(df);
@@ -294,10 +294,9 @@ public class GeoJsonToFactory {
      */
     private double[][] getPoints(Geometry input) {
         double[][] result = new double[input.getNumPoints()][];
-        int i = 0;
-        for (Point p: input.getPoints()) {
+        for (int i = 0; i < input.getPoints().size(); i++) {
+            Point p = input.getPointN(i);
             result[i] = input.is3D() ? new double[]{p.getX(), p.getY(), p.getZ()} : new double[]{p.getX(), p.getY()};
-            i++;
         }
         return result;
     }
