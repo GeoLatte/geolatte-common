@@ -23,7 +23,7 @@ package org.geolatte.testobjects;
 
 import org.geolatte.geom.Geometry;
 import org.geolatte.geom.codec.Wkt;
-import org.geolatte.geom.codec.WktParseException;
+import org.geolatte.geom.codec.WktDecodeException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -158,7 +158,7 @@ public class FilterableObject {
                 try {
                     geometry = Wkt.fromWkt(propertyValue.toString());
                 }
-                catch (WktParseException e) {
+                catch (WktDecodeException e) {
                     System.err.println(e.getMessage());
                 }
                 setaGeometry(geometry);

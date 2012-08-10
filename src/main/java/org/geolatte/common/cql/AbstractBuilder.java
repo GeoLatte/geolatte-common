@@ -25,7 +25,7 @@ import org.geolatte.common.cql.analysis.DepthFirstAdapter;
 import org.geolatte.common.cql.node.*;
 import org.geolatte.geom.Geometry;
 import org.geolatte.geom.codec.Wkt;
-import org.geolatte.geom.codec.WktParseException;
+import org.geolatte.geom.codec.WktDecodeException;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -131,7 +131,7 @@ public class AbstractBuilder extends DepthFirstAdapter {
             Geometry geo = Wkt.fromWkt(wkt);
             putLiteral(node, geo);
         }
-        catch (WktParseException e) {
+        catch (WktDecodeException e) {
             throw new RuntimeException("Could not parse WKT: " + wkt, e);
         }
     }
