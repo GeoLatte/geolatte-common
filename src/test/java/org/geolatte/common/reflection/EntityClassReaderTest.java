@@ -290,4 +290,26 @@ public class EntityClassReaderTest {
             Assert.fail("No Exception should be thrown with JTS geometries");
         }
     }
+
+    @Test
+    public void acceptsNullGeometries () {
+        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.XY);
+        final LineString shape2 = new LineString(points, CrsId.UNDEFINED);
+        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
+        final LineString shape = new LineString(points, CrsId.UNDEFINED);
+
+        Object jtsObject = new Object(){
+            public com.vividsolutions.jts.geom.Geometry getGeometry(){ return null;}
+            public Geometry getSecondGeom() {return null;}
+        };
+        reader = EntityClassReader.getClassReaderFor(jtsObject.getClass());
+        try {
+            Geometry g1 = reader.getGeometry(jtsObject);
+            Geometry g2 = (Geometry)reader.getPropertyValue(jtsObject, "secondGeom");
+            Assert.assertNull(g1);
+            Assert.assertNull(g2);
+        } catch (InvalidObjectReaderException e) {
+            Assert.fail("No Exception should be thrown with JTS geometries");
+        }
+    }
 }

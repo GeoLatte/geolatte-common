@@ -23,10 +23,8 @@ package org.geolatte.common.reflection;
 
 import org.geolatte.common.Feature;
 import org.geolatte.geom.Geometry;
-import org.geolatte.geom.jts.JTS;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
@@ -58,20 +56,15 @@ public class EntityClassReader {
 
     private final static String DEFAULT_ID_PROPERTY = "id";
 
-    // Reusable empty object for reflection invoke calls.
-    private static final Object[] EMPTY = new Object[0];
     // Map with all readers, to avoid duplicate readers
     private static Map<Class, Map<String, EntityClassReader>> allReaders = new HashMap<Class, Map<String, EntityClassReader>>();
 
     // Map with all property getter names, except for the id and the geometry property
-    private Map<String, Method> methodMap = new HashMap<String, Method>();
+    private Map<String, Accessor> accessorMap = new HashMap<String, Accessor>();
 
     // Methods to access the geometry and id respectively
-    private Method geometryGetter;
-    private Method idGetter;
-
-    // determines whether the read class uses JTS (rather than Geolatte-geom)
-    private boolean usesJTS = false;
+    private Accessor geometryAccessor;
+    private Accessor idAccessor;
 
     // Class mapped by this reader
     private Class entityClass;
@@ -140,38 +133,33 @@ public class EntityClassReader {
             String propertyName = propertyName(m);
             boolean toAdd = true;
             if (isPropertyGeometryProperty(geometryPropertyName, m, propertyName)) {
-                geometryGetter = m;
+                geometryAccessor = Accessor.newInstance(m, propertyName);
                 toAdd = false;
             }
             if (isPropertyIdProperty(idPropertyName, propertyName)) {
-                idGetter = m;
+                idAccessor = Accessor.newInstance(m, propertyName);
                 toAdd = false;
             }
             if (toAdd) {
-                methodMap.put(propertyName, m);
+                accessorMap.put(propertyName, Accessor.newInstance(m, propertyName));
             }
 
         }
     }
 
     private boolean isPropertyIdProperty(String idPropertyName, String propertyName) {
-        if  (idGetter != null){
+        if  (idAccessor != null){
             return false;
         }
         return idPropertyName != null && idPropertyName.equals(propertyName);
     }
 
     private boolean isPropertyGeometryProperty(String geometryPropertyName, Method method, String propertyName) {
-        if (geometryGetter != null) {
+        if (geometryAccessor != null) {
             return false;
         }
-        boolean isGeometry = false;
-        if (com.vividsolutions.jts.geom.Geometry.class.isAssignableFrom(method.getReturnType())) {
-            usesJTS = true;
-            isGeometry = true;
-        } else if (Geometry.class.isAssignableFrom(method.getReturnType())){
-            isGeometry = true;
-        }
+        boolean isGeometry =  (com.vividsolutions.jts.geom.Geometry.class.isAssignableFrom(method.getReturnType()))
+                || (Geometry.class.isAssignableFrom(method.getReturnType()));
         return geometryPropertyName != null && isGeometry;
     }
 
@@ -239,8 +227,8 @@ public class EntityClassReader {
      */
     public String getGeometryName() {
         String result = null;
-        if (geometryGetter != null) {
-            result = propertyName(geometryGetter);
+        if (geometryAccessor != null) {
+            result = geometryAccessor.getPropertyName();
         }
         return result;
     }
@@ -252,8 +240,8 @@ public class EntityClassReader {
      */
     public String getIdName() {
         String result = null;
-        if (idGetter != null) {
-            result = propertyName(idGetter);
+        if (idAccessor != null) {
+            result = idAccessor.getPropertyName();
         }
         return result;
     }
@@ -264,9 +252,7 @@ public class EntityClassReader {
      *
      * @param objectToGet the object from which the id is desired.
      * @return the value of the id property of the given object
-     * @throws InvalidObjectReaderException If the object given is not of the entityclass this
-     *                                      reader was instantiated with.
-     * @throws IllegalArgumentException     if the given object is null
+     * @throws IllegalStateException     if no value can be retrieved from the object.
      */
     public Object getId(Object objectToGet)
             throws InvalidObjectReaderException {
@@ -276,16 +262,10 @@ public class EntityClassReader {
         if (objectToGet.getClass() != entityClass) {
             throw new InvalidObjectReaderException("Class of target object does not correspond with entityclass of this reader.");
         }
-        try {
-            if (idGetter == null) {
-                return null;
-            } else {
-                return idGetter.invoke(objectToGet, EMPTY);
-            }
-        } catch (IllegalAccessException e) {
+        if (idAccessor == null) {
             return null;
-        } catch (InvocationTargetException e) {
-            return null;
+        } else {
+            return idAccessor.getValueFrom(objectToGet);
         }
     }
 
@@ -305,20 +285,10 @@ public class EntityClassReader {
         if (objectToGet.getClass() != entityClass) {
             throw new InvalidObjectReaderException("Class of target object does not correspond with entityclass of this reader.");
         }
-        if (geometryGetter == null) {
+        if (geometryAccessor == null) {
             return null;
         } else {
-            try {
-                if (usesJTS) {
-                    com.vividsolutions.jts.geom.Geometry geometry = (com.vividsolutions.jts.geom.Geometry) geometryGetter.invoke(objectToGet, EMPTY);
-                    return geometry == null ? null : JTS.from(geometry);
-                }
-                return (Geometry) geometryGetter.invoke(objectToGet, EMPTY);
-            } catch (IllegalAccessException e) {
-                return null;
-            } catch (InvocationTargetException e) {
-                return null;
-            }
+            return (Geometry) geometryAccessor.getValueFrom(objectToGet);
         }
     }
 
@@ -359,17 +329,8 @@ public class EntityClassReader {
         String propertyName = propertyPathParts.nextToken();
         Object propertyValue = null;
 
-        if (methodMap.containsKey(propertyName)) {
-            try {
-                propertyValue = methodMap.get(propertyName).invoke(objectToGet, EMPTY);
-                if (propertyValue instanceof com.vividsolutions.jts.geom.Geometry){
-                    propertyValue = JTS.from((com.vividsolutions.jts.geom.Geometry)propertyValue);
-                }
-            } catch (IllegalAccessException e) {
-                propertyValue = null;
-            } catch (InvocationTargetException e) {
-                propertyValue = null;
-            }
+        if (accessorMap.containsKey(propertyName)) {
+            propertyValue = accessorMap.get(propertyName).getValueFrom(objectToGet);
         }
 
         if (!propertyPathParts.hasMoreTokens() || propertyValue == null)
@@ -411,12 +372,12 @@ public class EntityClassReader {
         String propertyName = propertyPathParts.nextToken();
         Class propertyType = null;
 
-        if (methodMap.containsKey(propertyName)) {
-            propertyType = methodMap.get(propertyName).getReturnType();
+        if (accessorMap.containsKey(propertyName)) {
+            propertyType = accessorMap.get(propertyName).getReturnType();
         } else if (propertyName.equals(getIdName())) {
-            propertyType = idGetter.getReturnType();
+            propertyType = idAccessor.getReturnType();
         } else if (propertyName.equals(getGeometryName())) {
-            propertyType = geometryGetter.getReturnType();
+            propertyType = geometryAccessor.getReturnType();
         }
 
         if (!propertyPathParts.hasMoreTokens() || propertyType == null)
@@ -472,7 +433,7 @@ public class EntityClassReader {
         if (propertyName == null) {
             throw new IllegalArgumentException("Given object may not be null");
         }
-        boolean normalProperty = methodMap.containsKey(propertyName);
+        boolean normalProperty = accessorMap.containsKey(propertyName);
         return normalProperty || (trueForSpecialProperties &&
                 (getIdName() != null && getIdName().equals(propertyName) ||
                         getGeometryName() != null && getGeometryName().equals(propertyName)));
@@ -484,7 +445,7 @@ public class EntityClassReader {
      * @return the list of all properties of the given class.
      */
     public Collection<String> getProperties() {
-        return methodMap.keySet();
+        return accessorMap.keySet();
     }
 
     /**
@@ -507,7 +468,8 @@ public class EntityClassReader {
         if (proxyPropertiesGetMethod == null) {
             Class[] emptyArray = new Class[]{};
             try {
-                //This is not terribly trheadsafe, and also inefficient. Should this not be moved to the constructor?
+                //This is not terribly threadsafe, and also inefficient. Should this not be moved to the constructor?
+                //TODO -- refactor
                 proxyGeomGetMethod = Feature.class.getDeclaredMethod("getGeometry", emptyArray);
                 proxyGeomNameGetMethod = Feature.class.getDeclaredMethod("getGeometryName", emptyArray);
                 proxyIdGetMethod = Feature.class.getDeclaredMethod("getId", emptyArray);
