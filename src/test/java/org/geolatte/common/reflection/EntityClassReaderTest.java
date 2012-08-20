@@ -21,9 +21,13 @@
 
 package org.geolatte.common.reflection;
 
+import com.vividsolutions.jts.geom.*;
 import org.geolatte.common.Feature;
 import org.geolatte.geom.*;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.LineString;
 import org.geolatte.geom.crs.CrsId;
+import org.geolatte.geom.jts.JTS;
 import org.geolatte.testobjects.TestFeature;
 import org.geolatte.testobjects.TestFeatureDoubleShape;
 import org.geolatte.testobjects.TestFeatureNoShape;
@@ -260,6 +264,30 @@ public class EntityClassReaderTest {
         } catch (InvalidObjectReaderException e) {
             // No exception may be thrown
             Assert.fail("No Exception should be thrown when more than one geometry is present");
+        }
+    }
+
+    @Test
+    public void allwaysReturnGeolatteGeoms () {
+        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.XY);
+        final LineString shape2 = new LineString(points, CrsId.UNDEFINED);
+        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
+        final LineString shape = new LineString(points, CrsId.UNDEFINED);
+
+        Object jtsObject = new Object(){
+            public com.vividsolutions.jts.geom.Geometry getGeometry(){ return JTS.to(shape);}
+            public com.vividsolutions.jts.geom.Geometry getSecondGeom() {return JTS.to(shape2);}
+        };
+        reader = EntityClassReader.getClassReaderFor(jtsObject.getClass());
+        try {
+            Geometry g1 = reader.getGeometry(jtsObject);
+            Object o = reader.getPropertyValue(jtsObject, "secondGeom");
+            Assert.assertTrue(g1.equals(shape) || g1.equals(shape2));
+            Assert.assertTrue(o instanceof Geometry);
+            Geometry g2 = (Geometry)o;
+            Assert.assertTrue(g2.equals(shape) || g2.equals(shape2));
+        } catch (InvalidObjectReaderException e) {
+            Assert.fail("No Exception should be thrown with JTS geometries");
         }
     }
 }
