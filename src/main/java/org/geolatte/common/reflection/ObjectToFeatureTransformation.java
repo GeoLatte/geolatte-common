@@ -43,6 +43,7 @@ import java.util.HashMap;
  */
 public class ObjectToFeatureTransformation<Source> implements Transformation<Source, Feature> {
 
+    //Is this really necessary? EntityClassReader already caches the map between class and EntityClassReader?
     HashMap<Class, EntityClassReader> readers = new HashMap<Class, EntityClassReader>();
 
     /**
