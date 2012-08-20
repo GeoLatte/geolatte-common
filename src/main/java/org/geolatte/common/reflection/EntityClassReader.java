@@ -327,7 +327,8 @@ public class EntityClassReader {
         } else {
             try {
                 if (usesJTS) {
-                    return JTS.from((com.vividsolutions.jts.geom.Geometry)geometryGetter.invoke(objectToGet, EMPTY));
+                    com.vividsolutions.jts.geom.Geometry geometry = (com.vividsolutions.jts.geom.Geometry) geometryGetter.invoke(objectToGet, EMPTY);
+                    return geometry == null ? null : JTS.from(geometry);
                 }
                 return (Geometry) geometryGetter.invoke(objectToGet, EMPTY);
             } catch (IllegalAccessException e) {

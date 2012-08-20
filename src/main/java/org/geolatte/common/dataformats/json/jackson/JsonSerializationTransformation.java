@@ -52,11 +52,11 @@ public class JsonSerializationTransformation implements Transformation<Object, S
         mapper = new JsonMapper();
     }
 
-    public synchronized String transform(Object input) throws TransformationException {
+    public synchronized String  transform(Object input) throws TransformationException {
         try {
             return mapper.toJson(input);
         } catch (JsonException e) {
-            throw new TransformationException(e);
+            throw new TransformationException(e, input);
         }
     }
 
