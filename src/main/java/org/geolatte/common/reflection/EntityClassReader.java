@@ -36,10 +36,8 @@ import java.util.*;
  * <p/>
  * In addition, the class allows one to retrieve a wrapped version of an object if wanted.
  * Note: <ul>
- * <li>The method {@link EntityClassReader#getId(Object)} is identical to {@link EntityClassReader#getPropertyValue(Object, String)}
- * <li>The method {@link EntityClassReader#getGeometry(Object)} will return the value of the first field encountered that can be assigned to a geometry.
- * If more than one of those fields are present, you will therefore get a random one! If no geometry fields exist, null
- * will always be returned.
+ * <li>The method {@link EntityClassReader#getId(Object)} is intended to return an identifier or primary key of the object
+ * <li>The method {@link EntityClassReader#getGeometry(Object)} is intended to return a geometry that specifies the object's location.
  * </ul>
  * <p/>
  * <p>
@@ -71,12 +69,29 @@ public class EntityClassReader {
     /*
      * The declaredmethods of the feature-interface which is accessed by the proxy implementation
      */
-    private Method proxyIdGetMethod;
-    private Method proxyExistsMethod;
-    private Method proxyGeomGetMethod;
-    private Method proxyGeomNameGetMethod;
-    private Method proxyPropertiesGetMethod;
-    private Method proxyAttributeGetMethod;
+    final static private Method proxyIdGetMethod;
+    final static private Method proxyExistsMethod;
+    final static private Method proxyGeomGetMethod;
+    final static private Method proxyGeomNameGetMethod;
+    final static private Method proxyPropertiesGetMethod;
+    final static private Method proxyAttributeGetMethod;
+
+    static {
+        Class[] emptyArray = new Class[]{};
+        try {
+            proxyGeomGetMethod = Feature.class.getDeclaredMethod("getGeometry", emptyArray);
+            proxyGeomNameGetMethod = Feature.class.getDeclaredMethod("getGeometryName", emptyArray);
+            proxyIdGetMethod = Feature.class.getDeclaredMethod("getId", emptyArray);
+            proxyExistsMethod = Feature.class.getDeclaredMethod("hasProperty", new Class[]{String.class, boolean.class});
+            proxyAttributeGetMethod = Feature.class.getDeclaredMethod("getProperty", new Class[]{String.class});
+            proxyPropertiesGetMethod = Feature.class.getDeclaredMethod("getProperties", emptyArray);
+        } catch (NoSuchMethodException e) {
+            // This can not happen,  since we control the feature interface class. So this must be some version-
+            // error in the geolatte library!
+            throw new RuntimeException("Version mismatch: apparently certain methods are not present in the Feature interface", e);
+        }
+    }
+
 
     private static String determineGeomProperty(Class entityClass) {
         if (entityClass == null) return null;
@@ -390,33 +405,6 @@ public class EntityClassReader {
     }
 
     /**
-     * <p>
-     * Parses a given string into an object whose class corresponds with the type of the property given. For example,
-     * if you give the method "4", and you ask it to parse like "width", and width is of the type Long, you will
-     * receive an object of the type Long. If the property of the underlying class has a primitive type as its type,
-     * the method will return the boxed variant instead.
-     * </p>
-     * <p>
-     * <b>Currently, this method is only implemented for all numeric and boolean java types.</b>
-     * </p>
-     *
-     * @param stringToParse The string to convert into an object
-     * @param propertyPath  Dot-separated path to the property whose type is to be used as the class to convert to
-     * @return A converted instance of the given string into the type of the given property. If the propertyName does
-     *         not correspond with a property name, null is returned. If the propertyName has any other type than a supported type
-     *         the original string is returned.
-     */
-    public Object parseAsPropertyType(String stringToParse, String propertyPath) {
-
-        Class propertyType = getPropertyType(propertyPath);
-        if (propertyType == null) {
-            return null;
-        }
-        NumberTransformer parser = transformers.get(propertyType);
-        return parser == null ? stringToParse : parser.parseObject(stringToParse);
-    }
-
-    /**
      * Returns whether a 'normal' property exists with a given name. A property a is said to exist
      * if the underlying class contains a method A getA().
      * <p/>
@@ -465,24 +453,6 @@ public class EntityClassReader {
         if (objectToTransform == null) {
             throw new IllegalArgumentException("Given object may not be null");
         }
-        if (proxyPropertiesGetMethod == null) {
-            Class[] emptyArray = new Class[]{};
-            try {
-                //This is not terribly threadsafe, and also inefficient. Should this not be moved to the constructor?
-                //TODO -- refactor
-                proxyGeomGetMethod = Feature.class.getDeclaredMethod("getGeometry", emptyArray);
-                proxyGeomNameGetMethod = Feature.class.getDeclaredMethod("getGeometryName", emptyArray);
-                proxyIdGetMethod = Feature.class.getDeclaredMethod("getId", emptyArray);
-                proxyExistsMethod = Feature.class.getDeclaredMethod("hasProperty", new Class[]{String.class, boolean.class});
-                proxyAttributeGetMethod = Feature.class.getDeclaredMethod("getProperty", new Class[]{String.class});
-                proxyPropertiesGetMethod = Feature.class.getDeclaredMethod("getProperties", emptyArray);
-            } catch (NoSuchMethodException e) {
-                // This can not happen,  since we control the feature interface class. So this must be some version-
-                // error in the geolatte library!
-                throw new RuntimeException("Version mismatch: apparantly certain methods are not present in the Feature interface");
-            }
-        }
-
         if (objectToTransform.getClass() != entityClass) {
             throw new InvalidObjectReaderException("Class of target object does not correspond with entityclass of this reader.");
         }
@@ -536,80 +506,6 @@ public class EntityClassReader {
                 // change the interface of the invoke method.
                 throw new RuntimeException("Unexisting method invoked on proxy.");
             }
-        }
-    }
-
-
-    // Static objectconvertors.
-    private static Map<Class, NumberTransformer> transformers = new HashMap<Class, NumberTransformer>();
-
-    static {
-        transformers.put(Integer.class, new IntegerTransformer());
-        transformers.put(int.class, new IntegerTransformer());
-        transformers.put(Long.class, new LongTransformer());
-        transformers.put(long.class, new LongTransformer());
-        transformers.put(Double.class, new DoubleTransformer());
-        transformers.put(double.class, new DoubleTransformer());
-        transformers.put(Short.class, new ShortTransformer());
-        transformers.put(short.class, new ShortTransformer());
-        transformers.put(Float.class, new FloatTransformer());
-        transformers.put(float.class, new FloatTransformer());
-        transformers.put(Boolean.class, new BooleanTransformer());
-        transformers.put(boolean.class, new BooleanTransformer());
-        transformers.put(Byte.class, new ByteTransformer());
-        transformers.put(byte.class, new ByteTransformer());
-        transformers.put(BigDecimal.class, new BigDecimalTransformer());
-    }
-
-    private static interface NumberTransformer {
-        Object parseObject(String s);
-    }
-
-    private static class IntegerTransformer implements NumberTransformer {
-        public Object parseObject(String s) {
-            return Integer.valueOf(s);
-        }
-    }
-
-    private static class BigDecimalTransformer implements NumberTransformer {
-        public Object parseObject(String s) {
-            return BigDecimal.valueOf(Double.valueOf(s));
-        }
-    }
-
-    private static class DoubleTransformer implements NumberTransformer {
-        public Object parseObject(String s) {
-            return Double.valueOf(s);
-        }
-    }
-
-    private static class LongTransformer implements NumberTransformer {
-        public Object parseObject(String s) {
-            return Long.valueOf(s);
-        }
-    }
-
-    private static class BooleanTransformer implements NumberTransformer {
-        public Object parseObject(String s) {
-            return Boolean.valueOf(s);
-        }
-    }
-
-    private static class FloatTransformer implements NumberTransformer {
-        public Object parseObject(String s) {
-            return Float.valueOf(s);
-        }
-    }
-
-    private static class ByteTransformer implements NumberTransformer {
-        public Object parseObject(String s) {
-            return Byte.valueOf(s);
-        }
-    }
-
-    private static class ShortTransformer implements NumberTransformer {
-        public Object parseObject(String s) {
-            return Short.valueOf(s);
         }
     }
 }
