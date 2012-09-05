@@ -21,7 +21,6 @@
 
 package org.geolatte.common.dataformats.json;
 
-import org.codehaus.jackson.map.JsonMappingException;
 import org.geolatte.common.dataformats.json.to.*;
 import org.geolatte.geom.*;
 import org.geolatte.geom.crs.CrsId;
@@ -35,207 +34,62 @@ import org.geolatte.geom.crs.CrsId;
  */
 public class GeoJsonToFactory {
 
+
+    //region toTo methods
+
     /**
-     * Factorymethod that creates the correct to starting from a geolatte geometry
+     * Creates the correct TO starting from a geolatte geometry.
      *
      * @param geometry the geometry to convert
-     * @return a to that, once serialized, results in a valid geojson representation of the geometry
+     * @return a TO that, once serialized, results in a valid geoJSON representation of the geometry
      */
     public GeoJsonTo toTo(Geometry geometry) {
+
         if (geometry instanceof Point) {
-            return PointToTo((Point) geometry);
+            return toTo((Point) geometry);
         } else if (geometry instanceof LineString) {
-            return lineStringToTo((LineString) geometry);
+            return toTo((LineString) geometry);
         } else if (geometry instanceof MultiPoint) {
-            return multiPointToTo((MultiPoint) geometry);
+            return toTo((MultiPoint) geometry);
         } else if (geometry instanceof MultiLineString) {
-            return multiLineStringToTo((MultiLineString) geometry);
+            return toTo((MultiLineString) geometry);
         } else if (geometry instanceof Polygon) {
-            return polygonToTo((Polygon) geometry);
+            return toTo((Polygon) geometry);
         } else if (geometry instanceof MultiPolygon) {
-            return multiLinePolygonToTo((MultiPolygon) geometry);
+            return toTo((MultiPolygon) geometry);
         } else if (geometry instanceof GeometryCollection) {
-            return geometryCollectionToTo((GeometryCollection) geometry);
+            return toTo((GeometryCollection) geometry);
         }
         return null;
-    }
-
-    /**
-     * Creates a geolatte geometry object starting from a geojsonto.
-     * @param input the geojson to to start from
-     * @return the corresponding geometry
-     * @throws org.codehaus.jackson.map.JsonMappingException If the geometry could not be constructed due to an invalid
-     * geojsonto
-     */
-    public Geometry fromTo(GeoJsonTo input) throws JsonMappingException {
-        
-        return fromTo(input, null);
-    }
-
-    /**
-     * Creates a geolatte geometry object starting from a geojsonto.
-     * @param input the geojson to to start from
-     * @return the corresponding geometry
-     * @throws org.codehaus.jackson.map.JsonMappingException If the geometry could not be constructed due to an invalid
-     * geojsonto
-     */
-    public Geometry fromTo(GeoJsonTo input, CrsId givenCrsId) throws JsonMappingException {
-        if (input == null) {
-            return null;
-        }
-        CrsId crsId = givenCrsId == null ? getCrsId(input) : givenCrsId;
-        if (! input.isValid()) {
-            throw new JsonMappingException("Input to is not valid and can therefore not be converted to a geometry");
-        }
-        if (input instanceof PointTo) {
-            return createPoint(((PointTo) input).getCoordinates(), crsId);
-        } else if (input instanceof MultiPointTo)  {
-            MultiPointTo to = (MultiPointTo) input;
-            Point[] points = new Point[to.getCoordinates().length];
-            for (int i=0; i< points.length; i++) {
-                points[i] = createPoint(to.getCoordinates()[i], crsId);
-            }
-            return new MultiPoint(points);
-        } else if (input instanceof LineStringTo)  {
-            LineStringTo to = (LineStringTo) input;
-            return new LineString(createPointSequence(to.getCoordinates()), crsId);
-        } else if (input instanceof MultiLineStringTo)  {
-            MultiLineStringTo to = (MultiLineStringTo) input;
-            LineString[] lineStrings = new LineString[to.getCoordinates().length];
-            for (int i =0; i < lineStrings.length;i++) {
-                lineStrings[i] = new LineString(createPointSequence(to.getCoordinates()[i]), crsId);
-            }
-            return new MultiLineString(lineStrings);
-        } else if (input instanceof PolygonTo)  {
-            PolygonTo to = (PolygonTo) input;
-            return createPolygon(to.getCoordinates(), crsId);
-        } else if (input instanceof MultiPolygonTo)  {
-            MultiPolygonTo to = (MultiPolygonTo) input;
-            Polygon[] polygons = new Polygon[to.getCoordinates().length];
-            for (int i=0; i < polygons.length; i ++) {
-                polygons[i] = createPolygon(to.getCoordinates()[i], crsId);
-            }
-            return new MultiPolygon(polygons);
-        } else if (input instanceof GeometryCollectionTo) {
-            GeometryCollectionTo to = (GeometryCollectionTo) input;
-            Geometry[] geoms = new Geometry[to.getGeometries().length];
-            for (int i=0; i< geoms.length;i++) {
-                geoms[i] = fromTo(to.getGeometries()[i], crsId);
-            }
-            return new GeometryCollection(geoms);
-        }
-        return null;
-    }
-
-    /**
-     * Creates a polygon starting from its geojson coordinate array
-     * @param coordinates the geojson coordinate array
-     * @param crsId the srid of the crs to use
-     * @return a geolatte polygon instance
-     */
-    private Polygon createPolygon(double[][][] coordinates, CrsId crsId) {
-        LinearRing[] rings = new LinearRing[coordinates.length];
-        for (int i=0; i < coordinates.length;i++) {
-            rings[i] = new LinearRing(createPointSequence(coordinates[i]), crsId);
-        }
-        return new Polygon(rings);
-    }
-
-    /**
-     * Helpermethod that creates a geolatte pointsequence starting from an array containing coordinate arrays
-     * @param coordinates an array containing coordinate arrays
-     * @return a geolatte pointsequence or null if the coordinatesequence was null
-     */
-    private PointSequence createPointSequence(double[][] coordinates) {
-        if (coordinates == null) {
-            return null;
-        } else if (coordinates.length == 0) {
-            return new PointCollectionFactory().createEmpty();
-        }
-        DimensionalFlag df = coordinates[0].length == 3 ? DimensionalFlag.XYZ : DimensionalFlag.XY;
-        PointSequenceBuilder psb = PointSequenceBuilders.variableSized(df);
-        for (double[] point: coordinates) {
-              psb.add(point);
-        }
-        return psb.toPointSequence();
-    }
-
-    /**
-     * Helpermethod that creates a point starting from its geojsonto coordinate array
-     * @param input the coordinate array to convert to a point
-     * @param crsIdValue the sridvalue of the crs in which the point is defined
-     * @return an instance of a geolatte point corresponding to the given to or null if the given array is null
-     */
-    private Point createPoint(double[] input, CrsId crsIdValue) {
-        if (input == null) {
-            return null;
-        }
-        if (input.length == 2) {
-            return Points.create(input[0], input[1], crsIdValue);
-        } else {
-            return Points.create3D(input[0], input[1], input[2], crsIdValue);
-        }
-    }
-
-    /**
-     * Creates a geojson to from a multipolygon
-     * @param input the multipolygon
-     * @return the corresponding geojsonto
-     */
-    private MultiPolygonTo multiLinePolygonToTo(MultiPolygon input) {
-        MultiPolygonTo result = new MultiPolygonTo();
-        double[][][][] coordinates = new double[input.getNumGeometries()][][][];
-        for (int i=0; i < input.getNumGeometries();i++) {
-            coordinates[i] = polygonToTo(input.getGeometryN(i)).getCoordinates();
-        }
-        result.setCoordinates(coordinates);
-        result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
-        return result;
-    }
-
-    /**
-     * Creates a geojson to from a multipolygon
-     * @param input the multipolygon
-     * @return the corresponding geojsonto
-     */
-    private GeometryCollectionTo geometryCollectionToTo(GeometryCollection input) {
-        GeometryCollectionTo result = new GeometryCollectionTo();
-        GeoJsonTo[] tos = new GeoJsonTo[input.getNumGeometries()];
-        for (int i=0; i < input.getNumGeometries();i++) {
-            tos[i] = toTo(input.getGeometryN(i));
-            tos[i].setCrs(null); // Crs may not be repeated
-        }
-        result.setGeometries(tos);
-        result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
-        return result;
     }
 
     /**
      * Converts a polygon to its corresponding to
+     *
      * @param input a polygon object
      * @return a transfer object, that will result into a valid geojson string when serialized by a json serializer
      */
-    private PolygonTo polygonToTo(Polygon input) {
+    private PolygonTo toTo(Polygon input) {
         PolygonTo result = new PolygonTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
-        double[][][] rings = new double[input.getNumInteriorRing()+1][][];
+        double[][][] rings = new double[input.getNumInteriorRing() + 1][][];
         // Exterior ring:
         rings[0] = getPoints(input.getExteriorRing());
         // Interior rings!
-        for (int i=0; i < input.getNumInteriorRing(); i++) {
-            rings[i+1] = getPoints(input.getInteriorRingN(i));
+        for (int i = 0; i < input.getNumInteriorRing(); i++) {
+            rings[i + 1] = getPoints(input.getInteriorRingN(i));
         }
         result.setCoordinates(rings);
         return result;
     }
 
-
     /**
      * Generates the to for a multilinestring
+     *
      * @param input the multilinestring
      * @return a to which serialized corresponds to a valid geojson representation of a multilinestring
      */
-    private MultiLineStringTo multiLineStringToTo(MultiLineString input) {
+    private MultiLineStringTo toTo(MultiLineString input) {
         MultiLineStringTo result = new MultiLineStringTo();
         double[][][] resultCoordinates = new double[input.getNumGeometries()][][];
         for (int i = 0; i < input.getNumGeometries(); i++) {
@@ -252,7 +106,7 @@ public class GeoJsonToFactory {
      * @param input the multipoint
      * @return the corresponding to
      */
-    private MultiPointTo multiPointToTo(MultiPoint input) {
+    private MultiPointTo toTo(MultiPoint input) {
         MultiPointTo result = new MultiPointTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(getPoints(input));
@@ -265,7 +119,7 @@ public class GeoJsonToFactory {
      * @param input the point object
      * @return the to corresponding with a point
      */
-    private PointTo PointToTo(Point input) {
+    private PointTo toTo(Point input) {
         PointTo result = new PointTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(input.is3D() ? new double[]{input.getX(), input.getY(), input.getZ()}
@@ -279,16 +133,264 @@ public class GeoJsonToFactory {
      * @param input the linestring object to convert
      * @return a linestringto
      */
-    private LineStringTo lineStringToTo(LineString input) {
+    private LineStringTo toTo(LineString input) {
         LineStringTo result = new LineStringTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(getPoints(input));
         return result;
     }
 
+    /**
+     * Creates a geojson to from a multipolygon
+     *
+     * @param input the multipolygon
+     * @return the corresponding geojsonto
+     */
+    private MultiPolygonTo toTo(MultiPolygon input) {
+        MultiPolygonTo result = new MultiPolygonTo();
+        double[][][][] coordinates = new double[input.getNumGeometries()][][][];
+        for (int i = 0; i < input.getNumGeometries(); i++) {
+            coordinates[i] = toTo(input.getGeometryN(i)).getCoordinates();
+        }
+        result.setCoordinates(coordinates);
+        result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
+        return result;
+    }
+
+    /**
+     * Creates a geojson to from a multipolygon
+     *
+     * @param input the multipolygon
+     * @return the corresponding geojsonto
+     */
+    private GeometryCollectionTo toTo(GeometryCollection input) {
+        GeometryCollectionTo result = new GeometryCollectionTo();
+        GeoJsonTo[] tos = new GeoJsonTo[input.getNumGeometries()];
+        for (int i = 0; i < input.getNumGeometries(); i++) {
+            tos[i] = toTo(input.getGeometryN(i));
+            tos[i].setCrs(null); // Crs may not be repeated
+        }
+        result.setGeometries(tos);
+        result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
+        return result;
+    }
+
+
+    //endregion
+
+    //region fromTo methods
+
+    /**
+     * Creates a geolatte geometry object starting from a geojsonto.
+     *
+     * @param input the geojson to to start from
+     * @return the corresponding geometry
+     * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid
+     *                                  GeoJsonTo
+     */
+    public Geometry fromTo(GeoJsonTo input) throws IllegalArgumentException {
+
+        return fromTo(input, null);
+    }
+
+    /**
+     * Creates a geolatte geometry object starting from a GeoJsonTo.
+     *
+     * @param input      the geojson to to start from
+     * @param crsId the crs id to use (ignores the crs of the input). If null, uses the crs of the input.
+     * @return the corresponding geometry
+     * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid
+     *                                  geojsonto
+     */
+    public Geometry fromTo(GeoJsonTo input, CrsId crsId) throws IllegalArgumentException {
+
+        if (input instanceof PointTo) {
+            return fromTo((PointTo) input, crsId);
+        } else if (input instanceof MultiPointTo) {
+            return fromTo((MultiPointTo) input, crsId);
+        } else if (input instanceof LineStringTo) {
+            return fromTo((LineStringTo) input, crsId);
+        } else if (input instanceof MultiLineStringTo) {
+            return fromTo((MultiLineStringTo) input, crsId);
+        } else if (input instanceof PolygonTo) {
+            return fromTo((PolygonTo) input, crsId);
+        } else if (input instanceof MultiPolygonTo) {
+            return fromTo((MultiPolygonTo) input, crsId);
+        } else if (input instanceof GeometryCollectionTo) {
+            return fromTo((GeometryCollectionTo) input, crsId);
+        }
+        return null;
+    }
+
+    public Polygon fromTo(PolygonTo input) {
+
+        return fromTo(input, null);
+    }
+
+    public Polygon fromTo(PolygonTo input, CrsId crsId) {
+
+        if (input == null) { return null; }
+        crsId = getCrsId(input, crsId);
+        isValid(input);
+
+        return createPolygon(input.getCoordinates(), crsId);
+    }
+
+    public GeometryCollection fromTo(GeometryCollectionTo input) {
+
+        return fromTo(input, null);
+    }
+
+    public GeometryCollection fromTo(GeometryCollectionTo input, CrsId crsId) {
+
+        if (input == null) { return null; }
+        crsId = getCrsId(input, crsId);
+        isValid(input);
+
+        Geometry[] geoms = new Geometry[input.getGeometries().length];
+        for (int i = 0; i < geoms.length; i++) {
+            geoms[i] = fromTo(input.getGeometries()[i], crsId);
+        }
+        return new GeometryCollection(geoms);
+    }
+
+    public MultiPolygon fromTo(MultiPolygonTo input) {
+
+        return fromTo(input, null);
+    }
+
+    public MultiPolygon fromTo(MultiPolygonTo input, CrsId crsId) {
+
+        if (input == null) { return null; }
+        crsId = getCrsId(input, crsId);
+        isValid(input);
+
+        Polygon[] polygons = new Polygon[input.getCoordinates().length];
+        for (int i = 0; i < polygons.length; i++) {
+            polygons[i] = createPolygon(input.getCoordinates()[i], crsId);
+        }
+        return new MultiPolygon(polygons);
+    }
+
+    public MultiLineString fromTo(MultiLineStringTo input) {
+        return fromTo(input, null);
+    }
+
+    public MultiLineString fromTo(MultiLineStringTo input, CrsId crsId) {
+
+        if (input == null) { return null; }
+        crsId = getCrsId(input, crsId);
+        isValid(input);
+
+        LineString[] lineStrings = new LineString[input.getCoordinates().length];
+        for (int i = 0; i < lineStrings.length; i++) {
+            lineStrings[i] = new LineString(createPointSequence(input.getCoordinates()[i]), crsId);
+        }
+        return new MultiLineString(lineStrings);
+    }
+
+    public LineString fromTo(LineStringTo input) {
+        return fromTo(input, null);
+    }
+
+    public LineString fromTo(LineStringTo input, CrsId crsId) {
+
+        if (input == null) { return null; }
+        crsId = getCrsId(input, crsId);
+        isValid(input);
+
+        return new LineString(createPointSequence(input.getCoordinates()), crsId);
+    }
+
+    public MultiPoint fromTo(MultiPointTo input) {
+        return fromTo(input, null);
+    }
+
+    public MultiPoint fromTo(MultiPointTo input, CrsId crsId) {
+
+        if (input == null) { return null; }
+        crsId = getCrsId(input, crsId);
+        isValid(input);
+
+        Point[] points = new Point[input.getCoordinates().length];
+        for (int i = 0; i < points.length; i++) {
+            points[i] = createPoint(input.getCoordinates()[i], crsId);
+        }
+        return new MultiPoint(points);
+    }
+
+    public Point fromTo(PointTo input) {
+        return fromTo(input, null);
+    }
+
+    public Point fromTo(PointTo input, CrsId crsId) {
+
+        if (input == null) { return null; }
+        crsId = getCrsId(input, crsId);
+        isValid(input);
+
+        return createPoint(input.getCoordinates(), crsId);
+    }
+
+    //endregion
+
+
+    /**
+     * Creates a polygon starting from its geojson coordinate array
+     *
+     * @param coordinates the geojson coordinate array
+     * @param crsId       the srid of the crs to use
+     * @return a geolatte polygon instance
+     */
+    private Polygon createPolygon(double[][][] coordinates, CrsId crsId) {
+        LinearRing[] rings = new LinearRing[coordinates.length];
+        for (int i = 0; i < coordinates.length; i++) {
+            rings[i] = new LinearRing(createPointSequence(coordinates[i]), crsId);
+        }
+        return new Polygon(rings);
+    }
+
+    /**
+     * Helpermethod that creates a geolatte pointsequence starting from an array containing coordinate arrays
+     *
+     * @param coordinates an array containing coordinate arrays
+     * @return a geolatte pointsequence or null if the coordinatesequence was null
+     */
+    private PointSequence createPointSequence(double[][] coordinates) {
+        if (coordinates == null) {
+            return null;
+        } else if (coordinates.length == 0) {
+            return PointCollectionFactory.createEmpty();
+        }
+        DimensionalFlag df = coordinates[0].length == 3 ? DimensionalFlag.XYZ : DimensionalFlag.XY;
+        PointSequenceBuilder psb = PointSequenceBuilders.variableSized(df);
+        for (double[] point : coordinates) {
+            psb.add(point);
+        }
+        return psb.toPointSequence();
+    }
+
+    /**
+     * Helpermethod that creates a point starting from its geojsonto coordinate array
+     *
+     * @param input      the coordinate array to convert to a point
+     * @param crsIdValue the sridvalue of the crs in which the point is defined
+     * @return an instance of a geolatte point corresponding to the given to or null if the given array is null
+     */
+    private Point createPoint(double[] input, CrsId crsIdValue) {
+        if (input == null) {
+            return null;
+        }
+        if (input.length == 2) {
+            return Points.create(input[0], input[1], crsIdValue);
+        } else {
+            return Points.create3D(input[0], input[1], input[2], crsIdValue);
+        }
+    }
 
     /**
      * Serializes all points of the input into a list of their coordinates
+     *
      * @param input a geometry whose points are to be converted to a list of coordinates
      * @return an array containing arrays with x,y and optionally z values.
      */
@@ -301,9 +403,11 @@ public class GeoJsonToFactory {
         return result;
     }
 
-   /**
-     * If an CRS (srid) is specified in the json object, it is returned. If no CRS is found in the current parameter-map
-     * null is returned. This is a simplified version from the actual GeoJSON specification, since the GeoJSON specification
+    /**
+     * If an CRS (srid) is specified in the json object, it is returned. If no CRS is found in the current
+     * parameter-map
+     * null is returned. This is a simplified version from the actual GeoJSON specification, since the GeoJSON
+     * specification
      * allows for relative links to either URLS or local files in which the crs should be defined. This implementation
      * only supports named crs's: namely:
      * <pre>
@@ -314,7 +418,8 @@ public class GeoJsonToFactory {
      *       }
      * }
      * </pre>
-     * Besides the fact that only named crs is permitted for deserialization, the given name must either be of the form:
+     * Besides the fact that only named crs is permitted for deserialization, the given name must either be of the
+     * form:
      * <pre>
      *  urn:ogc:def:EPSG:x.y:4326
      * </pre>
@@ -322,46 +427,55 @@ public class GeoJsonToFactory {
      * <pre>
      * EPSG:4326
      * </pre>
+     *
      * @return the CrsId of the crs system in the json if it is present. {@link CrsId#UNDEFINED} otherwise.
-     * @throws org.codehaus.jackson.map.JsonMappingException If a crs object is present, but deserialization is not possible
+     * @throws IllegalArgumentException If a crs object is present, but deserialization is not possible
      */
-    protected CrsId getCrsId(GeoJsonTo to) throws JsonMappingException {
+    protected CrsId getCrsId(GeoJsonTo to) throws IllegalArgumentException {
         if (to.getCrs() == null) {
             return CrsId.UNDEFINED;
         } else {
             if (to.getCrs().getType() == null || !"name".equals(to.getCrs().getType())) {
-                throw new JsonMappingException("If the crs is specified the type must be specified. Currently, only named crses are supported.");
+                throw new IllegalArgumentException("If the crs is specified the type must be specified. Currently, only named crses are supported.");
             }
             if (to.getCrs().getProperties() == null || to.getCrs().getProperties().getName() == null) {
-                throw new JsonMappingException("A crs specification requires a properties value containing a name value.");
+                throw new IllegalArgumentException("A crs specification requires a properties value containing a name value.");
             }
             String sridString = to.getCrs().getProperties().getName();
             if (sridString.startsWith("EPSG:")) {
                 Integer srid = parseDefault(sridString.substring(5), null);
                 if (srid == null) {
-                    throw new JsonMappingException("Unable to derive SRID from crs name");
+                    throw new IllegalArgumentException("Unable to derive SRID from crs name");
                 } else {
                     return new CrsId("EPSG", srid);
                 }
             } else if (sridString.startsWith("urn:ogc:def:crs:EPSG:")) {
                 String[] splits = sridString.split(":");
                 if (splits.length != 7) {
-                    throw new JsonMappingException("Unable to derive SRID from crs name");
+                    throw new IllegalArgumentException("Unable to derive SRID from crs name");
                 } else {
                     Integer srid = parseDefault(splits[6], null);
                     if (srid == null) {
-                        throw new JsonMappingException("Unable to derive SRID from crs name");
+                        throw new IllegalArgumentException("Unable to derive SRID from crs name");
                     }
                     return new CrsId("EPSG", srid);
                 }
             } else {
-                throw new JsonMappingException("Unable to derive SRID from crs name");
+                throw new IllegalArgumentException("Unable to derive SRID from crs name");
             }
         }
     }
 
+    private CrsId getCrsId(GeoJsonTo input, CrsId defaultCrsId) {
+        defaultCrsId = defaultCrsId == null ? getCrsId(input) : defaultCrsId;
+        if (defaultCrsId == null) {
+            throw new IllegalArgumentException("Input has not CRS and no default CRS provided.");
+        }
+        return defaultCrsId;
+    }
+
     /**
-     * Convenience method. Parses a string into a double. If it can no be converted to a double, the
+     * Convenience method. Parses a string into a double. If it can not be converted to a double, the
      * defaultvalue is returned. Depending on your choice, you can allow null as output or assign it some value
      * and have very convenient syntax such as: double d = parseDefault(myString, 0.0); which is a lot shorter
      * than dealing with all kinds of numberformatexceptions.
@@ -370,7 +484,7 @@ public class GeoJsonToFactory {
      * @param defaultValue The value to assign in case of error
      * @return A double corresponding with the input, or defaultValue if no double can be extracted
      */
-    public Integer parseDefault(String input, Integer defaultValue) {
+    protected Integer parseDefault(String input, Integer defaultValue) {
         if (input == null) {
             return defaultValue;
         }
@@ -380,5 +494,17 @@ public class GeoJsonToFactory {
         } catch (NumberFormatException ignored) {
         }
         return answer;
+    }
+
+    /**
+     * Checks whether the given to is a valid TO and throws an exception if not.
+     *
+     * @param to The TO to check
+     * @throws IllegalArgumentException When the to is invalid.
+     */
+    protected static void isValid(GeoJsonTo to) throws IllegalArgumentException {
+        if (!to.isValid()) {
+            throw new IllegalArgumentException("TO is not valid.");
+        }
     }
 }

@@ -25,6 +25,7 @@ import com.vividsolutions.jts.geom.*;
 import junit.framework.Assert;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.geolatte.common.dataformats.json.to.*;
 import org.geolatte.geom.crs.CrsId;
@@ -157,18 +158,20 @@ public class GeoJsonToDeserializationTest {
         invalidTestStrings.add("{\"type\": \"Point\", \"coordinates\": [100.0] }");
         // No coordinate array
         invalidTestStrings.add("{\"type\": \"Point\"}");
-        // Just an invalid jsonstring :)
-        invalidTestStrings.add("some weird stuff");
+        // Just an invalid jsonstring :) Is this useful? We're just testing jackson here
+        //invalidTestStrings.add("some weird stuff");
         // Strings instead of coordinates
         invalidTestStrings.add("\"type\": \"Point\", \"coordinates\": [\"a\", \"b\"] }");
 
         // Each of the above should result in an Exception being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                org.geolatte.geom.Geometry test = factory.fromTo(mapper.readValue(s, PointTo.class));
+                factory.fromTo(mapper.readValue(s, PointTo.class));
                 Assert.fail("Following json is invalid for a point and should not parse: " + s);
-            } catch (JsonProcessingException e) {
-                // OK!
+            } catch (JsonMappingException e) {
+                // Ok! Json string cannot be parsed
+            } catch (IllegalArgumentException e) {
+                // Ok! Json string can be parsed but not converted to a geometry because the geojson TO is not valid
             } catch (Exception other) {
                 Assert.fail("No other exception expected!");
             }
@@ -176,7 +179,7 @@ public class GeoJsonToDeserializationTest {
         try {
             // Valid point. It is not a linestring however, so even if we tell the parser to deserialize as a
             // linestring, a point should be returned
-            org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue("{ \"type\": \"Point\", \"coordinates\": [100.0, 0.0] }", LineStringTo.class));
+            org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue("{ \"type\": \"Point\", \"coordinates\": [100.0, 0.0] }", LineStringTo.class));
             Assert.assertTrue(t instanceof org.geolatte.geom.Point);
         } catch (Exception e) {
             Assert.fail("No exception expected");
@@ -262,15 +265,20 @@ public class GeoJsonToDeserializationTest {
         // Each of the above should result in a JsonException being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                LineString test = (LineString) JTS.to(factory.fromTo(mapper.readValue(s, LineStringTo.class)));
+                JTS.to(factory.fromTo(mapper.readValue(s, LineStringTo.class)));
                 Assert.fail("Following json is invalid for a point and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // OK!
+            } catch (IllegalArgumentException e) {
+                // OK!
+            }
+            catch (Exception e) {
+                Assert.fail("Wrong exception type thrown.");
             }
         }
         // Valid linestring. Should ignore the given deserialize target
         String valid = "{ \"type\": \"LineString\", \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }";
-        org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue(valid, PointTo.class));
+        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(valid, PointTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.LineString);
     }
 
@@ -341,21 +349,26 @@ public class GeoJsonToDeserializationTest {
         // No coordinate array
         invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"Polygon\",  \"coordinates\": [] }");
         invalidTestStrings.add("{ \"type\": \"Polygon\" }");
-        // Just an invalid jsonstring :)
-        invalidTestStrings.add("some weird stuff");
 
-        // Each of the above should result in a JsonException being thrown, nothing else!
+        // Each of the above should result in
+        // - JsonException if the json is wrong
+        // - IllegalargumentException if the json is valid but does not comply to the geoJson standard (the to is notvalid)
         for (String s : invalidTestStrings) {
             try {
-                Polygon test = (Polygon) JTS.to(factory.fromTo(mapper.readValue(s, PolygonTo.class)));
+                JTS.to(factory.fromTo(mapper.readValue(s, PolygonTo.class)));
                 Assert.fail("Following json is invalid for a point and should not parse: " + s);
-            } catch (JsonProcessingException e) {
-                // Ok!
+            } catch (JsonMappingException e) {
+                // Ok! Json string cannot be parsed
+            } catch (IllegalArgumentException e) {
+                // Ok! Json string can be parsed but not converted to a geometry because the geojson TO is not valid
+            }
+            catch (Exception e) {
+                Assert.fail("Wrong exception thrown.");
             }
         }
         // Valid point but as linestring should fail!
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"Polygon\",  \"coordinates\": [[ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ], [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]    ] }";
-        org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue(s, PointTo.class));
+        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, PointTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.Polygon);
     }
 
@@ -418,10 +431,12 @@ public class GeoJsonToDeserializationTest {
         int count = 0;
         for (String s : invalidTestStrings) {
             try {
-                MultiPoint test = (MultiPoint) JTS.to(factory.fromTo(mapper.readValue(s, MultiPointTo.class)));
+                JTS.to(factory.fromTo(mapper.readValue(s, MultiPointTo.class)));
                 Assert.fail("Following json is invalid for a point and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // Ok!
+            } catch(IllegalArgumentException e) {
+                // Ok when json is valid but not valid geoJson
             } catch (ClassCastException e) {
                 // Ok, for case 2 since there is no difference between a multipoint and a linestring on geojson level except for the type, so
                 // if you misspecify the type, all deserialization will be ok except for the case at the end
@@ -431,7 +446,7 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(count, 1);
         // Valid multipoint but as linestring should fail!
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }";
-        org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiPoint);
     }
 
@@ -500,15 +515,17 @@ public class GeoJsonToDeserializationTest {
         // Each of the above should result in a JsonException being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                MultiLineString test = (MultiLineString) JTS.to(factory.fromTo(mapper.readValue(s, MultiLineStringTo.class)));
+                JTS.to(factory.fromTo(mapper.readValue(s, MultiLineStringTo.class)));
                 Assert.fail("Following json is invalid for a MultiLineString and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // Ok
+            } catch (IllegalArgumentException e) {
+                // Ok if valid json but not geoJson
             }
         }
         // Valid multilinestring, must remain multilinestring even if linestringto is specified
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiLineString\", \"coordinates\": [[ [100.0, 0.0], [101.0, 1.0] ], [ [102.0, 2.0], [103.0, 3.0] ] ]}";
-        org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiLineString);
     }
 
@@ -586,15 +603,17 @@ public class GeoJsonToDeserializationTest {
         // Each of the above should result in a JsonException being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                MultiPolygon test = (MultiPolygon) JTS.to(factory.fromTo(mapper.readValue(s, MultiPolygonTo.class)));
+                JTS.to(factory.fromTo(mapper.readValue(s, MultiPolygonTo.class)));
                 Assert.fail("Following json is invalid for a MultiPolygon and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // Ok
+            } catch (IllegalArgumentException e) {
+                // Ok if valid json but not geojson
             }
         }
         // Valid multipolygon, must remain multipolygon even if linestringto is specified
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiPolygon\", \"coordinates\": [    [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],    [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],     [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]    ]}";
-        org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiPolygon);
     }
 
@@ -647,22 +666,26 @@ public class GeoJsonToDeserializationTest {
         invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\"}");
         // Invalid geometries array structure
         invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [[    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]]}");
-        // Just an invalid jsonstring :)
-        invalidTestStrings.add("some weird stuff");
+        // Just an invalid jsonstring :) Is this useful?
+        // invalidTestStrings.add("some weird stuff");
 
         // Each of the above should result in a JsonException being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                GeometryCollection test = (GeometryCollection) JTS.to(factory.fromTo(mapper.readValue(s, GeometryCollectionTo.class)));
+                JTS.to(factory.fromTo(mapper.readValue(s, GeometryCollectionTo.class)));
                 Assert.fail("Following json is invalid for a GeometryCollection and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // Ok!
+            } catch (IllegalArgumentException e) {
+                // Ok if valid json but not geojson
+            } catch (ClassCastException e) {
+                // Ok for case 2 where type is linestring
             }
         }
 
         // Valid geometrycollection, must remain geometrycollection even if linestringto is specified
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
-        org.geolatte.geom.Geometry t = factory.fromTo(mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.GeometryCollection);
     }
 }

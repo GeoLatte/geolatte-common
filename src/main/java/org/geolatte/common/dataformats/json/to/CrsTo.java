@@ -22,9 +22,9 @@
 package org.geolatte.common.dataformats.json.to;
 
 /**
- * Represents a Crs specification. This is a simplified version from the actual GeoJSON specification, since the GeoJSON specification
- * allows for relative links to either URLS or local files in which the crs should be defined. This implementation
- * only supports named crs's: namely:
+ * Represents a Crs specification. This is a simplified version from the actual GeoJSON specification, since the
+ * GeoJSON specification allows for relative links to either URLS or local files in which the crs should be defined.
+ * This implementation only supports named crs's: namely:
  * <pre>
  *  "crs": {
  *       "type": "name",
