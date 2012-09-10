@@ -1,5 +1,7 @@
 package org.geolatte.common.dataformats.json.to;
 
+import java.util.Arrays;
+
 /**
  * Hier dient nog commentaar te worden voorzien.
  * <p/>
@@ -11,7 +13,7 @@ package org.geolatte.common.dataformats.json.to;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since Kabelnet 0.1
  */
-public class GeometryCollectionTo extends GeoJsonTo{
+public class GeometryCollectionTo extends GeoJsonTo {
 
     private GeoJsonTo[] geometries;
 
@@ -35,5 +37,29 @@ public class GeometryCollectionTo extends GeoJsonTo{
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        GeometryCollectionTo that = (GeometryCollectionTo) o;
+
+        if (!Arrays.equals(geometries, that.geometries)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = super.hashCode();
+        result = 31 * result + (geometries != null ? Arrays.hashCode(geometries) : 0);
+        return result;
     }
 }

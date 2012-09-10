@@ -21,6 +21,8 @@
 
 package org.geolatte.common.dataformats.json.to;
 
+import java.util.Arrays;
+
 /**
  * This class represents a transfer object which, if serialized by a standard JSON serializer, leads to a valid
  * GeoJSON representation of a Polygon
@@ -28,11 +30,16 @@ package org.geolatte.common.dataformats.json.to;
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
-public class PolygonTo extends GeoJsonTo {
+public final class PolygonTo extends GeoJsonTo {
 
     private double[][][] coordinates;
 
     public PolygonTo() {
+    }
+
+    public PolygonTo(CrsTo crs, double[][][] coordinates) {
+        super(crs, createBoundingBox(coordinates));
+        this.coordinates = coordinates;
     }
 
     @Override
@@ -72,5 +79,29 @@ public class PolygonTo extends GeoJsonTo {
             // Only the boundingbox of the external ring is relevant
             setBbox(createBoundingBox(coordinates[0]));
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        PolygonTo polygonTo = (PolygonTo)o;
+
+        if (!Arrays.deepEquals(coordinates, polygonTo.coordinates)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = super.hashCode();
+        result = 31 * result + (coordinates != null ? Arrays.deepHashCode(coordinates) : 0);
+        return result;
     }
 }
