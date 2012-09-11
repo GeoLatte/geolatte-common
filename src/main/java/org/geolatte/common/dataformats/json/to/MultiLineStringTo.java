@@ -21,6 +21,8 @@
 
 package org.geolatte.common.dataformats.json.to;
 
+import java.util.Arrays;
+
 /**
  * This class represents a transfer object which, if serialized by a standard JSON serializer, leads to a valid
  * GeoJSON representation of a MultiLineString
@@ -28,11 +30,16 @@ package org.geolatte.common.dataformats.json.to;
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
-public class MultiLineStringTo extends GeoJsonTo {
+public final class MultiLineStringTo extends GeoJsonTo {
 
     private double[][][] coordinates;
 
     public MultiLineStringTo() {
+    }
+
+    public MultiLineStringTo(CrsTo crs, double[][][] coordinates) {
+        super(crs, createBoundingBox(coordinates));
+        this.coordinates = coordinates;
     }
 
     @Override
@@ -66,5 +73,29 @@ public class MultiLineStringTo extends GeoJsonTo {
         if (isValid()) {
             setBbox(createBoundingBox(coordinates));
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        MultiLineStringTo multiLineStringTo = (MultiLineStringTo)o;
+
+        if (!Arrays.deepEquals(coordinates, multiLineStringTo.coordinates)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = super.hashCode();
+        result = 31 * result + (coordinates != null ? Arrays.deepHashCode(coordinates) : 0);
+        return result;
     }
 }

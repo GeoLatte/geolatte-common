@@ -45,9 +45,16 @@ package org.geolatte.common.dataformats.json.to;
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
-public class CrsTo {
+public final class CrsTo {
 
     private NamedCrsPropertyTo properties;
+
+    public CrsTo() {
+    }
+
+    public CrsTo(NamedCrsPropertyTo properties) {
+        this.properties = properties;
+    }
 
     public String getType() {
         return "name";
@@ -67,5 +74,35 @@ public class CrsTo {
 
     public void setProperties(NamedCrsPropertyTo properties) {
         this.properties = properties;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return false;
+        }
+
+        if (!o.getClass().equals(CrsTo.class)) {
+            return false;
+        }
+
+        CrsTo crsTo = (CrsTo) o;
+
+        if (properties != null ? !properties.equals(crsTo.properties) : crsTo.properties != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return properties != null ? properties.hashCode() : 0;
     }
 }

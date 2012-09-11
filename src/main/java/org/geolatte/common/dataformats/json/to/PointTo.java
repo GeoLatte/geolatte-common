@@ -21,6 +21,8 @@
 
 package org.geolatte.common.dataformats.json.to;
 
+import java.util.Arrays;
+
 /**
  * This class represents a transfer object which, if serialized by a standard JSON serializer, leads to a valid
  * GeoJSON representation of a Point
@@ -28,11 +30,16 @@ package org.geolatte.common.dataformats.json.to;
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
-public class PointTo extends GeoJsonTo {
+public final class PointTo extends GeoJsonTo {
 
     private double[] coordinates;
 
     public PointTo() {
+    }
+
+    public PointTo(CrsTo crsTo, double[] coordinates) {
+        super(crsTo, createBoundingBox(coordinates));
+        setCoordinates(coordinates);
     }
 
     @Override
@@ -47,5 +54,29 @@ public class PointTo extends GeoJsonTo {
     public void setCoordinates(double[] coordinates) {
         this.coordinates = coordinates;
         setBbox(createBoundingBox(coordinates));
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        PointTo pointTo = (PointTo) o;
+
+        if (!Arrays.equals(coordinates, pointTo.coordinates)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = super.hashCode();
+        result = 31 * result + (coordinates != null ? Arrays.hashCode(coordinates) : 0);
+        return result;
     }
 }
