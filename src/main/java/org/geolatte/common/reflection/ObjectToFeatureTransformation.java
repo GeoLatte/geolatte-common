@@ -43,9 +43,6 @@ import java.util.HashMap;
  */
 public class ObjectToFeatureTransformation<Source> implements Transformation<Source, Feature> {
 
-    //Is this really necessary? EntityClassReader already caches the map between class and EntityClassReader?
-    HashMap<Class, EntityClassReader> readers = new HashMap<Class, EntityClassReader>();
-
     /**
      * Transforms any object into a feature. If the given object is null, null is returned.
      * @param input The given input
@@ -56,11 +53,7 @@ public class ObjectToFeatureTransformation<Source> implements Transformation<Sou
         if (input == null) {
             return null;
         } else {
-            EntityClassReader reader = readers.get(input.getClass());
-            if (reader == null) {
-                reader = EntityClassReader.getClassReaderFor(input.getClass());
-                readers.put(input.getClass(), reader);
-            }
+            EntityClassReader reader = EntityClassReader.getClassReaderFor(input.getClass());
             try {
                 return reader.asFeature(input);
             } catch (InvalidObjectReaderException e) {
