@@ -13,9 +13,18 @@ import java.util.Arrays;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since Kabelnet 0.1
  */
-public class GeometryCollectionTo extends GeoJsonTo {
+public final class GeometryCollectionTo extends GeoJsonTo {
 
     private GeoJsonTo[] geometries;
+
+    public GeometryCollectionTo() {
+
+    }
+
+    public GeometryCollectionTo(CrsTo crsTo, GeoJsonTo[] geometries) {
+        this.setCrs(crsTo);
+        this.geometries = geometries;
+    }
 
     public GeoJsonTo[] getGeometries() {
         return geometries;

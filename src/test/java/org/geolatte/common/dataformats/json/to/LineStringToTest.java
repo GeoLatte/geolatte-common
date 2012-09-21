@@ -6,7 +6,7 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
 
 /**
- * No comment provided yet for this class.
+ * Unit test for {@link LineStringTo}.
  *
  * @author Bert Vanhooff [<a href="http://www.qmino.com">Qmino bvba</a>]
  */

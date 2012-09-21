@@ -27,7 +27,6 @@ import org.geolatte.geom.Geometry;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -139,7 +138,7 @@ public class EntityClassReader {
      * @param idPropertyName       the name of the property to use as the objectid. If null, no property will be mapped as the geometry property.
      * @throws IllegalArgumentException if the given class is null
      */
-    private EntityClassReader(Class entityClass, String geometryPropertyName, String idPropertyName) {
+    public EntityClassReader(Class entityClass, String geometryPropertyName, String idPropertyName) {
         if (entityClass == null) {
             throw new IllegalArgumentException("Given entityclass may not be null");
         }
@@ -175,7 +174,7 @@ public class EntityClassReader {
         }
         boolean isGeometry =  (com.vividsolutions.jts.geom.Geometry.class.isAssignableFrom(method.getReturnType()))
                 || (Geometry.class.isAssignableFrom(method.getReturnType()));
-        return geometryPropertyName != null && isGeometry;
+        return geometryPropertyName != null && geometryPropertyName.equals(propertyName) && isGeometry;
     }
 
     /**

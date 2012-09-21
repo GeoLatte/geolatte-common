@@ -21,11 +21,8 @@
 
 package org.geolatte.common.reflection;
 
-import com.vividsolutions.jts.geom.*;
 import org.geolatte.common.Feature;
 import org.geolatte.geom.*;
-import org.geolatte.geom.Geometry;
-import org.geolatte.geom.LineString;
 import org.geolatte.geom.crs.CrsId;
 import org.geolatte.geom.jts.JTS;
 import org.geolatte.testobjects.TestFeature;
@@ -278,11 +275,14 @@ public class EntityClassReaderTest {
             public com.vividsolutions.jts.geom.Geometry getGeometry(){ return JTS.to(shape);}
             public com.vividsolutions.jts.geom.Geometry getSecondGeom() {return JTS.to(shape2);}
         };
-        reader = EntityClassReader.getClassReaderFor(jtsObject.getClass());
+        reader = EntityClassReader.getClassReaderFor(jtsObject.getClass(), "geometry", "id");
         try {
             Geometry g1 = reader.getGeometry(jtsObject);
             Object o = reader.getPropertyValue(jtsObject, "secondGeom");
+            o = reader.getPropertyValue(jtsObject, "secondGeom");
+            reader = new EntityClassReader(jtsObject.getClass(), "geometry", "id");
             Assert.assertTrue(g1.equals(shape) || g1.equals(shape2));
+
             Assert.assertTrue(o instanceof Geometry);
             Geometry g2 = (Geometry)o;
             Assert.assertTrue(g2.equals(shape) || g2.equals(shape2));
