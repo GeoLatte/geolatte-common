@@ -21,32 +21,28 @@
 
 package org.geolatte.common.dataformats.json.to;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import java.util.Arrays;
 
 /**
- * Abstract parentclass for all geojson transfer objects
+ * Abstract parentclass for all geojson transfer objects.
+ *
+ * Not to be subclassed.
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonIgnoreProperties({"valid"})
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = PointTo.class, name = "Point"),
-        @JsonSubTypes.Type(value = MultiPointTo.class, name = "MultiPoint"),
-        @JsonSubTypes.Type(value = LineStringTo.class, name = "LineString"),
-        @JsonSubTypes.Type(value = MultiLineStringTo.class, name = "MultiLineString"),
-        @JsonSubTypes.Type(value = PolygonTo.class, name = "Polygon"),
-        @JsonSubTypes.Type(value = MultiPolygonTo.class, name = "MultiPolygon"),
-        @JsonSubTypes.Type(value = GeometryCollectionTo.class, name = "GeometryCollection")
-
-})
 public abstract class GeoJsonTo {
 
     private CrsTo crs;
     private double[] bbox;
+
+    GeoJsonTo() {
+    }
+
+    GeoJsonTo(CrsTo crs, double[] bbox) {
+        this.crs = crs;
+        this.bbox = bbox;
+    }
 
     /**
      * @return whether the transfer object corresponds with a valid GeoJson entity
@@ -84,10 +80,45 @@ public abstract class GeoJsonTo {
      *
      * @param bbox the given value to set (it is not checked for validity)
      */
-    public void setBbox(double[] bbox) {
+    protected void setBbox(double[] bbox) {
         this.bbox = bbox;
     }
 
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return false;
+        }
+
+        // Geometries can only be equals if they are of the same type
+        if (!o.getClass().equals(this.getClass())) {
+            return false;
+        }
+
+        GeoJsonTo geoJsonTo = (GeoJsonTo) o;
+
+        if (!Arrays.equals(bbox, geoJsonTo.bbox)) {
+            return false;
+        }
+
+        if (crs != null ? !crs.equals(geoJsonTo.crs) : geoJsonTo.crs != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = crs != null ? crs.hashCode() : 0;
+        result = 31 * result + (bbox != null ? Arrays.hashCode(bbox) : 0);
+        return result;
+    }
 
     /**
      * Convenience method to create a named crs to.
