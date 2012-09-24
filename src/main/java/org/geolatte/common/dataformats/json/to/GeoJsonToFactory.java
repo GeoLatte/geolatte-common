@@ -68,7 +68,7 @@ public class GeoJsonToFactory {
      * @param input a polygon object
      * @return a transfer object for the polygon
      */
-    private PolygonTo toTo(Polygon input) {
+    public PolygonTo toTo(Polygon input) {
         PolygonTo result = new PolygonTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         double[][][] rings = new double[input.getNumInteriorRing() + 1][][];
@@ -88,7 +88,7 @@ public class GeoJsonToFactory {
      * @param input the multilinestring
      * @return a transfer object for the multilinestring
      */
-    private MultiLineStringTo toTo(MultiLineString input) {
+    public MultiLineStringTo toTo(MultiLineString input) {
         MultiLineStringTo result = new MultiLineStringTo();
         double[][][] resultCoordinates = new double[input.getNumGeometries()][][];
         for (int i = 0; i < input.getNumGeometries(); i++) {
@@ -105,7 +105,7 @@ public class GeoJsonToFactory {
      * @param input the multipoint
      * @return a transfer object for the multipoint
      */
-    private MultiPointTo toTo(MultiPoint input) {
+    public MultiPointTo toTo(MultiPoint input) {
         MultiPointTo result = new MultiPointTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(getPoints(input));
@@ -118,7 +118,7 @@ public class GeoJsonToFactory {
      * @param input the point object
      * @return the transfer object for the point
      */
-    private PointTo toTo(Point input) {
+    public PointTo toTo(Point input) {
         PointTo result = new PointTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(input.is3D() ? new double[]{input.getX(), input.getY(), input.getZ()}
@@ -132,7 +132,7 @@ public class GeoJsonToFactory {
      * @param input the linestring object to convert
      * @return the transfer object for the linestring
      */
-    private LineStringTo toTo(LineString input) {
+    public LineStringTo toTo(LineString input) {
         LineStringTo result = new LineStringTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(getPoints(input));
@@ -145,7 +145,7 @@ public class GeoJsonToFactory {
      * @param input the multipolygon
      * @return the transfer object for the multipolygon
      */
-    private MultiPolygonTo toTo(MultiPolygon input) {
+    public MultiPolygonTo toTo(MultiPolygon input) {
         MultiPolygonTo result = new MultiPolygonTo();
         double[][][][] coordinates = new double[input.getNumGeometries()][][][];
         for (int i = 0; i < input.getNumGeometries(); i++) {
@@ -162,7 +162,7 @@ public class GeoJsonToFactory {
      * @param input the multipolygon
      * @return the transfer object for the geometrycollection
      */
-    private GeometryCollectionTo toTo(GeometryCollection input) {
+    public GeometryCollectionTo toTo(GeometryCollection input) {
         GeometryCollectionTo result = new GeometryCollectionTo();
         GeoJsonTo[] tos = new GeoJsonTo[input.getNumGeometries()];
         for (int i = 0; i < input.getNumGeometries(); i++) {
