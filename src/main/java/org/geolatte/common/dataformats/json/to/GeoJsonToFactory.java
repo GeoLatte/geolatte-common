@@ -19,9 +19,8 @@
  * Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
  */
 
-package org.geolatte.common.dataformats.json;
+package org.geolatte.common.dataformats.json.to;
 
-import org.geolatte.common.dataformats.json.to.*;
 import org.geolatte.geom.*;
 import org.geolatte.geom.crs.CrsId;
 

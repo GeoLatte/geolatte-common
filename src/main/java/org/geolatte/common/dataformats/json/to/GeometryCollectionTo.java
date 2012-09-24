@@ -3,11 +3,8 @@ package org.geolatte.common.dataformats.json.to;
 import java.util.Arrays;
 
 /**
- * Hier dient nog commentaar te worden voorzien.
- * <p/>
- * <p>
- * Bestand aangemaakt op: </i>: 16/09/11-15:27<br>
- * </p>
+ * This class represents a transfer object which, if serialized by a standard JSON serializer, leads to a valid
+ * GeoJSON representation of a GeometryCollection.
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
