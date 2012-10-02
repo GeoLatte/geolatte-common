@@ -50,14 +50,14 @@ import java.util.List;
  */
 public class GeoJsonToDeserializationTest {
 
-    private static GeoJsonToFactory factory;
+    private static GeoJsonToAssembler assembler;
     private static ObjectMapper mapper;
     private static final double ACCURACY = 0.0000005;
     private static final CrsId LAMBERT72 = new CrsId("EPSG", 31370);
 
     @BeforeClass
     public static void setupSuite() {
-        factory = new GeoJsonToFactory();
+        assembler = new GeoJsonToAssembler();
         mapper = new ObjectMapper();
         JacksonConfiguration.applyMixin(mapper);
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -94,14 +94,14 @@ public class GeoJsonToDeserializationTest {
                 "    }\n" +
                 "  }, \"type\": \"Point\", \"coordinates\": [100.0, 0.0, 50.0] }";
 
-        Point test = (Point) JTS.to(factory.fromTo(mapper.readValue(testString, PointTo.class)));
+        Point test = (Point) JTS.to(assembler.fromTransferObject(mapper.readValue(testString, PointTo.class)));
         Coordinate c = test.getCoordinate();
         Assert.assertEquals(100.0, c.x, ACCURACY);
         Assert.assertEquals(0.0, c.y, ACCURACY);
         Assert.assertEquals(CrsId.UNDEFINED.getCode(), test.getSRID());
         Assert.assertTrue(Double.isNaN(c.z));
 
-        Point test1b = (Point) JTS.to(factory.fromTo(mapper.readValue(testString1b, PointTo.class)));
+        Point test1b = (Point) JTS.to(assembler.fromTransferObject(mapper.readValue(testString1b, PointTo.class)));
         Coordinate c1b = test1b.getCoordinate();
         Assert.assertEquals(100.0, c1b.x, ACCURACY);
         Assert.assertEquals(0.0, c1b.y, ACCURACY);
@@ -109,7 +109,7 @@ public class GeoJsonToDeserializationTest {
         Assert.assertTrue(Double.isNaN(c1b.z));
 
         // We deserialize to a geojsonto instead of a
-        com.vividsolutions.jts.geom.Geometry test2 = JTS.to(factory.fromTo(mapper.readValue(testString2, GeoJsonTo.class)));
+        com.vividsolutions.jts.geom.Geometry test2 = JTS.to(assembler.fromTransferObject(mapper.readValue(testString2, GeoJsonTo.class)));
         Assert.assertTrue(test2 instanceof Point);
         Coordinate c2 = test2.getCoordinate();
         Assert.assertEquals(100.0, c2.x, ACCURACY);
@@ -117,14 +117,14 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(LAMBERT72.getCode(), test2.getSRID());
         Assert.assertTrue(Double.isNaN(c2.z));
 
-        Point test3 = (Point) JTS.to(factory.fromTo(mapper.readValue(testString3, PointTo.class)));
+        Point test3 = (Point) JTS.to(assembler.fromTransferObject(mapper.readValue(testString3, PointTo.class)));
         Coordinate c3 = test3.getCoordinate();
         Assert.assertEquals(100.0, c3.x, ACCURACY);
         Assert.assertEquals(0.0, c3.y, ACCURACY);
         Assert.assertEquals(LAMBERT72.getCode(), test3.getSRID());
         Assert.assertTrue(Double.isNaN(c3.z));
 
-        Point test4 = (Point) JTS.to(factory.fromTo(mapper.readValue(testString4, PointTo.class)));
+        Point test4 = (Point) JTS.to(assembler.fromTransferObject(mapper.readValue(testString4, PointTo.class)));
         Coordinate c4 = test4.getCoordinate();
         Assert.assertEquals(100.0, c4.x, ACCURACY);
         Assert.assertEquals(0.0, c4.y, ACCURACY);
@@ -168,7 +168,7 @@ public class GeoJsonToDeserializationTest {
         // Each of the above should result in an Exception being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                factory.fromTo(mapper.readValue(s, PointTo.class));
+                assembler.fromTransferObject(mapper.readValue(s, PointTo.class));
                 Assert.fail("Following json is invalid for a point and should not parse: " + s);
             } catch (JsonMappingException e) {
                 // Ok! Json string cannot be parsed
@@ -181,7 +181,7 @@ public class GeoJsonToDeserializationTest {
         try {
             // Valid point. It is not a linestring however, so even if we tell the parser to deserialize as a
             // linestring, a point should be returned
-            org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue("{ \"type\": \"Point\", \"coordinates\": [100.0, 0.0] }", LineStringTo.class));
+            org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue("{ \"type\": \"Point\", \"coordinates\": [100.0, 0.0] }", LineStringTo.class));
             Assert.assertTrue(t instanceof org.geolatte.geom.Point);
         } catch (Exception e) {
             Assert.fail("No exception expected");
@@ -206,7 +206,7 @@ public class GeoJsonToDeserializationTest {
                 "  }, \"type\": \"LineString\",\n" +
                 "  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]\n" +
                 "  }";
-        LineString ls = (LineString) JTS.to(factory.fromTo(mapper.readValue(validLinestring, LineStringTo.class)));
+        LineString ls = (LineString) JTS.to(assembler.fromTransferObject(mapper.readValue(validLinestring, LineStringTo.class)));
         Assert.assertEquals(CrsId.UNDEFINED.getCode(), ls.getSRID());
         Coordinate[] c = ls.getCoordinates();
         Assert.assertEquals(100.0, c[0].x, ACCURACY);
@@ -214,7 +214,7 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(101.0, c[1].x, ACCURACY);
         Assert.assertEquals(1.0, c[1].y, ACCURACY);
 
-        ls = (LineString) JTS.to(factory.fromTo(mapper.readValue(validLineStringLambert, LineStringTo.class)));
+        ls = (LineString) JTS.to(assembler.fromTransferObject(mapper.readValue(validLineStringLambert, LineStringTo.class)));
         Assert.assertEquals(LAMBERT72.getCode(), ls.getSRID());
         c = ls.getCoordinates();
         Assert.assertEquals(100.0, c[0].x, ACCURACY);
@@ -267,7 +267,7 @@ public class GeoJsonToDeserializationTest {
         // Each of the above should result in a JsonException being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                JTS.to(factory.fromTo(mapper.readValue(s, LineStringTo.class)));
+                JTS.to(assembler.fromTransferObject(mapper.readValue(s, LineStringTo.class)));
                 Assert.fail("Following json is invalid for a point and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // OK!
@@ -280,7 +280,7 @@ public class GeoJsonToDeserializationTest {
         }
         // Valid linestring. Should ignore the given deserialize target
         String valid = "{ \"type\": \"LineString\", \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }";
-        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(valid, PointTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(valid, PointTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.LineString);
     }
 
@@ -299,7 +299,7 @@ public class GeoJsonToDeserializationTest {
                 "    \"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"\n" +
                 "    }\n" +
                 "  }, \"type\": \"Polygon\",  \"coordinates\": [[ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],[ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]    ] }";
-        Polygon p = (Polygon) JTS.to(factory.fromTo(mapper.readValue(noHoles, PolygonTo.class)));
+        Polygon p = (Polygon) JTS.to(assembler.fromTransferObject(mapper.readValue(noHoles, PolygonTo.class)));
         Assert.assertEquals(CrsId.UNDEFINED.getCode(), p.getSRID());
         Assert.assertEquals(0, p.getNumInteriorRing());
         LineString ls = p.getExteriorRing();
@@ -308,7 +308,7 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(5, coords.length);
         Assert.assertEquals(coords[0], coords[4]);
 
-        p = (Polygon) JTS.to(factory.fromTo(mapper.readValue(withHolesInLambert, PolygonTo.class)));
+        p = (Polygon) JTS.to(assembler.fromTransferObject(mapper.readValue(withHolesInLambert, PolygonTo.class)));
         Assert.assertEquals(LAMBERT72.getCode(), p.getSRID());
         Assert.assertEquals(1, p.getNumInteriorRing());
         ls = p.getExteriorRing();
@@ -357,7 +357,7 @@ public class GeoJsonToDeserializationTest {
         // - IllegalargumentException if the json is valid but does not comply to the geoJson standard (the to is notvalid)
         for (String s : invalidTestStrings) {
             try {
-                JTS.to(factory.fromTo(mapper.readValue(s, PolygonTo.class)));
+                JTS.to(assembler.fromTransferObject(mapper.readValue(s, PolygonTo.class)));
                 Assert.fail("Following json is invalid for a point and should not parse: " + s);
             } catch (JsonMappingException e) {
                 // Ok! Json string cannot be parsed
@@ -370,7 +370,7 @@ public class GeoJsonToDeserializationTest {
         }
         // Valid point but as linestring should fail!
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"Polygon\",  \"coordinates\": [[ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ], [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]    ] }";
-        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, PointTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, PointTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.Polygon);
     }
 
@@ -383,7 +383,7 @@ public class GeoJsonToDeserializationTest {
     @Test
     public void validMultiPointDeserialization() throws IOException {
         String testString = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }";
-        MultiPoint mp = (MultiPoint) JTS.to(factory.fromTo(mapper.readValue(testString, MultiPointTo.class)));
+        MultiPoint mp = (MultiPoint) JTS.to(assembler.fromTransferObject(mapper.readValue(testString, MultiPointTo.class)));
         Assert.assertEquals(LAMBERT72.getCode(), mp.getSRID());
         Assert.assertEquals(2, mp.getNumPoints());
         Assert.assertEquals(LAMBERT72.getCode(), mp.getGeometryN(0).getSRID());
@@ -433,7 +433,7 @@ public class GeoJsonToDeserializationTest {
         int count = 0;
         for (String s : invalidTestStrings) {
             try {
-                JTS.to(factory.fromTo(mapper.readValue(s, MultiPointTo.class)));
+                JTS.to(assembler.fromTransferObject(mapper.readValue(s, MultiPointTo.class)));
                 Assert.fail("Following json is invalid for a point and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // Ok!
@@ -448,7 +448,7 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(count, 1);
         // Valid multipoint but as linestring should fail!
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }";
-        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiPoint);
     }
 
@@ -461,7 +461,7 @@ public class GeoJsonToDeserializationTest {
     @Test
     public void testValidMultiLineString() throws IOException {
         String multiLineString = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiLineString\", \"coordinates\": [[ [100.0, 0.0], [101.0, 1.0] ], [ [102.0, 2.0], [103.0, 3.0] ] ]}";
-        MultiLineString result = (MultiLineString) JTS.to(factory.fromTo(mapper.readValue(multiLineString, MultiLineStringTo.class)));
+        MultiLineString result = (MultiLineString) JTS.to(assembler.fromTransferObject(mapper.readValue(multiLineString, MultiLineStringTo.class)));
         Assert.assertEquals(LAMBERT72.getCode(), result.getSRID());
         Assert.assertEquals(2, result.getNumGeometries());
         com.vividsolutions.jts.geom.Geometry first = result.getGeometryN(0);
@@ -517,7 +517,7 @@ public class GeoJsonToDeserializationTest {
         // Each of the above should result in a JsonException being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                JTS.to(factory.fromTo(mapper.readValue(s, MultiLineStringTo.class)));
+                JTS.to(assembler.fromTransferObject(mapper.readValue(s, MultiLineStringTo.class)));
                 Assert.fail("Following json is invalid for a MultiLineString and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // Ok
@@ -527,7 +527,7 @@ public class GeoJsonToDeserializationTest {
         }
         // Valid multilinestring, must remain multilinestring even if linestringto is specified
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiLineString\", \"coordinates\": [[ [100.0, 0.0], [101.0, 1.0] ], [ [102.0, 2.0], [103.0, 3.0] ] ]}";
-        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiLineString);
     }
 
@@ -540,7 +540,7 @@ public class GeoJsonToDeserializationTest {
     @Test
     public void testMultiPolygon() throws IOException {
         String testString = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiPolygon\", \"coordinates\": [    [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],    [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],     [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]    ]}";
-        MultiPolygon result = (MultiPolygon) JTS.to(factory.fromTo(mapper.readValue(testString, MultiPolygonTo.class)));
+        MultiPolygon result = (MultiPolygon) JTS.to(assembler.fromTransferObject(mapper.readValue(testString, MultiPolygonTo.class)));
         Assert.assertEquals(LAMBERT72.getCode(), result.getSRID());
         Assert.assertEquals(2, result.getNumGeometries());
         com.vividsolutions.jts.geom.Geometry first = result.getGeometryN(0);
@@ -605,7 +605,7 @@ public class GeoJsonToDeserializationTest {
         // Each of the above should result in a JsonException being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                JTS.to(factory.fromTo(mapper.readValue(s, MultiPolygonTo.class)));
+                JTS.to(assembler.fromTransferObject(mapper.readValue(s, MultiPolygonTo.class)));
                 Assert.fail("Following json is invalid for a MultiPolygon and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // Ok
@@ -615,7 +615,7 @@ public class GeoJsonToDeserializationTest {
         }
         // Valid multipolygon, must remain multipolygon even if linestringto is specified
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiPolygon\", \"coordinates\": [    [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],    [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],     [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]    ]}";
-        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiPolygon);
     }
 
@@ -627,7 +627,7 @@ public class GeoJsonToDeserializationTest {
     @Test
     public void testGeometryCollection() throws IOException {
         String testGeomCollection = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
-        GeometryCollection geomCol = (GeometryCollection) JTS.to(factory.fromTo(mapper.readValue(testGeomCollection, GeometryCollectionTo.class)));
+        GeometryCollection geomCol = (GeometryCollection) JTS.to(assembler.fromTransferObject(mapper.readValue(testGeomCollection, GeometryCollectionTo.class)));
         Assert.assertEquals(LAMBERT72.getCode(), geomCol.getSRID());
         Assert.assertEquals(2, geomCol.getNumGeometries());
         Assert.assertTrue(geomCol.getGeometryN(0) instanceof Point);
@@ -635,7 +635,7 @@ public class GeoJsonToDeserializationTest {
 
         // Let's nest soem geometrycollections :)
         String nestedGeomCol = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},  \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]},    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
-        geomCol = (GeometryCollection) JTS.to(factory.fromTo(mapper.readValue(nestedGeomCol, GeometryCollectionTo.class)));
+        geomCol = (GeometryCollection) JTS.to(assembler.fromTransferObject(mapper.readValue(nestedGeomCol, GeometryCollectionTo.class)));
         Assert.assertEquals(LAMBERT72.getCode(), geomCol.getSRID());
         Assert.assertEquals(2, geomCol.getNumGeometries());
         Assert.assertTrue(geomCol.getGeometryN(0) instanceof GeometryCollection);
@@ -674,7 +674,7 @@ public class GeoJsonToDeserializationTest {
         // Each of the above should result in a JsonException being thrown, nothing else!
         for (String s : invalidTestStrings) {
             try {
-                JTS.to(factory.fromTo(mapper.readValue(s, GeometryCollectionTo.class)));
+                JTS.to(assembler.fromTransferObject(mapper.readValue(s, GeometryCollectionTo.class)));
                 Assert.fail("Following json is invalid for a GeometryCollection and should not parse: " + s);
             } catch (JsonProcessingException e) {
                 // Ok!
@@ -687,7 +687,7 @@ public class GeoJsonToDeserializationTest {
 
         // Valid geometrycollection, must remain geometrycollection even if linestringto is specified
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
-        org.geolatte.geom.Geometry t = factory.fromTo((GeoJsonTo)mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, LineStringTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.GeometryCollection);
     }
 }

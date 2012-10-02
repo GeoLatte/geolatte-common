@@ -31,10 +31,10 @@ import org.geolatte.geom.crs.CrsId;
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
-public class GeoJsonToFactory {
+public class GeoJsonToAssembler {
 
 
-    //region toTo methods
+    //region fromTransferObject methods
 
     /**
      * Creates the correct TO starting from any geolatte geometry.
@@ -42,22 +42,22 @@ public class GeoJsonToFactory {
      * @param geometry the geometry to convert
      * @return a TO that, once serialized, results in a valid geoJSON representation of the geometry
      */
-    public GeoJsonTo toTo(Geometry geometry) {
+    public GeoJsonTo toTransferObject(Geometry geometry) {
 
         if (geometry instanceof Point) {
-            return toTo((Point) geometry);
+            return toTransferObject((Point) geometry);
         } else if (geometry instanceof LineString) {
-            return toTo((LineString) geometry);
+            return toTransferObject((LineString) geometry);
         } else if (geometry instanceof MultiPoint) {
-            return toTo((MultiPoint) geometry);
+            return toTransferObject((MultiPoint) geometry);
         } else if (geometry instanceof MultiLineString) {
-            return toTo((MultiLineString) geometry);
+            return toTransferObject((MultiLineString) geometry);
         } else if (geometry instanceof Polygon) {
-            return toTo((Polygon) geometry);
+            return toTransferObject((Polygon) geometry);
         } else if (geometry instanceof MultiPolygon) {
-            return toTo((MultiPolygon) geometry);
+            return toTransferObject((MultiPolygon) geometry);
         } else if (geometry instanceof GeometryCollection) {
-            return toTo((GeometryCollection) geometry);
+            return toTransferObject((GeometryCollection) geometry);
         }
         return null;
     }
@@ -68,7 +68,7 @@ public class GeoJsonToFactory {
      * @param input a polygon object
      * @return a transfer object for the polygon
      */
-    public PolygonTo toTo(Polygon input) {
+    public PolygonTo toTransferObject(Polygon input) {
         PolygonTo result = new PolygonTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         double[][][] rings = new double[input.getNumInteriorRing() + 1][][];
@@ -88,7 +88,7 @@ public class GeoJsonToFactory {
      * @param input the multilinestring
      * @return a transfer object for the multilinestring
      */
-    public MultiLineStringTo toTo(MultiLineString input) {
+    public MultiLineStringTo toTransferObject(MultiLineString input) {
         MultiLineStringTo result = new MultiLineStringTo();
         double[][][] resultCoordinates = new double[input.getNumGeometries()][][];
         for (int i = 0; i < input.getNumGeometries(); i++) {
@@ -105,7 +105,7 @@ public class GeoJsonToFactory {
      * @param input the multipoint
      * @return a transfer object for the multipoint
      */
-    public MultiPointTo toTo(MultiPoint input) {
+    public MultiPointTo toTransferObject(MultiPoint input) {
         MultiPointTo result = new MultiPointTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(getPoints(input));
@@ -118,7 +118,7 @@ public class GeoJsonToFactory {
      * @param input the point object
      * @return the transfer object for the point
      */
-    public PointTo toTo(Point input) {
+    public PointTo toTransferObject(Point input) {
         PointTo result = new PointTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(input.is3D() ? new double[]{input.getX(), input.getY(), input.getZ()}
@@ -132,7 +132,7 @@ public class GeoJsonToFactory {
      * @param input the linestring object to convert
      * @return the transfer object for the linestring
      */
-    public LineStringTo toTo(LineString input) {
+    public LineStringTo toTransferObject(LineString input) {
         LineStringTo result = new LineStringTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
         result.setCoordinates(getPoints(input));
@@ -145,11 +145,11 @@ public class GeoJsonToFactory {
      * @param input the multipolygon
      * @return the transfer object for the multipolygon
      */
-    public MultiPolygonTo toTo(MultiPolygon input) {
+    public MultiPolygonTo toTransferObject(MultiPolygon input) {
         MultiPolygonTo result = new MultiPolygonTo();
         double[][][][] coordinates = new double[input.getNumGeometries()][][][];
         for (int i = 0; i < input.getNumGeometries(); i++) {
-            coordinates[i] = toTo(input.getGeometryN(i)).getCoordinates();
+            coordinates[i] = toTransferObject(input.getGeometryN(i)).getCoordinates();
         }
         result.setCoordinates(coordinates);
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
@@ -162,11 +162,11 @@ public class GeoJsonToFactory {
      * @param input the multipolygon
      * @return the transfer object for the geometrycollection
      */
-    public GeometryCollectionTo toTo(GeometryCollection input) {
+    public GeometryCollectionTo toTransferObject(GeometryCollection input) {
         GeometryCollectionTo result = new GeometryCollectionTo();
         GeoJsonTo[] tos = new GeoJsonTo[input.getNumGeometries()];
         for (int i = 0; i < input.getNumGeometries(); i++) {
-            tos[i] = toTo(input.getGeometryN(i));
+            tos[i] = toTransferObject(input.getGeometryN(i));
             tos[i].setCrs(null); // Crs may not be repeated
         }
         result.setGeometries(tos);
@@ -176,7 +176,7 @@ public class GeoJsonToFactory {
 
     //endregion
 
-    //region fromTo methods
+    //region fromTransferObject methods
 
     /**
      * Creates a geolatte geometry object starting from a geojsonto.
@@ -186,9 +186,9 @@ public class GeoJsonToFactory {
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid
      *                                  GeoJsonTo
      */
-    public Geometry fromTo(GeoJsonTo input) throws IllegalArgumentException {
+    public Geometry fromTransferObject(GeoJsonTo input) throws IllegalArgumentException {
 
-        return fromTo(input, null);
+        return fromTransferObject(input, null);
     }
 
     /**
@@ -200,22 +200,22 @@ public class GeoJsonToFactory {
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid
      *                                  geojsonto
      */
-    public Geometry fromTo(GeoJsonTo input, CrsId crsId) throws IllegalArgumentException {
+    public Geometry fromTransferObject(GeoJsonTo input, CrsId crsId) throws IllegalArgumentException {
 
         if (input instanceof PointTo) {
-            return fromTo((PointTo) input, crsId);
+            return fromTransferObject((PointTo) input, crsId);
         } else if (input instanceof MultiPointTo) {
-            return fromTo((MultiPointTo) input, crsId);
+            return fromTransferObject((MultiPointTo) input, crsId);
         } else if (input instanceof LineStringTo) {
-            return fromTo((LineStringTo) input, crsId);
+            return fromTransferObject((LineStringTo) input, crsId);
         } else if (input instanceof MultiLineStringTo) {
-            return fromTo((MultiLineStringTo) input, crsId);
+            return fromTransferObject((MultiLineStringTo) input, crsId);
         } else if (input instanceof PolygonTo) {
-            return fromTo((PolygonTo) input, crsId);
+            return fromTransferObject((PolygonTo) input, crsId);
         } else if (input instanceof MultiPolygonTo) {
-            return fromTo((MultiPolygonTo) input, crsId);
+            return fromTransferObject((MultiPolygonTo) input, crsId);
         } else if (input instanceof GeometryCollectionTo) {
-            return fromTo((GeometryCollectionTo) input, crsId);
+            return fromTransferObject((GeometryCollectionTo) input, crsId);
         }
         return null;
     }
@@ -227,9 +227,9 @@ public class GeoJsonToFactory {
      * @return a polygon corresponding to the transfer object
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public Polygon fromTo(PolygonTo input) {
+    public Polygon fromTransferObject(PolygonTo input) {
 
-        return fromTo(input, null);
+        return fromTransferObject(input, null);
     }
 
     /**
@@ -240,7 +240,7 @@ public class GeoJsonToFactory {
      * @return the corresponding geometry
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public Polygon fromTo(PolygonTo input, CrsId crsId) {
+    public Polygon fromTransferObject(PolygonTo input, CrsId crsId) {
 
         if (input == null) { return null; }
         crsId = getCrsId(input, crsId);
@@ -256,9 +256,9 @@ public class GeoJsonToFactory {
      * @return a geometrycollection corresponding to the transfer object
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public GeometryCollection fromTo(GeometryCollectionTo input) {
+    public GeometryCollection fromTransferObject(GeometryCollectionTo input) {
 
-        return fromTo(input, null);
+        return fromTransferObject(input, null);
     }
 
     /**
@@ -269,7 +269,7 @@ public class GeoJsonToFactory {
      * @return the corresponding geometry
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public GeometryCollection fromTo(GeometryCollectionTo input, CrsId crsId) {
+    public GeometryCollection fromTransferObject(GeometryCollectionTo input, CrsId crsId) {
 
         if (input == null) { return null; }
         crsId = getCrsId(input, crsId);
@@ -277,7 +277,7 @@ public class GeoJsonToFactory {
 
         Geometry[] geoms = new Geometry[input.getGeometries().length];
         for (int i = 0; i < geoms.length; i++) {
-            geoms[i] = fromTo(input.getGeometries()[i], crsId);
+            geoms[i] = fromTransferObject(input.getGeometries()[i], crsId);
         }
         return new GeometryCollection(geoms);
     }
@@ -289,9 +289,9 @@ public class GeoJsonToFactory {
      * @return a multipolygon corresponding to the transfer object
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public MultiPolygon fromTo(MultiPolygonTo input) {
+    public MultiPolygon fromTransferObject(MultiPolygonTo input) {
 
-        return fromTo(input, null);
+        return fromTransferObject(input, null);
     }
 
     /**
@@ -302,7 +302,7 @@ public class GeoJsonToFactory {
      * @return the corresponding geometry
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public MultiPolygon fromTo(MultiPolygonTo input, CrsId crsId) {
+    public MultiPolygon fromTransferObject(MultiPolygonTo input, CrsId crsId) {
 
         if (input == null) { return null; }
         crsId = getCrsId(input, crsId);
@@ -322,8 +322,8 @@ public class GeoJsonToFactory {
      * @return a multilinestring corresponding to the transfer object
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public MultiLineString fromTo(MultiLineStringTo input) {
-        return fromTo(input, null);
+    public MultiLineString fromTransferObject(MultiLineStringTo input) {
+        return fromTransferObject(input, null);
     }
 
     /**
@@ -334,7 +334,7 @@ public class GeoJsonToFactory {
      * @return the corresponding geometry
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public MultiLineString fromTo(MultiLineStringTo input, CrsId crsId) {
+    public MultiLineString fromTransferObject(MultiLineStringTo input, CrsId crsId) {
 
         if (input == null) { return null; }
         crsId = getCrsId(input, crsId);
@@ -354,8 +354,8 @@ public class GeoJsonToFactory {
      * @return a linestring corresponding to the transfer object
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public LineString fromTo(LineStringTo input) {
-        return fromTo(input, null);
+    public LineString fromTransferObject(LineStringTo input) {
+        return fromTransferObject(input, null);
     }
 
     /**
@@ -366,7 +366,7 @@ public class GeoJsonToFactory {
      * @return the corresponding geometry
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public LineString fromTo(LineStringTo input, CrsId crsId) {
+    public LineString fromTransferObject(LineStringTo input, CrsId crsId) {
 
         if (input == null) { return null; }
         crsId = getCrsId(input, crsId);
@@ -382,8 +382,8 @@ public class GeoJsonToFactory {
      * @return a multipoint corresponding to the transfer object
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public MultiPoint fromTo(MultiPointTo input) {
-        return fromTo(input, null);
+    public MultiPoint fromTransferObject(MultiPointTo input) {
+        return fromTransferObject(input, null);
     }
 
     /**
@@ -394,7 +394,7 @@ public class GeoJsonToFactory {
      * @return the corresponding geometry
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public MultiPoint fromTo(MultiPointTo input, CrsId crsId) {
+    public MultiPoint fromTransferObject(MultiPointTo input, CrsId crsId) {
 
         if (input == null) { return null; }
         crsId = getCrsId(input, crsId);
@@ -414,8 +414,8 @@ public class GeoJsonToFactory {
      * @return a point corresponding to the transfer object
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public Point fromTo(PointTo input) {
-        return fromTo(input, null);
+    public Point fromTransferObject(PointTo input) {
+        return fromTransferObject(input, null);
     }
 
     /**
@@ -426,7 +426,7 @@ public class GeoJsonToFactory {
      * @return the corresponding geometry
      * @throws IllegalArgumentException If the geometry could not be constructed due to an invalid transfer object
      */
-    public Point fromTo(PointTo input, CrsId crsId) {
+    public Point fromTransferObject(PointTo input, CrsId crsId) {
 
         if (input == null) { return null; }
         crsId = getCrsId(input, crsId);
