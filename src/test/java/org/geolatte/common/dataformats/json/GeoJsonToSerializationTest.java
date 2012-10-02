@@ -27,6 +27,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.geolatte.common.dataformats.json.to.GeoJsonTo;
+import org.geolatte.common.dataformats.json.to.GeoJsonToAssembler;
 import org.geolatte.common.dataformats.json.to.jackson.JacksonConfiguration;
 import org.geolatte.geom.jts.JTS;
 import org.junit.Assert;
@@ -50,13 +51,13 @@ import java.util.Map;
 public class GeoJsonToSerializationTest {
 
     private static GeometryFactory geomFactory;
-    private static GeoJsonToFactory factory;
+    private static GeoJsonToAssembler assembler;
     private static ObjectMapper mapper;
 
     @BeforeClass
     public static void setupSuite() {
         geomFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 900913);
-        factory = new GeoJsonToFactory();
+        assembler = new GeoJsonToAssembler();
         mapper = new ObjectMapper();
         JacksonConfiguration.applyMixin(mapper);
     }
@@ -64,7 +65,7 @@ public class GeoJsonToSerializationTest {
     @Test
     public void testPointSerialization() throws IOException {
         Point p = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0)}), geomFactory);
-        GeoJsonTo to = factory.toTo(JTS.from(p));
+        GeoJsonTo to = assembler.toTransferObject(JTS.from(p));
         String geoJsonOutput = mapper.writeValueAsString(to);
 
         try {
@@ -90,7 +91,7 @@ public class GeoJsonToSerializationTest {
     @Test
     public void testLineStringSerializer() throws IOException {
         LineString l = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0), new Coordinate(3.0, 4.0), new Coordinate(2.5, 5.0)}), geomFactory);
-        GeoJsonTo to = factory.toTo(JTS.from(l));
+        GeoJsonTo to = assembler.toTransferObject(JTS.from(l));
         String output = mapper.writeValueAsString(to);
         HashMap map = mapper.readValue(output, HashMap.class);
         Assert.assertEquals("LineString", map.get("type"));
@@ -123,7 +124,7 @@ public class GeoJsonToSerializationTest {
         Point p2 = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(3.0, 4.0)}), geomFactory);
         Point p3 = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.5, 5.0)}), geomFactory);
         MultiPoint l = new MultiPoint(new Point[]{p, p2, p3}, geomFactory);
-        String output = mapper.writeValueAsString(factory.toTo(JTS.from(l)));
+        String output = mapper.writeValueAsString(assembler.toTransferObject(JTS.from(l)));
         HashMap map = mapper.readValue(output, HashMap.class);
         Assert.assertEquals("MultiPoint", map.get("type"));
         Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
@@ -155,7 +156,7 @@ public class GeoJsonToSerializationTest {
         LineString l2 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(12.0, 13.0), new Coordinate(13.0, 14.0)}), geomFactory);
         LineString l3 = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(24.0, 5.0), new Coordinate(19.0, 3.0)}), geomFactory);
         MultiLineString mls = new MultiLineString(new LineString[]{l, l2, l3}, geomFactory);
-        String output = mapper.writeValueAsString(factory.toTo(JTS.from(mls)));
+        String output = mapper.writeValueAsString(assembler.toTransferObject(JTS.from(mls)));
         HashMap map = mapper.readValue(output, HashMap.class);
         Assert.assertEquals("MultiLineString", map.get("type"));
         Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
@@ -200,7 +201,7 @@ public class GeoJsonToSerializationTest {
                 new Coordinate(0.95, 0.95), new Coordinate(0.7, 0.95), new Coordinate(0.7, 0.7)}), geomFactory);
         Polygon mls = new Polygon(l, new LinearRing[]{l2, l3}, geomFactory);
         org.geolatte.geom.Geometry geom = JTS.from(mls);
-        String output = mapper.writeValueAsString(factory.toTo(geom));
+        String output = mapper.writeValueAsString(assembler.toTransferObject(geom));
 
         HashMap map = mapper.readValue(output, HashMap.class);
         Assert.assertEquals("Polygon", map.get("type"));
@@ -246,7 +247,7 @@ public class GeoJsonToSerializationTest {
         Polygon p2 = new Polygon(l, new LinearRing[]{l4}, geomFactory);
         MultiPolygon mp = new MultiPolygon(new Polygon[]{p1, p2}, geomFactory);
         org.geolatte.geom.Geometry geom = JTS.from(mp);
-        String output = mapper.writeValueAsString(factory.toTo(geom));
+        String output = mapper.writeValueAsString(assembler.toTransferObject(geom));
         HashMap map = mapper.readValue(output, HashMap.class);
         Assert.assertEquals("MultiPolygon", map.get("type"));
         Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
@@ -310,7 +311,7 @@ public class GeoJsonToSerializationTest {
         MultiLineString mls = new MultiLineString(new LineString[]{l, ls2, ls3}, geomFactory);
         GeometryCollection geomCollection = new GeometryCollection(new Geometry[]{pol1, p, mpt, ls, mls}, geomFactory);
         try {
-            String output = mapper.writeValueAsString(factory.toTo(JTS.from(geomCollection)));
+            String output = mapper.writeValueAsString(assembler.toTransferObject(JTS.from(geomCollection)));
 
             HashMap map = mapper.readValue(output, HashMap.class);
             Assert.assertEquals("GeometryCollection", map.get("type"));

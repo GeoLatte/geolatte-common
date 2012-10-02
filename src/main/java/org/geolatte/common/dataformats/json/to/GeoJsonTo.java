@@ -65,10 +65,11 @@ public abstract class GeoJsonTo {
 
     /**
      * @return the boundingbox of this geometry. The value of the bbox member must be a 2*n array where n is
-     * the number of dimensions represented in the contained geometries, with the lowest values for all axes
-     * followed by the highest values. The axes order of a bbox follows the axes order of geometries. In addition,
-     * the coordinate reference system for the bbox is assumed to match the coordinate reference system of the
-     * GeoJSON object of which it is a member.
+     *         the number of dimensions represented in the contained geometries, with the lowest values for all axes
+     *         followed by the highest values. The axes order of a bbox follows the axes order of geometries. In
+     *         addition,
+     *         the coordinate reference system for the bbox is assumed to match the coordinate reference system of the
+     *         GeoJSON object of which it is a member.
      */
     public double[] getBbox() {
         return bbox;
@@ -76,6 +77,7 @@ public abstract class GeoJsonTo {
 
     /**
      * Sets the boundingbox value for this geometry
+     *
      * @param bbox the given value to set (it is not checked for validity)
      */
     protected void setBbox(double[] bbox) {
@@ -123,7 +125,8 @@ public abstract class GeoJsonTo {
      *
      * @param crsName the name of the crs to use, if null, the default crs for geojson is used.
      * @return the transfer object that corresponds with the default Crs. According to the GeoJson spec
-     *         The default CRS is a geographic coordinate reference system, using the WGS84 datum, and with longitude and latitude units of decimal degrees.
+     *         The default CRS is a geographic coordinate reference system, using the WGS84 datum, and with longitude
+     *         and latitude units of decimal degrees.
      */
     public static CrsTo createCrsTo(String crsName) {
         String nameToUse = crsName == null ? "EPSG:4326" : crsName;
@@ -135,16 +138,18 @@ public abstract class GeoJsonTo {
     }
 
     /**
-     * Creates a boundingbox for a point. In this case, both the lower and higher edges of teh bbox are the point itself
+     * Creates a boundingbox for a point. In this case, both the lower and higher edges of teh bbox are the point
+     * itself
+     *
      * @param coordinates the coordinates of the point
-     * @return the bboundingbox, a list with doubles. the result is a 2*n array where n is the number of dimensions represented
-     *         in the input, with the lowest values for all axes followed by the highest values.
+     * @return the bboundingbox, a list with doubles. the result is a 2*n array where n is the number of dimensions
+     *         representedin the input, with the lowest values for all axes followed by the highest values.
      */
     public static double[] createBoundingBox(double[] coordinates) {
-        double[] result = new double[coordinates.length*2];
-        for (int i=0;i<coordinates.length;i++) {
+        double[] result = new double[coordinates.length * 2];
+        for (int i = 0; i < coordinates.length; i++) {
             result[i] = coordinates[i];
-            result[coordinates.length+i] = coordinates[i];
+            result[coordinates.length + i] = coordinates[i];
         }
         return result;
     }
@@ -158,7 +163,7 @@ public abstract class GeoJsonTo {
      *         in the input, with the lowest values for all axes followed by the highest values.
      */
     public static double[] createBoundingBox(double[][] input) {
-        double[] result = new double[input[0].length*2];
+        double[] result = new double[input[0].length * 2];
         for (int i = 0; i < input[0].length; i++) {
             result[i] = Double.MAX_VALUE;
         }
@@ -212,7 +217,8 @@ public abstract class GeoJsonTo {
     /**
      * Merges the second boundingbox into the first. Basically, this extends the first boundingbox to also
      * encapsulate the second
-     * @param first the first boundingbox
+     *
+     * @param first  the first boundingbox
      * @param second the second boundingbox
      */
     private static void mergeInto(double[] first, double[] second) {

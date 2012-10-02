@@ -3,19 +3,25 @@ package org.geolatte.common.dataformats.json.to;
 import java.util.Arrays;
 
 /**
- * Hier dient nog commentaar te worden voorzien.
- * <p/>
- * <p>
- * Bestand aangemaakt op: </i>: 16/09/11-15:27<br>
- * </p>
+ * This class represents a transfer object which, if serialized by a standard JSON serializer, leads to a valid
+ * GeoJSON representation of a GeometryCollection.
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since Kabelnet 0.1
  */
-public class GeometryCollectionTo extends GeoJsonTo {
+public final class GeometryCollectionTo extends GeoJsonTo {
 
     private GeoJsonTo[] geometries;
+
+    public GeometryCollectionTo() {
+
+    }
+
+    public GeometryCollectionTo(CrsTo crsTo, GeoJsonTo[] geometries) {
+        this.setCrs(crsTo);
+        this.geometries = geometries;
+    }
 
     public GeoJsonTo[] getGeometries() {
         return geometries;
