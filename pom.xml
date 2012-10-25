@@ -26,8 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.geolatte</groupId>
     <artifactId>geolatte-common</artifactId>
-    <packaging>jar</packaging>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
     <name>geolatte-common</name>
     <description>
         This GeoLatte-common library contains the transformer framework and other common classes used by other
