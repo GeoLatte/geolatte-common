@@ -61,13 +61,13 @@ public class JsonSerializationTransformationTest {
     private JsonSerializationTransformation transformation;
     private Feature testFeature;
     private static EntityClassReader reader;
-    private static GeometryFactory geomFactory = new GeometryFactory(CrsId.valueOf(900913));
+    private static GeometryFactory geomFactory = new GeometryFactory();
     private static ObjectMapper mapper;
 
     @BeforeClass
     public static void setupSuite() {
         reader = EntityClassReader.getClassReaderFor(TestFeature.class);
-        geomFactory = new GeometryFactory(CrsId.valueOf(900913));
+        geomFactory = new GeometryFactory();
         mapper = new ObjectMapper();
     }
 
@@ -116,7 +116,7 @@ public class JsonSerializationTransformationTest {
      */
     @Test
     public void testPointSerializer() throws Exception {
-        Point p = Points.create(2.0, 3.0, CrsId.valueOf(900913));
+        Point p = Points.create2D(2.0, 3.0, CrsId.valueOf(900913));
         String output = transformation.transform(p);
         HashMap map = mapper.readValue(output, HashMap.class);
         Assert.assertEquals("Point", map.get("type"));
@@ -135,7 +135,7 @@ public class JsonSerializationTransformationTest {
     public void testLineStringSerializer() throws Exception {
 //        try {
         LineString l = geomFactory.createLineString(PointCollectionFactory.create(new double[]{2.0, 3.0, 3.0, 4.0},
-                DimensionalFlag.XY));
+                DimensionalFlag.d2D, CrsId.valueOf(900913)));
         String output = transformation.transform(l);
         HashMap map = mapper.readValue(output, HashMap.class);
         Assert.assertEquals("LineString", map.get("type"));
@@ -195,11 +195,11 @@ public class JsonSerializationTransformationTest {
      */
     @Test
     public void testMultiLineStringSerializer() throws Exception {
-        PointSequence pnts = PointCollectionFactory.create(new double[]{2, 3, 3, 4}, DimensionalFlag.XY);
+        PointSequence pnts = PointCollectionFactory.create(new double[]{2, 3, 3, 4}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LineString l = geomFactory.createLineString(pnts);
-        pnts = PointCollectionFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LineString l2 = geomFactory.createLineString(pnts);
-        pnts = PointCollectionFactory.create(new double[]{24, 5, 19, 3}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{24, 5, 19, 3}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LineString l3 = geomFactory.createLineString(pnts);
         MultiLineString mls = geomFactory.createMultiLineString(new LineString[]{l, l2, l3});
         String output = transformation.transform(mls);
@@ -286,8 +286,8 @@ public class JsonSerializationTransformationTest {
      */
     @Test
     public void testMultiPointSerializer() throws TransformationException, IOException {
-        Point p = Points.create(2, 3, CrsId.valueOf(900913));
-        Point p2 = Points.create(3, 4, CrsId.valueOf(900913));
+        Point p = Points.create2D(2, 3, CrsId.valueOf(900913));
+        Point p2 = Points.create2D(3, 4, CrsId.valueOf(900913));
         MultiPoint l = geomFactory.createMultiPoint(new Point[]{p, p2});
         String output = transformation.transform(l);
         HashMap map = mapper.readValue(output, HashMap.class);
@@ -316,11 +316,11 @@ public class JsonSerializationTransformationTest {
      */
     @Test
     public void testPolygonSerializer() throws Exception {
-        PointSequence pnts = PointCollectionFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.XY);
+        PointSequence pnts = PointCollectionFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l = geomFactory.createLinearRing(pnts);
-        pnts = PointCollectionFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l2 = geomFactory.createLinearRing(pnts);
-        pnts = PointCollectionFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l3 = geomFactory.createLinearRing(pnts);
         Polygon mls = geomFactory.createPolygon(new LinearRing[]{l, l2, l3});
 
@@ -355,13 +355,13 @@ public class JsonSerializationTransformationTest {
 
     @Test
     public void testMultiPolygonSerialize() throws Exception {
-        PointSequence pnts = PointCollectionFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.XY);
+        PointSequence pnts = PointCollectionFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l = geomFactory.createLinearRing(pnts);
-        pnts = PointCollectionFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l2 = geomFactory.createLinearRing(pnts);
-        pnts = PointCollectionFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l3 = geomFactory.createLinearRing(pnts);
-        pnts = PointCollectionFactory.create(new double[]{0.1, 0.1, 0.9, 0.1, 0.9, 0.9, 0.1, 0.9, 0.1, 0.1}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{0.1, 0.1, 0.9, 0.1, 0.9, 0.9, 0.1, 0.9, 0.1, 0.1}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l4 = geomFactory.createLinearRing(pnts);
         Polygon p1 = geomFactory.createPolygon(new LinearRing[]{l, l2, l3});
         Polygon p2 = geomFactory.createPolygon(new LinearRing[]{l, l4});
@@ -439,21 +439,21 @@ public class JsonSerializationTransformationTest {
 
     @Test
     public void testGeometryCollectionSerializer() throws Exception {
-        PointSequence pnts = PointCollectionFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.XY);
+        PointSequence pnts = PointCollectionFactory.create(new double[]{0, 0, 1, 0, 1, 1, 0, 1, 0, 0}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l = geomFactory.createLinearRing(pnts);
-        pnts = PointCollectionFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{0.1, 0.1, 0.25, 0.1, 0.25, 0.25, 0.1, 0.25, 0.1, 0.1}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l2 = geomFactory.createLinearRing(pnts);
-        pnts = PointCollectionFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{0.7, 0.7, 0.95, 0.7, 0.95, 0.95, 0.7, 0.95, 0.7, 0.7}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LinearRing l3 = geomFactory.createLinearRing(pnts);
         Polygon pol1 = geomFactory.createPolygon(new LinearRing[]{l, l2, l3});
-        Point p = Points.create(2, 3, CrsId.valueOf(900913));
-        Point p2 = Points.create(3, 4, CrsId.valueOf(900913));
+        Point p = Points.create2D(2, 3, CrsId.valueOf(900913));
+        Point p2 = Points.create2D(3, 4, CrsId.valueOf(900913));
         MultiPoint mpt = geomFactory.createMultiPoint(new Point[]{p, p2});
-        pnts = PointCollectionFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LineString ls = geomFactory.createLineString(pnts);
-        pnts = PointCollectionFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{12, 13, 13, 14}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LineString ls2 = geomFactory.createLineString(pnts);
-        pnts = PointCollectionFactory.create(new double[]{4, 5, 19, 3}, DimensionalFlag.XY);
+        pnts = PointCollectionFactory.create(new double[]{4, 5, 19, 3}, DimensionalFlag.d2D, CrsId.valueOf(900913));
         LineString ls3 = geomFactory.createLineString(pnts);
         MultiLineString mls = geomFactory.createMultiLineString(new LineString[]{l, ls2, ls3});
         GeometryCollection geomCollection = geomFactory.createGeometryCollection(new Geometry[]{pol1, p, mpt, ls, mls});

@@ -44,7 +44,7 @@ public class DefaultFeatureTest {
     @BeforeClass
     public static void setupOnce()
     {
-        geomFact = new GeometryFactory(CrsId.valueOf(31370));
+        geomFact = new GeometryFactory();
     }
 
     @Before
@@ -62,7 +62,7 @@ public class DefaultFeatureTest {
         Assert.assertNull(f.getProperty("geometry"));
         Assert.assertEquals(0, f.getProperties().size());
 
-        Point p = geomFact.createPoint(PointCollectionFactory.create(new double[]{3.0d, 2.0d}, DimensionalFlag.XY));
+        Point p = geomFact.createPoint(PointCollectionFactory.create(new double[]{3.0d, 2.0d}, DimensionalFlag.d2D, CrsId.valueOf(31370)));
         f.setGeometry("geometry", p);
 
         Assert.assertTrue(f.hasGeometry());
@@ -167,7 +167,7 @@ public class DefaultFeatureTest {
 
         Object idValue = new Object();
         Object propertyValue = new Object();
-        Geometry geomValue = Points.create(8.0d, 9.0d, CrsId.valueOf(31370));
+        Geometry geomValue = Points.create2D(8.0d, 9.0d, CrsId.valueOf(31370));
 
         f.setId("id", idValue);
         f.setGeometry("myGeometry", geomValue);

@@ -249,8 +249,8 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         List<LinearRing> rings = new ArrayList<LinearRing>();
         try { 
         for (List<List> ring : coords) {
-            PointSequence ringCoords = getPointSequence(ring);
-            rings.add(new LinearRing(ringCoords, crsId));
+            PointSequence ringCoords = getPointSequence(ring, crsId);
+            rings.add(new LinearRing(ringCoords));
         }
             return new Polygon(rings.toArray(new LinearRing[]{}));
         } catch (IllegalArgumentException e) {
@@ -272,7 +272,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         if (coords != null && coords.size() >= 2) {
             ArrayList<List> coordinates = new ArrayList<List>();
             coordinates.add(coords);
-            return new Point(getPointSequence(coordinates), crsId);
+            return new Point(getPointSequence(coordinates, crsId));
         } else {
             throw new IOException("A point must has exactly one coordinate (an x, a y and possibly a z value). Additional numbers in the coordinate are permitted but ignored.");
         }
@@ -292,8 +292,8 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         if (coords == null || coords.size() < 2) {
             throw new IOException("A linestring requires a valid series of coordinates (at least two coordinates)");
         }
-        PointSequence coordinates = getPointSequence(coords);
-        return new LineString(coordinates, crsId);
+        PointSequence coordinates = getPointSequence(coords, crsId);
+        return new LineString(coordinates);
     }
 
     /**
@@ -334,7 +334,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
      * @throws IOException if the conversion can not be executed (eg because one of the innerlists contains more or
      *                     less than two doubles.
      */
-    private PointSequence getPointSequence(List<List> entry) throws IOException {
+    private PointSequence getPointSequence(List<List> entry, CrsId crsId) throws IOException {
         {
             double[] coordinates2d = new double[entry.size()*2];
             double[] zValues = new double[entry.size()];
@@ -370,13 +370,13 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                 }
             }
             if (haszValues) {
-                PointSequenceBuilder builder = PointSequenceBuilders.fixedSized(entry.size(), DimensionalFlag.XYZ);
+                PointSequenceBuilder builder = PointSequenceBuilders.fixedSized(entry.size(), DimensionalFlag.d3D, crsId);
                 for (int i = 0; i < entry.size(); i++){
                     builder.add(coordinates2d[2*i], coordinates2d[2*i+1], zValues[i]);
                 }
                 return builder.toPointSequence();
             }  else {
-                return PointCollectionFactory.create(coordinates2d, DimensionalFlag.XY);
+                return PointCollectionFactory.create(coordinates2d, DimensionalFlag.d2D, crsId);
             }
         }
     }

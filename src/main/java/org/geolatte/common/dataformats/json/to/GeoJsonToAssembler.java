@@ -342,7 +342,7 @@ public class GeoJsonToAssembler {
 
         LineString[] lineStrings = new LineString[input.getCoordinates().length];
         for (int i = 0; i < lineStrings.length; i++) {
-            lineStrings[i] = new LineString(createPointSequence(input.getCoordinates()[i]), crsId);
+            lineStrings[i] = new LineString(createPointSequence(input.getCoordinates()[i], crsId));
         }
         return new MultiLineString(lineStrings);
     }
@@ -372,7 +372,7 @@ public class GeoJsonToAssembler {
         crsId = getCrsId(input, crsId);
         isValid(input);
 
-        return new LineString(createPointSequence(input.getCoordinates()), crsId);
+        return new LineString(createPointSequence(input.getCoordinates(), crsId));
     }
 
     /**
@@ -447,7 +447,7 @@ public class GeoJsonToAssembler {
     private Polygon createPolygon(double[][][] coordinates, CrsId crsId) {
         LinearRing[] rings = new LinearRing[coordinates.length];
         for (int i = 0; i < coordinates.length; i++) {
-            rings[i] = new LinearRing(createPointSequence(coordinates[i]), crsId);
+            rings[i] = new LinearRing(createPointSequence(coordinates[i], crsId));
         }
         return new Polygon(rings);
     }
@@ -458,14 +458,14 @@ public class GeoJsonToAssembler {
      * @param coordinates an array containing coordinate arrays
      * @return a geolatte pointsequence or null if the coordinatesequence was null
      */
-    private PointSequence createPointSequence(double[][] coordinates) {
+    private PointSequence createPointSequence(double[][] coordinates, CrsId crsId) {
         if (coordinates == null) {
             return null;
         } else if (coordinates.length == 0) {
             return PointCollectionFactory.createEmpty();
         }
-        DimensionalFlag df = coordinates[0].length == 3 ? DimensionalFlag.XYZ : DimensionalFlag.XY;
-        PointSequenceBuilder psb = PointSequenceBuilders.variableSized(df);
+        DimensionalFlag df = coordinates[0].length == 3 ? DimensionalFlag.d3D : DimensionalFlag.d2D;
+        PointSequenceBuilder psb = PointSequenceBuilders.variableSized(df, crsId);
         for (double[] point : coordinates) {
             psb.add(point);
         }
@@ -484,7 +484,7 @@ public class GeoJsonToAssembler {
             return null;
         }
         if (input.length == 2) {
-            return Points.create(input[0], input[1], crsIdValue);
+            return Points.create2D(input[0], input[1], crsIdValue);
         } else {
             return Points.create3D(input[0], input[1], input[2], crsIdValue);
         }

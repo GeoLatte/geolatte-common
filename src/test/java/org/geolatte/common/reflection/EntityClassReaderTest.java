@@ -55,8 +55,8 @@ public class EntityClassReaderTest {
 
     @Before
     public void setUp() {
-        PointSequence pnts = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
-        LineString shape = new LineString(pnts, CrsId.UNDEFINED);
+        PointSequence pnts = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.d2D, CrsId.UNDEFINED);
+        LineString shape = new LineString(pnts);
         testFeature = new TestFeature("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, shape, 5, "sub", "subsub");
         reader = EntityClassReader.getClassReaderFor(testFeature.getClass());
     }
@@ -240,10 +240,10 @@ public class EntityClassReaderTest {
 
     @Test
     public void NoShapeDoubleShapeTest() {
-        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.XY);
-        LineString shape2 = new LineString(points, CrsId.UNDEFINED);
-        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
-        LineString shape = new LineString(points, CrsId.UNDEFINED);
+        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11}, DimensionalFlag.d2D, CrsId.UNDEFINED);
+        LineString shape2 = new LineString(points);
+        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.d2D, CrsId.UNDEFINED);
+        LineString shape = new LineString(points);
         Object noShape = new TestFeatureNoShape("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, 5, "sub", "subsub");
         Object doubleShape = new TestFeatureDoubleShape("Antwerpen", 128, new String[]{"Belgium", "Flanders"}, shape, 5, shape2, "sub");
         reader = EntityClassReader.getClassReaderFor(noShape.getClass());
@@ -266,10 +266,10 @@ public class EntityClassReaderTest {
 
     @Test
     public void allwaysReturnGeolatteGeoms () {
-        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.XY);
-        final LineString shape2 = new LineString(points, CrsId.UNDEFINED);
-        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
-        final LineString shape = new LineString(points, CrsId.UNDEFINED);
+        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.d2D, CrsId.UNDEFINED);
+        final LineString shape2 = new LineString(points);
+        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.d2D, CrsId.UNDEFINED);
+        final LineString shape = new LineString(points);
 
         Object jtsObject = new Object(){
             public com.vividsolutions.jts.geom.Geometry getGeometry(){ return JTS.to(shape);}
@@ -293,10 +293,10 @@ public class EntityClassReaderTest {
 
     @Test
     public void acceptsNullGeometries () {
-        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.XY);
-        final LineString shape2 = new LineString(points, CrsId.UNDEFINED);
-        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.XY);
-        final LineString shape = new LineString(points, CrsId.UNDEFINED);
+        PointSequence points = PointCollectionFactory.create(new double[]{8,9,9,10,10,11} , DimensionalFlag.d2D, CrsId.UNDEFINED);
+        final LineString shape2 = new LineString(points);
+        points = PointCollectionFactory.create(new double[]{5,6,6,7,7,8}, DimensionalFlag.d2D, CrsId.UNDEFINED);
+        final LineString shape = new LineString(points);
 
         Object jtsObject = new Object(){
             public com.vividsolutions.jts.geom.Geometry getGeometry(){ return null;}
