@@ -27,6 +27,7 @@ import org.geolatte.geom.Geometry;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -465,6 +466,34 @@ public class EntityClassReader {
     }
 
     /**
+    * <p>
+    * Parses a given string into an object whose class corresponds with the type of the property given. For example,
+    * if you give the method "4", and you ask it to parse like "width", and width is of the type Long, you will
+    * receive an object of the type Long. If the property of the underlying class has a primitive type as its type,
+    * the method will return the boxed variant instead.
+            * </p>
+            * <p>
+    * <b>Currently, this method is only implemented for all numeric and boolean java types.</b>
+            * </p>
+            *
+            * @param stringToParse The string to convert into an object
+    * @param propertyPath  Dot-separated path to the property whose type is to be used as the class to convert to
+    * @return A converted instance of the given string into the type of the given property. If the propertyName does
+    *         not correspond with a property name, null is returned. If the propertyName has any other type than a supported type
+    *         the original string is returned.
+    */
+    public Object parseAsPropertyType(String stringToParse, String propertyPath) {
+
+        Class propertyType = getPropertyType(propertyPath);
+        if (propertyType == null) {
+            return null;
+        }
+        NumberTransformer parser = transformers.get(propertyType);
+        return parser == null ? stringToParse : parser.parseObject(stringToParse);
+    }
+
+
+    /**
      * Returns a string that is identical to the original string except that the fist character is now lowercase
      * (regardless of how it was originally)
      *
@@ -507,4 +536,78 @@ public class EntityClassReader {
             }
         }
     }
+
+    // Static objectconvertors.
+    private static Map<Class, NumberTransformer> transformers = new HashMap<Class, NumberTransformer>();
+
+    static {
+        transformers.put(Integer.class, new IntegerTransformer());
+        transformers.put(int.class, new IntegerTransformer());
+        transformers.put(Long.class, new LongTransformer());
+        transformers.put(long.class, new LongTransformer());
+        transformers.put(Double.class, new DoubleTransformer());
+        transformers.put(double.class, new DoubleTransformer());
+        transformers.put(Short.class, new ShortTransformer());
+        transformers.put(short.class, new ShortTransformer());
+        transformers.put(Float.class, new FloatTransformer());
+        transformers.put(float.class, new FloatTransformer());
+        transformers.put(Boolean.class, new BooleanTransformer());
+        transformers.put(boolean.class, new BooleanTransformer());
+        transformers.put(Byte.class, new ByteTransformer());
+        transformers.put(byte.class, new ByteTransformer());
+        transformers.put(BigDecimal.class, new BigDecimalTransformer());
+    }
+
+    private static interface NumberTransformer {
+        Object parseObject(String s);
+    }
+
+    private static class IntegerTransformer implements NumberTransformer {
+        public Object parseObject(String s) {
+            return Integer.valueOf(s);
+        }
+    }
+
+    private static class BigDecimalTransformer implements NumberTransformer {
+        public Object parseObject(String s) {
+            return BigDecimal.valueOf(Double.valueOf(s));
+        }
+    }
+
+    private static class DoubleTransformer implements NumberTransformer {
+        public Object parseObject(String s) {
+            return Double.valueOf(s);
+        }
+    }
+
+    private static class LongTransformer implements NumberTransformer {
+        public Object parseObject(String s) {
+            return Long.valueOf(s);
+        }
+    }
+
+    private static class BooleanTransformer implements NumberTransformer {
+        public Object parseObject(String s) {
+            return Boolean.valueOf(s);
+        }
+    }
+
+    private static class FloatTransformer implements NumberTransformer {
+        public Object parseObject(String s) {
+            return Float.valueOf(s);
+        }
+    }
+
+    private static class ByteTransformer implements NumberTransformer {
+        public Object parseObject(String s) {
+            return Byte.valueOf(s);
+        }
+    }
+
+    private static class ShortTransformer implements NumberTransformer {
+        public Object parseObject(String s) {
+            return Short.valueOf(s);
+        }
+    }
+
 }
