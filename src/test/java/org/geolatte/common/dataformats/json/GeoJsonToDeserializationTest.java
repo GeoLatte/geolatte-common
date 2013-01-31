@@ -98,14 +98,14 @@ public class GeoJsonToDeserializationTest {
         Coordinate c = test.getCoordinate();
         Assert.assertEquals(100.0, c.x, ACCURACY);
         Assert.assertEquals(0.0, c.y, ACCURACY);
-        Assert.assertEquals(CrsId.UNDEFINED.getCode(), test.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED, CrsId.valueOf(test.getSRID()));
         Assert.assertTrue(Double.isNaN(c.z));
 
         Point test1b = (Point) JTS.to(assembler.fromTransferObject(mapper.readValue(testString1b, PointTo.class)));
         Coordinate c1b = test1b.getCoordinate();
         Assert.assertEquals(100.0, c1b.x, ACCURACY);
         Assert.assertEquals(0.0, c1b.y, ACCURACY);
-        Assert.assertEquals(CrsId.UNDEFINED.getCode(), test1b.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED, CrsId.valueOf(test1b.getSRID()));
         Assert.assertTrue(Double.isNaN(c1b.z));
 
         // We deserialize to a geojsonto instead of a
@@ -207,7 +207,7 @@ public class GeoJsonToDeserializationTest {
                 "  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]\n" +
                 "  }";
         LineString ls = (LineString) JTS.to(assembler.fromTransferObject(mapper.readValue(validLinestring, LineStringTo.class)));
-        Assert.assertEquals(CrsId.UNDEFINED.getCode(), ls.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED, CrsId.valueOf(ls.getSRID()));
         Coordinate[] c = ls.getCoordinates();
         Assert.assertEquals(100.0, c[0].x, ACCURACY);
         Assert.assertEquals(0.0, c[0].y, ACCURACY);
@@ -300,10 +300,10 @@ public class GeoJsonToDeserializationTest {
                 "    }\n" +
                 "  }, \"type\": \"Polygon\",  \"coordinates\": [[ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],[ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]    ] }";
         Polygon p = (Polygon) JTS.to(assembler.fromTransferObject(mapper.readValue(noHoles, PolygonTo.class)));
-        Assert.assertEquals(CrsId.UNDEFINED.getCode(), p.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED, CrsId.valueOf(p.getSRID()));
         Assert.assertEquals(0, p.getNumInteriorRing());
         LineString ls = p.getExteriorRing();
-        Assert.assertEquals(CrsId.UNDEFINED.getCode(), ls.getSRID());
+        Assert.assertEquals(CrsId.UNDEFINED, CrsId.valueOf(ls.getSRID()));
         Coordinate[] coords = ls.getCoordinates();
         Assert.assertEquals(5, coords.length);
         Assert.assertEquals(coords[0], coords[4]);
