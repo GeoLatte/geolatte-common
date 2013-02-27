@@ -34,7 +34,6 @@ import java.util.List;
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
- * @since Kabelnet 0.1
  */
 public class CsvSerializationTransformationTest {
 
