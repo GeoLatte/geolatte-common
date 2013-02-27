@@ -28,7 +28,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.geolatte.common.dataformats.json.to.GeoJsonTo;
 import org.geolatte.common.dataformats.json.to.GeoJsonToAssembler;
-import org.geolatte.common.dataformats.json.to.jackson.JacksonConfiguration;
 import org.geolatte.geom.jts.JTS;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -59,7 +58,6 @@ public class GeoJsonToSerializationTest {
         geomFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 900913);
         assembler = new GeoJsonToAssembler();
         mapper = new ObjectMapper();
-        JacksonConfiguration.applyMixin(mapper);
     }
 
     @Test

@@ -8,7 +8,6 @@ import java.util.Arrays;
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
- * @since Kabelnet 0.1
  */
 public final class GeometryCollectionTo extends GeoJsonTo {
 

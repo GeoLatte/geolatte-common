@@ -26,7 +26,6 @@ package org.geolatte.common.dataformats.json.to;
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
- * @since Kabelnet 0.1
  */
 public final class NamedCrsPropertyTo {
 
