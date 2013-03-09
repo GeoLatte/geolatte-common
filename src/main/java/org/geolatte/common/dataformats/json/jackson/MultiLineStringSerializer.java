@@ -22,14 +22,14 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 
+import java.io.IOException;
+
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.MultiLineString;
 import org.geolatte.geom.Point;
-
-import java.io.IOException;
 
 /**
  * Serializationclass for multilinestrings: creates a geojson representation of a
@@ -80,20 +80,4 @@ public class MultiLineStringSerializer extends GeometrySerializer<MultiLineStrin
 		jgen.writeEndArray();
 	}
 
-    @Override
-    protected double[] getBboxCoordinates(JsonGenerator jgen, MultiLineString shape, SerializerProvider provider) {
-        // minX, minY, maxX, maxY
-        double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
-        for (int i = 0; i < shape.getNumGeometries(); i++) {
-            LineString ml = (LineString) shape.getGeometryN(i);
-            for (int j = 0; j < ml.getNumPoints(); j++) {
-                Point point = ml.getPointN(j);
-                result[0] = Math.min(point.getX(), result[0]);
-                result[1] = Math.min(point.getY(), result[1]);
-                result[2] = Math.max(point.getX(), result[2]);
-                result[3] = Math.max(point.getY(), result[3]);
-            }
-        }
-        return result;
-    }
 }

@@ -21,14 +21,14 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
+import java.io.IOException;
+
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
 import org.geolatte.geom.Polygon;
-
-import java.io.IOException;
 
 /**
  * Implements the geojson serializer for a polygon object
@@ -85,19 +85,4 @@ public class PolygonSerializer extends GeometrySerializer<Polygon> {
 		jgen.writeEndArray();
     }
 
-    @Override
-    protected double[] getBboxCoordinates(JsonGenerator jgen, Polygon shape, SerializerProvider provider) {
-        // We only check the exterior ring!
-        LineString exterior = shape.getExteriorRing();
-        // minX, minY, maxX, maxY
-        double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
-        for (int j = 0; j < exterior.getNumPoints(); j++) {
-                Point point = exterior.getPointN(j);
-                result[0] = Math.min(point.getX(), result[0]);
-                result[1] = Math.min(point.getY(), result[1]);
-                result[2] = Math.max(point.getX(), result[2]);
-                result[3] = Math.max(point.getY(), result[3]);
-            }
-        return result;
-    }
 }
