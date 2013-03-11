@@ -21,13 +21,13 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
+import java.io.IOException;
+
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.geolatte.geom.MultiPoint;
 import org.geolatte.geom.Point;
-
-import java.io.IOException;
 
 /**
  * Serializer for MultiPoints. Creates a geojson representation of a multipoint
@@ -72,17 +72,4 @@ public class MultiPointSerializer extends GeometrySerializer<MultiPoint> {
 		jgen.writeEndArray();
 	}
 
-    @Override
-    protected double[] getBboxCoordinates(JsonGenerator jgen, MultiPoint shape, SerializerProvider provider) {
-        // minX, minY, maxX, maxY
-        double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
-        for (int i = 0; i < shape.getNumGeometries(); i++) {
-            Point pnt = shape.getGeometryN(i);
-            result[0] = Math.min(pnt.getX(), result[0]);
-            result[1] = Math.min(pnt.getY(), result[1]);
-            result[2] = Math.max(pnt.getX(), result[2]);
-            result[3] = Math.max(pnt.getY(), result[3]);
-        }
-        return result;
-    }
 }

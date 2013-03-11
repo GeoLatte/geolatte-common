@@ -21,13 +21,13 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
+import java.io.IOException;
+
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
-
-import java.io.IOException;
 
 /**
  * No comment provided yet for this class.
@@ -73,18 +73,5 @@ public class LineStringSerializer extends GeometrySerializer<LineString> {
         jgen.writeEndArray();
     }
 
-    @Override
-    protected double[] getBboxCoordinates(JsonGenerator jgen, LineString shape, SerializerProvider provider) {
-        // minX, minY, maxX, maxY
-        double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
-        for (int j = 0; j < shape.getNumPoints(); j++) {
-                Point coordinate = shape.getPointN(j);
-                result[0] = Math.min(coordinate.getX(), result[0]);
-                result[1] = Math.min(coordinate.getY(), result[1]);
-                result[2] = Math.max(coordinate.getX(), result[2]);
-                result[3] = Math.max(coordinate.getY(), result[3]);
-            }
-        return result;
-    }
 }
 

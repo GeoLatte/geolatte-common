@@ -22,6 +22,8 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 
+import java.io.IOException;
+
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
@@ -29,8 +31,6 @@ import org.geolatte.geom.LineString;
 import org.geolatte.geom.MultiPolygon;
 import org.geolatte.geom.Point;
 import org.geolatte.geom.Polygon;
-
-import java.io.IOException;
 
 /**
  * Serializer for MultiPolygons according to the geojson specification
@@ -93,23 +93,4 @@ public class MultiPolygonSerializer extends GeometrySerializer<MultiPolygon> {
         jgen.writeEndArray();
     }
 
-    @Override
-    protected double[] getBboxCoordinates(JsonGenerator jgen, MultiPolygon shape, SerializerProvider provider) {
-        // We only check the exterior rings!
-        // minX, minY, maxX, maxY
-        double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
-
-        for (int i = 0; i < shape.getNumGeometries(); i++) {
-            LineString exterior = ((Polygon) shape.getGeometryN(i)).getExteriorRing();
-
-            for (int j = 0; j < exterior.getNumPoints(); j++) {
-                Point point = exterior.getPointN(j);
-                result[0] = Math.min(point.getX(), result[0]);
-                result[1] = Math.min(point.getY(), result[1]);
-                result[2] = Math.max(point.getX(), result[2]);
-                result[3] = Math.max(point.getY(), result[3]);
-            }
-        }
-        return result;
-    }
 }

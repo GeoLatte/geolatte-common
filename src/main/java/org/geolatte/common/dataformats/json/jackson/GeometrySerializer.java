@@ -21,13 +21,14 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
+import java.io.IOException;
+
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
+import org.geolatte.geom.Envelope;
 import org.geolatte.geom.Geometry;
-
-import java.io.IOException;
 
 /**
  * Abstract parentclass for multiple geojson serializers that implements a number of common
@@ -107,7 +108,9 @@ public abstract class GeometrySerializer<T extends Geometry> extends JsonSeriali
      * @return boundingbox coordinates of this geojson or null if none are to be specified
      * @throws org.codehaus.jackson.map.JsonMappingException If for some reason a provider could not be found (recursion)
      */
-    protected abstract double[] getBboxCoordinates(JsonGenerator jgen, T shape, SerializerProvider provider) throws JsonMappingException;
+    protected double[] getBboxCoordinates(JsonGenerator jgen, T shape, SerializerProvider provider) throws JsonMappingException {
+		return envelopeToCoordinates(shape.getEnvelope());
+	}
 
     /**
      * Writes out the crs information in the GeoJSON string
@@ -155,4 +158,8 @@ public abstract class GeometrySerializer<T extends Geometry> extends JsonSeriali
             jgen.writeObject(coordinates);
         }
     }
+
+	protected double[] envelopeToCoordinates(Envelope e) {
+		return new double[] { e.getMinX(), e.getMinY(), e.getMaxX(), e.getMaxY() };
+	}
 }
