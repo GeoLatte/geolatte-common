@@ -26,6 +26,7 @@ import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
+import org.geolatte.geom.Envelope;
 import org.geolatte.geom.Geometry;
 import org.geolatte.geom.GeometryCollection;
 
@@ -73,26 +74,4 @@ public class GeometryCollectionSerializer extends GeometrySerializer<GeometryCol
         jgen.writeEndArray();
     }
 
-    @Override
-    protected double[] getBboxCoordinates(JsonGenerator jgen, GeometryCollection shape, SerializerProvider provider)
-            throws JsonMappingException {
-        double[] result = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
-        for (int i=0; i< shape.getNumGeometries(); i++)
-        {
-            Geometry current = shape.getGeometryN(i);
-            JsonSerializer ser = provider.findValueSerializer(current.getClass());
-            if (ser != null && ser instanceof GeometrySerializer)
-            {
-                double[] bbox = ((GeometrySerializer) ser).getBboxCoordinates(jgen, current, provider);
-                if (bbox != null)
-                {
-                result[0] = Math.min(bbox[0], result[0]);
-                result[1] = Math.min(bbox[1], result[1]);
-                result[2] = Math.max(bbox[2], result[2]);
-                result[3] = Math.max(bbox[3], result[3]);
-                }
-            }
-        }
-        return result;
-    }
 }
