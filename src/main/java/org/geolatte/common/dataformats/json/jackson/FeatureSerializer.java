@@ -72,7 +72,8 @@ public class FeatureSerializer extends JsonSerializer<Feature> {
             if (geom == null) {
                 jgen.writeNullField("geometry");
             } else {
-                JsonSerializer ser = provider.findValueSerializer(geom.getClass());
+                // set beanproperty to null since we are not serializing a real property
+                JsonSerializer ser = provider.findValueSerializer(geom.getClass(), null);
                 if (ser != null && ser instanceof GeometrySerializer) {
                     parent.increaseDepth();
                     jgen.writeFieldName("geometry");
@@ -92,7 +93,8 @@ public class FeatureSerializer extends JsonSerializer<Feature> {
                 Object propertyContents = value.getProperty(propertyName);
                 if (propertyContents != null) {
                     try {
-                        JsonSerializer<Object> ser = provider.findValueSerializer(propertyContents.getClass());
+                        // set beanproperty to null since we are not serializing a real property
+                        JsonSerializer<Object> ser = provider.findValueSerializer(propertyContents.getClass(), null);
                         if (ser != null) {
                             // Beanserializers have the nasty habit to crash if they don't know how to proceed, leaving
                             // the resulting json in inconsistent state from which it's hard to recover inside a

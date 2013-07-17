@@ -21,14 +21,12 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import java.io.IOException;
-
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.Envelope;
 import org.geolatte.geom.Geometry;
+
+import java.io.IOException;
 
 /**
  * Abstract parentclass for multiple geojson serializers that implements a number of common
@@ -45,7 +43,7 @@ import org.geolatte.geom.Geometry;
  */
 public abstract class GeometrySerializer<T extends Geometry> extends JsonSerializer<T> {
 
-    private JsonMapper parent;
+    protected JsonMapper parent;
 
     /**
      * @param containingTransformation The containing serializationtransformation.
@@ -92,23 +90,26 @@ public abstract class GeometrySerializer<T extends Geometry> extends JsonSeriali
      * @param provider Provider that can be used to get serializers for serializing Objects value contains, if any.
      * @throws java.io.IOException If serialization fails.
      */
-    protected abstract void writeShapeSpecificSerialization(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException;
+    protected abstract void writeShapeSpecificSerialization(T value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException;
 
     /**
      * This method will return, for each of its dimension, the lowest value followed by its highest value.
      * Suppose the dimension is 3 (eg xyz) , the method will return [xmin, xmax, ymin, ymax, zmin, zmax] in that order.
      * <p/>
-     * Since the presence of boundingbox coordinates is not required by the specification, the subclass may decide whether
-     * or not the information is to be included. If this method returns null, the bbox information will not be part of the
-     * final geojson representation.
+     * Since the presence of boundingbox coordinates is not required by the specification, the subclass may decide
+     * whether or not the information is to be included. If this method returns null, the bbox information will not be
+     * part of the final geojson representation.
      *
      * @param jgen  the jsongenerator used for the geojson construction
      * @param shape the geometry for which the bbox coordinates must be retrieved
      * @param provider provider to retrieve other serializers (for recursion)
      * @return boundingbox coordinates of this geojson or null if none are to be specified
-     * @throws org.codehaus.jackson.map.JsonMappingException If for some reason a provider could not be found (recursion)
+     * @throws org.codehaus.jackson.map.JsonMappingException If for some reason a provider could not be found
+     * (recursion)
      */
-    protected double[] getBboxCoordinates(JsonGenerator jgen, T shape, SerializerProvider provider) throws JsonMappingException {
+    protected double[] getBboxCoordinates(JsonGenerator jgen, T shape, SerializerProvider provider)
+            throws JsonMappingException {
 		return envelopeToCoordinates(shape.getEnvelope());
 	}
 

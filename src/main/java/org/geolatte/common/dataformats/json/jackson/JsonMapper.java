@@ -75,7 +75,7 @@ public class JsonMapper {
         serializerFactory.addGenericMapping(Polygon.class, new PolygonSerializer(this));
         serializerFactory.addGenericMapping(Feature.class, new FeatureSerializer(this));
         serializerFactory.addGenericMapping(MultiPolygon.class, new MultiPolygonSerializer(this));
-        serializerFactory.addGenericMapping(Geometry.class, new AnyGeometrySerializer(this));
+        serializerFactory.addGenericMapping(Geometry.class, new AnyGeometrySerializer());
         serializerFactory.addGenericMapping(GeometryCollection.class, new GeometryCollectionSerializer(this));
 
         mapper.setSerializerFactory(serializerFactory);

@@ -21,13 +21,12 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import java.io.IOException;
-
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
+
+import java.io.IOException;
 
 /**
  * No comment provided yet for this class.
@@ -58,11 +57,13 @@ public class LineStringSerializer extends GeometrySerializer<LineString> {
      * @throws java.io.IOException If serialization failed.
      */
     @Override
-    public void writeShapeSpecificSerialization(LineString value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void writeShapeSpecificSerialization(LineString value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
         jgen.writeFieldName("type");
         jgen.writeString("LineString");
         jgen.writeArrayFieldStart("coordinates");
-        JsonSerializer<Object> ser = provider.findValueSerializer(Double.class);
+        // set beanproperty to null since we are not serializing a real property
+        JsonSerializer<Object> ser = provider.findValueSerializer(Double.class, null);
         for (int j = 0; j < value.getNumPoints(); j++) {
             Point coordinate = value.getPointN(j);
             jgen.writeStartArray();
@@ -72,6 +73,5 @@ public class LineStringSerializer extends GeometrySerializer<LineString> {
         }
         jgen.writeEndArray();
     }
-
 }
 

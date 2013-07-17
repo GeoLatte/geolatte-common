@@ -22,15 +22,14 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 
-import java.io.IOException;
-
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.MultiPolygon;
 import org.geolatte.geom.Point;
 import org.geolatte.geom.Polygon;
+
+import java.io.IOException;
 
 /**
  * Serializer for MultiPolygons according to the geojson specification
@@ -53,13 +52,15 @@ public class MultiPolygonSerializer extends GeometrySerializer<MultiPolygon> {
     }
 
     @Override
-    protected void writeShapeSpecificSerialization(MultiPolygon value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    protected void writeShapeSpecificSerialization(MultiPolygon value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
 
 
         jgen.writeFieldName("type");
         jgen.writeString("MultiPolygon");
         jgen.writeArrayFieldStart("coordinates");
-        JsonSerializer<Object> ser = provider.findValueSerializer(Double.class);
+        // set beanproperty to null since we are not serializing a real property
+        JsonSerializer<Object> ser = provider.findValueSerializer(Double.class, null);
 
         for (int i = 0; i < value.getNumGeometries(); i++) {
             jgen.writeStartArray();
@@ -92,5 +93,4 @@ public class MultiPolygonSerializer extends GeometrySerializer<MultiPolygon> {
         }
         jgen.writeEndArray();
     }
-
 }

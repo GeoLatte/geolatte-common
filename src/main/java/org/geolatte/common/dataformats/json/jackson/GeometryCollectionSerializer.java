@@ -23,10 +23,7 @@ package org.geolatte.common.dataformats.json.jackson;
 
 
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
-import org.geolatte.geom.Envelope;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.Geometry;
 import org.geolatte.geom.GeometryCollection;
 
@@ -61,7 +58,8 @@ public class GeometryCollectionSerializer extends GeometrySerializer<GeometryCol
         for (int i=0; i< value.getNumGeometries(); i++)
         {
             Geometry current = value.getGeometryN(i);
-            JsonSerializer ser = provider.findValueSerializer(current.getClass());
+            // set beanproperty to null since we are not serializing a real property
+            JsonSerializer ser = provider.findValueSerializer(current.getClass(), null);
             if (ser != null && ser instanceof GeometrySerializer)
             {
                 getParent().increaseDepth();
@@ -73,5 +71,4 @@ public class GeometryCollectionSerializer extends GeometrySerializer<GeometryCol
         }
         jgen.writeEndArray();
     }
-
 }

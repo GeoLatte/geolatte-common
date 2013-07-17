@@ -17,8 +17,7 @@ package org.geolatte.common.dataformats.json.jackson;
 
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.*;
 
 import java.io.IOException;
@@ -37,38 +36,53 @@ import java.io.IOException;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class AnyGeometrySerializer extends JsonSerializer<Geometry> {
+public class AnyGeometrySerializer extends JsonSerializer<Geometry> implements ContextualSerializer<Geometry> {
 
+    // Note: we must implement ContextualSerialized because findValueSerializer needs a beanproperty.
+    // Otherwise this serializer is not context-aware
+
+    private BeanProperty beanProperty;
+
+    /**
+     * Creates a new serializer.
+     */
     public AnyGeometrySerializer() {
+
     }
 
-
-    public AnyGeometrySerializer(JsonMapper jsonMapper) {
+    protected AnyGeometrySerializer(BeanProperty property) {
+        beanProperty = property;
     }
 
     @Override
     public void serialize(Geometry value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value instanceof Point) {
-            JsonSerializer<Object> jser = provider.findValueSerializer(Point.class);
+            JsonSerializer<Object> jser = provider.findValueSerializer(Point.class, beanProperty);
             jser.serialize(value, jgen, provider);
         } else if (value instanceof MultiPoint) {
-            JsonSerializer<Object> jser = provider.findValueSerializer(MultiPoint.class);
+            JsonSerializer<Object> jser = provider.findValueSerializer(MultiPoint.class, beanProperty);
             jser.serialize(value, jgen, provider);
         } else if (value instanceof LineString) {
-            JsonSerializer<Object> jser = provider.findValueSerializer(LineString.class);
+            JsonSerializer<Object> jser = provider.findValueSerializer(LineString.class, beanProperty);
             jser.serialize(value, jgen, provider);
         } else if (value instanceof MultiLineString) {
-            JsonSerializer<Object> jser = provider.findValueSerializer(MultiLineString.class);
+            JsonSerializer<Object> jser = provider.findValueSerializer(MultiLineString.class, beanProperty);
             jser.serialize(value, jgen, provider);
         } else if (value instanceof Polygon) {
-            JsonSerializer<Object> jser = provider.findValueSerializer(Polygon.class);
+            JsonSerializer<Object> jser = provider.findValueSerializer(Polygon.class, beanProperty);
             jser.serialize(value, jgen, provider);
         } else if (value instanceof MultiPolygon) {
-            JsonSerializer<Object> jser = provider.findValueSerializer(MultiPolygon.class);
+            JsonSerializer<Object> jser = provider.findValueSerializer(MultiPolygon.class, beanProperty);
             jser.serialize(value, jgen, provider);
         } else if (value instanceof GeometryCollection) {
-            JsonSerializer<Object> jser = provider.findValueSerializer(GeometryCollection.class);
+            JsonSerializer<Object> jser = provider.findValueSerializer(GeometryCollection.class, beanProperty);
             jser.serialize(value, jgen, provider);
         }
+    }
+
+    @Override
+    public JsonSerializer<Geometry> createContextual(SerializationConfig config, BeanProperty property) throws JsonMappingException {
+
+        return new AnyGeometrySerializer(property);
     }
 }

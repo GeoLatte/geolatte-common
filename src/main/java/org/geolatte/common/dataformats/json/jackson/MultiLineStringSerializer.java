@@ -22,14 +22,13 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 
-import java.io.IOException;
-
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.MultiLineString;
 import org.geolatte.geom.Point;
+
+import java.io.IOException;
 
 /**
  * Serializationclass for multilinestrings: creates a geojson representation of a
@@ -60,11 +59,13 @@ public class MultiLineStringSerializer extends GeometrySerializer<MultiLineStrin
      * @throws java.io.IOException If serialization failed.
      */
     @Override
-	public void writeShapeSpecificSerialization(MultiLineString value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+	public void writeShapeSpecificSerialization(MultiLineString value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
 		jgen.writeFieldName( "type");
 		jgen.writeString( "MultiLineString");
 		jgen.writeArrayFieldStart( "coordinates");
-		JsonSerializer<Object> ser = provider.findValueSerializer( Double.class);
+        // set beanproperty to null since we are not serializing a real property
+		JsonSerializer<Object> ser = provider.findValueSerializer(Double.class, null);
         for (int i = 0; i < value.getNumGeometries(); i++) {
             LineString ml = (LineString) value.getGeometryN(i);
             jgen.writeStartArray();
@@ -79,5 +80,4 @@ public class MultiLineStringSerializer extends GeometrySerializer<MultiLineStrin
         }
 		jgen.writeEndArray();
 	}
-
 }

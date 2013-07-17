@@ -22,8 +22,7 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.Point;
 
 import java.io.IOException;
@@ -55,11 +54,13 @@ public class PointSerializer extends GeometrySerializer<Point> {
      * @throws java.io.IOException If serialization failed.
      */
 	@Override
-	public void writeShapeSpecificSerialization(Point value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+	public void writeShapeSpecificSerialization(Point value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
 		jgen.writeFieldName("type");
 		jgen.writeString("Point");
-		jgen.writeArrayFieldStart( "coordinates");
-		JsonSerializer<Object> ser = provider.findValueSerializer( Float.class);
+		jgen.writeArrayFieldStart("coordinates");
+        // set beanproperty to null since we are not serializing a real property
+		JsonSerializer<Object> ser = provider.findValueSerializer(Float.class, null);
 		ser.serialize((float)value.getX(), jgen, provider);
 		ser.serialize((float)value.getY(), jgen, provider);
 		jgen.writeEndArray();

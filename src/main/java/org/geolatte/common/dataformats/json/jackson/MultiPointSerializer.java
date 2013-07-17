@@ -21,13 +21,12 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import java.io.IOException;
-
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.MultiPoint;
 import org.geolatte.geom.Point;
+
+import java.io.IOException;
 
 /**
  * Serializer for MultiPoints. Creates a geojson representation of a multipoint
@@ -57,11 +56,13 @@ public class MultiPointSerializer extends GeometrySerializer<MultiPoint> {
      * @throws java.io.IOException If serialization failed.
      */
 	@Override
-	public void writeShapeSpecificSerialization(MultiPoint value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+	public void writeShapeSpecificSerialization(MultiPoint value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
 		jgen.writeFieldName( "type");
 		jgen.writeString( "MultiPoint");
 		jgen.writeArrayFieldStart( "coordinates");
-		JsonSerializer<Object> ser = provider.findValueSerializer( Float.class);
+        // set beanproperty to null since we are not serializing a real property
+		JsonSerializer<Object> ser = provider.findValueSerializer(Float.class, null);
         for (int i = 0; i < value.getNumGeometries(); i++) {
             Point pnt = value.getGeometryN(i);
             jgen.writeStartArray();
@@ -71,5 +72,4 @@ public class MultiPointSerializer extends GeometrySerializer<MultiPoint> {
         }
 		jgen.writeEndArray();
 	}
-
 }

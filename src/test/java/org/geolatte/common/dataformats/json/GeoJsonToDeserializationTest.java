@@ -177,9 +177,8 @@ public class GeoJsonToDeserializationTest {
             }
         }
         try {
-            // Valid point. It is not a linestring however, so even if we tell the parser to deserialize as a
-            // linestring, a point should be returned
-            org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue("{ \"type\": \"Point\", \"coordinates\": [100.0, 0.0] }", LineStringTo.class));
+            // Valid point.
+            org.geolatte.geom.Geometry t = assembler.fromTransferObject(mapper.readValue("{ \"type\": \"Point\", \"coordinates\": [100.0, 0.0] }", GeoJsonTo.class));
             Assert.assertTrue(t instanceof org.geolatte.geom.Point);
         } catch (Exception e) {
             Assert.fail("No exception expected");
@@ -276,9 +275,9 @@ public class GeoJsonToDeserializationTest {
                 Assert.fail("Wrong exception type thrown.");
             }
         }
-        // Valid linestring. Should ignore the given deserialize target
+        // Valid linestring. Should deserialize to LineString subclass if we specify GeoJsonTo
         String valid = "{ \"type\": \"LineString\", \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }";
-        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(valid, PointTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject(mapper.readValue(valid, GeoJsonTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.LineString);
     }
 
@@ -366,9 +365,9 @@ public class GeoJsonToDeserializationTest {
                 Assert.fail("Wrong exception thrown.");
             }
         }
-        // Valid point but as linestring should fail!
+        // Valid polygon. Should deserialize to Polygon subclass if we specify GeoJsonTo
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"Polygon\",  \"coordinates\": [[ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ], [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]    ] }";
-        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, PointTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject(mapper.readValue(s, GeoJsonTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.Polygon);
     }
 
@@ -428,7 +427,6 @@ public class GeoJsonToDeserializationTest {
         invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [ ]  }");
 
         // Each of the above should result in a JsonException being thrown, nothing else!
-        int count = 0;
         for (String s : invalidTestStrings) {
             try {
                 JTS.to(assembler.fromTransferObject(mapper.readValue(s, MultiPointTo.class)));
@@ -437,16 +435,12 @@ public class GeoJsonToDeserializationTest {
                 // Ok!
             } catch(IllegalArgumentException e) {
                 // Ok when json is valid but not valid geoJson
-            } catch (ClassCastException e) {
-                // Ok, for case 2 since there is no difference between a multipoint and a linestring on geojson level except for the type, so
-                // if you misspecify the type, all deserialization will be ok except for the case at the end
-                count++;
             }
         }
-        Assert.assertEquals(count, 1);
-        // Valid multipoint but as linestring should fail!
+
+        // Valid multipoint.
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }";
-        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject(mapper.readValue(s, GeoJsonTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiPoint);
     }
 
@@ -523,9 +517,9 @@ public class GeoJsonToDeserializationTest {
                 // Ok if valid json but not geoJson
             }
         }
-        // Valid multilinestring, must remain multilinestring even if linestringto is specified
+        // Valid multilinestring. Should deserialize to MultiLineString subclass if we specify GeoJsonTo
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiLineString\", \"coordinates\": [[ [100.0, 0.0], [101.0, 1.0] ], [ [102.0, 2.0], [103.0, 3.0] ] ]}";
-        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject(mapper.readValue(s, GeoJsonTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiLineString);
     }
 
@@ -611,9 +605,9 @@ public class GeoJsonToDeserializationTest {
                 // Ok if valid json but not geojson
             }
         }
-        // Valid multipolygon, must remain multipolygon even if linestringto is specified
+        // Valid multipolygon. Should deserialize to MultiPolygon subclass if we specify GeoJsonTo
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"MultiPolygon\", \"coordinates\": [    [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],    [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],     [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]    ]}";
-        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, GeoJsonTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.MultiPolygon);
     }
 
@@ -683,9 +677,9 @@ public class GeoJsonToDeserializationTest {
             }
         }
 
-        // Valid geometrycollection, must remain geometrycollection even if linestringto is specified
+        // Valid geometrycollection, must remain geometrycollection even if the common GeoJsonTo parent is specified
         String s = "{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}}, \"type\": \"GeometryCollection\",   \"geometries\": [    { \"type\": \"Point\",      \"coordinates\": [100.0, 0.0]      },    { \"type\": \"LineString\",      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]      }  ]}";
-        org.geolatte.geom.Geometry t = assembler.fromTransferObject((GeoJsonTo) mapper.readValue(s, LineStringTo.class));
+        org.geolatte.geom.Geometry t = assembler.fromTransferObject(mapper.readValue(s, GeoJsonTo.class));
         Assert.assertTrue(t instanceof org.geolatte.geom.GeometryCollection);
     }
 }

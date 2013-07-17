@@ -21,14 +21,13 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import java.io.IOException;
-
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.*;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
 import org.geolatte.geom.Polygon;
+
+import java.io.IOException;
 
 /**
  * Implements the geojson serializer for a polygon object
@@ -51,12 +50,14 @@ public class PolygonSerializer extends GeometrySerializer<Polygon> {
     }
 
     @Override
-    protected void writeShapeSpecificSerialization(Polygon value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    protected void writeShapeSpecificSerialization(Polygon value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
 
 		jgen.writeFieldName( "type");
 		jgen.writeString( "Polygon");
 		jgen.writeArrayFieldStart( "coordinates");
-		JsonSerializer<Object> ser = provider.findValueSerializer( Double.class);
+        // set beanproperty to null since we are not serializing a real property
+		JsonSerializer<Object> ser = provider.findValueSerializer(Double.class, null);
         // Exterior ring
         LineString exterior = value.getExteriorRing();
          jgen.writeStartArray();
@@ -84,5 +85,4 @@ public class PolygonSerializer extends GeometrySerializer<Polygon> {
 
 		jgen.writeEndArray();
     }
-
 }
