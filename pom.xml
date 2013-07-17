@@ -248,10 +248,18 @@
             <artifactId>geolatte-geom</artifactId>
             <version>0.12-SNAPSHOT</version>
         </dependency>
+        <!-- Allow the user to include the asl or lgpl version of jackson -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-lgpl</artifactId>
-            <version>1.9.13</version>
+            <version>[1.9.0,2.0)</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>[1.9.0,2.0)</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
