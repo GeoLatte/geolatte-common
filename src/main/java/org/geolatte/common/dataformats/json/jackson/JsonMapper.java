@@ -15,8 +15,19 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.*;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.JsonDeserializer;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.JsonSerializer;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.deser.CustomDeserializerFactory;
 import org.codehaus.jackson.map.deser.StdDeserializerProvider;
@@ -24,14 +35,14 @@ import org.codehaus.jackson.map.ser.CustomSerializerFactory;
 import org.codehaus.jackson.type.TypeReference;
 import org.geolatte.common.Feature;
 import org.geolatte.common.FeatureCollection;
-import org.geolatte.geom.*;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.GeometryCollection;
+import org.geolatte.geom.LineString;
+import org.geolatte.geom.MultiLineString;
+import org.geolatte.geom.MultiPoint;
+import org.geolatte.geom.MultiPolygon;
+import org.geolatte.geom.Point;
+import org.geolatte.geom.Polygon;
 
 /**
  * The JsonMapper is a class that can convert jsonstrings to objects and vice versa, and that can be extended on
@@ -242,7 +253,7 @@ public class JsonMapper {
      *
      * @return the objectmapper used by this transformation
      */
-    ObjectMapper getObjectMapper() {
+    public ObjectMapper getObjectMapper() {
         return mapper;
     }
 
