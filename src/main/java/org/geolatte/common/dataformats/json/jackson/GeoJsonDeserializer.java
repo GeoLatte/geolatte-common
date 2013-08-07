@@ -32,8 +32,6 @@ import java.util.Map;
  */
 public abstract class GeoJsonDeserializer<T> extends AbstractJsonDeserializer<T> {
 
-    // WGS84
-    public static final int DEFAULT_SRID =  4326;
     private Class<T> deserializerClass;
 
     public GeoJsonDeserializer(JsonMapper owner, Class<T> clazz) {
