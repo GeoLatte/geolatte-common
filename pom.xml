@@ -246,7 +246,7 @@
         <dependency>
             <groupId>org.geolatte</groupId>
             <artifactId>geolatte-geom</artifactId>
-            <version>0.12-SNAPSHOT</version>
+            <version>0.12</version>
         </dependency>
         <!-- Allow the user to include the asl or lgpl version of jackson -->
         <dependency>
