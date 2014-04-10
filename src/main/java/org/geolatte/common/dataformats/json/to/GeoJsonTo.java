@@ -183,7 +183,7 @@ public abstract class GeoJsonTo {
             result[i] = Double.MAX_VALUE;
         }
         for (int i = input[0].length; i < result.length; i++) {
-            result[i] = Double.MIN_VALUE;
+            result[i] = - Double.MAX_VALUE; // use negative Double.MAX_VALUE, Double.MIN_VALUE is NOT what you'd expect it to be!
         }
         for (double[] coord : input) {
             for (int i = 0; i < coord.length; i++) {
