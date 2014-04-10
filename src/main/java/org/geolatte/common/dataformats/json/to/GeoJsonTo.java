@@ -152,43 +152,46 @@ public abstract class GeoJsonTo {
         return result;
     }
 
+
     /**
-     * Creates a boundingbox for a point. In this case, both the lower and higher edges of teh bbox are the point
+     * Creates a boundingbox for a point. In this case, both the lower and higher edges of the bbox are the point
      * itself
      *
      * @param coordinates the coordinates of the point
-     * @return the bboundingbox, a list with doubles. the result is a 2*n array where n is the number of dimensions
-     *         representedin the input, with the lowest values for all axes followed by the highest values.
+     * @return the boundingbox, a list with doubles. the result is a 2*n array where n is the number of dimensions
+     *         represented in the input, with the lowest values for all axes followed by the highest values.
      */
     public static double[] createBoundingBox(double[] coordinates) {
-        double[] result = new double[coordinates.length * 2];
-        for (int i = 0; i < coordinates.length; i++) {
+        int maxActualCoords = Math.min(coordinates.length,3);// ignore potential M values, so 4 dimension (X Y Z M) becomes X Y Z
+        double[] result = new double[maxActualCoords * 2];
+        for (int i = 0; i < maxActualCoords; i++) {
             result[i] = coordinates[i];
-            result[coordinates.length + i] = coordinates[i];
+            result[maxActualCoords + i] = coordinates[i];
         }
         return result;
     }
 
-
     /**
      * This method computes the boundingbox of a list of points (such as the coordinates of a multipoint or linestring)
      *
-     * @param input a list of lists that each contain two or three doubles (x, y and optional z coordinates)
+     * @param input a list of lists that each contain between two and for doubles (x, y and optional z and m coordinates)
      * @return a list with doubles. the result is a 2*n array where n is the number of dimensions represented
-     *         in the input, with the lowest values for all axes followed by the highest values.
+     *         in the input (m doesn't count as a dimension), with the lowest values for all axes followed by the highest values.
      */
     public static double[] createBoundingBox(double[][] input) {
-        double[] result = new double[input[0].length * 2];
-        for (int i = 0; i < input[0].length; i++) {
+        int maxActualCoords = Math.min(input[0].length, 3);// max 3, ignoring potential m values
+        double[] result = new double[maxActualCoords * 2];
+
+        for (int i = 0; i < maxActualCoords; i++) {
             result[i] = Double.MAX_VALUE;
         }
-        for (int i = input[0].length; i < result.length; i++) {
-            result[i] = - Double.MAX_VALUE; // use negative Double.MAX_VALUE, Double.MIN_VALUE is NOT what you'd expect it to be!
+        for (int i = maxActualCoords; i < result.length; i++) {
+            result[i] = - Double.MAX_VALUE;  // use negative Double.MAX_VALUE, Double.MIN_VALUE is NOT what you'd expect it to be!
         }
-        for (double[] coord : input) {
-            for (int i = 0; i < coord.length; i++) {
-                result[i] = Math.min(coord[i], result[i]);
-                result[i + coord.length] = Math.max(coord[i], result[i + coord.length]);
+        for (double[] point : input) {
+            for (int i = 0; i <  maxActualCoords; i++) {
+                result[i] = Math.min(point[i], result[i]);
+                result[i + maxActualCoords] = Math.max(point[i], result[i + maxActualCoords]);
             }
         }
         return result;

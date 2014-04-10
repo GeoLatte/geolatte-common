@@ -56,7 +56,7 @@ public final class MultiPolygonTo extends GeoJsonTo {
                     return false;
                 }
                 int length = linearRing[0].length;
-                if (length != 2 && length != 3) {
+                if (length < 2 || length > 4) {
                     return false;
                 }
                 for (double[] points : linearRing) {
