@@ -338,7 +338,11 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         {
             double[] coordinates2d = new double[entry.size()*2];
             double[] zValues = new double[entry.size()];
+            double[] mValues = new double[entry.size()];
+
             boolean haszValues = false;
+            boolean hasmValues = false;
+
             for (int i = 0; i < entry.size(); i++) {
                 List current = entry.get(i);
                 if (current.size() < 2) {
@@ -353,8 +357,12 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                 Double x = parseDefault(String.valueOf(current.get(0)), type);
                 Double y = parseDefault(String.valueOf(current.get(1)), type);
                 Double z = null;
-                if (current.size() == 3) {
+                Double m = null;
+                if (current.size() >= 3) {
                     z = parseDefault(String.valueOf(current.get(2)), type);
+                }
+                if(current.size() >= 4) {
+                    m = parseDefault(String.valueOf(current.get(3)), type);
                 }
                 if (x == null || y == null) {
                     // I don't see how this is possible....So you won't be able to unittest this case I think.
@@ -368,8 +376,22 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
                 } else {
                     zValues[i] = Double.NaN;
                 }
+
+                if (m != null) {
+                    mValues[i] = m;
+                    hasmValues = true;
+                } else {
+                    mValues[i] = Double.NaN;
+                }
             }
-            if (haszValues) {
+
+            if(hasmValues && haszValues) {//z value is required for m values
+                PointSequenceBuilder builder = PointSequenceBuilders.fixedSized(entry.size(), DimensionalFlag.d3DM, crsId);
+                for (int i = 0; i < entry.size(); i++){
+                    builder.add(coordinates2d[2*i], coordinates2d[2*i+1], zValues[i], mValues[i]);
+                }
+                return builder.toPointSequence();
+            } else if (haszValues) {
                 PointSequenceBuilder builder = PointSequenceBuilders.fixedSized(entry.size(), DimensionalFlag.d3D, crsId);
                 for (int i = 0; i < entry.size(); i++){
                     builder.add(coordinates2d[2*i], coordinates2d[2*i+1], zValues[i]);

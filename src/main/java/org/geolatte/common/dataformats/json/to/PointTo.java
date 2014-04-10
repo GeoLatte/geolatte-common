@@ -44,7 +44,7 @@ public final class PointTo extends GeoJsonTo {
 
     @Override
     public boolean isValid() {
-        return coordinates != null && (coordinates.length == 2 || coordinates.length == 3);
+        return coordinates != null && (coordinates.length >= 2 && coordinates.length <= 4);
     }
 
     public double[] getCoordinates() {

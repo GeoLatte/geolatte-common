@@ -52,7 +52,7 @@ public final class MultiLineStringTo extends GeoJsonTo {
                 return false;
             }
             int length = lineString[0].length;
-            if (length != 2 && length != 3) {
+            if (length < 2 || length > 4) {
                 return false;
             }
             for (double[] points: lineString) {

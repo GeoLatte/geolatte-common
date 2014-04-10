@@ -48,7 +48,7 @@ public final class MultiPointTo extends GeoJsonTo {
             return false;
         }
         int length = coordinates[0].length;
-        if (length != 2 && length != 3) {
+        if (length < 2 || length > 4) {
             return false;
         }
         for (double[] points: coordinates) {
