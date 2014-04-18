@@ -15,8 +15,19 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.*;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.JsonDeserializer;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.JsonSerializer;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.deser.CustomDeserializerFactory;
 import org.codehaus.jackson.map.deser.StdDeserializerProvider;
@@ -24,14 +35,15 @@ import org.codehaus.jackson.map.ser.CustomSerializerFactory;
 import org.codehaus.jackson.type.TypeReference;
 import org.geolatte.common.Feature;
 import org.geolatte.common.FeatureCollection;
-import org.geolatte.geom.*;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.GeometryCollection;
+import org.geolatte.geom.LineString;
+import org.geolatte.geom.MultiLineString;
+import org.geolatte.geom.MultiPoint;
+import org.geolatte.geom.MultiPolygon;
+import org.geolatte.geom.Point;
+import org.geolatte.geom.Polygon;
+import org.geolatte.geom.crs.CrsId;
 
 /**
  * The JsonMapper is a class that can convert jsonstrings to objects and vice versa, and that can be extended on
@@ -46,11 +58,14 @@ import java.util.List;
  */
 public class JsonMapper {
 
-    public static final int MAXIMUMDEPTH = 10;
+
+	private static final CrsId WGS84 = CrsId.valueOf(4326);
+	public static final int MAXIMUMDEPTH = 10;
     private ObjectMapper mapper;
     private CustomSerializerFactory serializerFactory;
     private CustomDeserializerFactory deserializerFactory;
     private int depth;
+	private CrsId defaultCrsId;
     private boolean insideGeometryCollection;
     private boolean serializeNullValues;
     private boolean ignoreUnknownProperties;
@@ -58,11 +73,13 @@ public class JsonMapper {
     /**
      * Constructor of the jsonmapper
      *
+	 * @param defaultCrsId			  default Coordinate Referency System to use for {@code Geometry}s.
      * @param serializeNullValues     if set to true, null values are serialized as usual. If set to false, they are not.
      * @param ignoreUnknownProperties if set to true, unknown properties in a json object will be ignored when they can not
      *                                be mapped to a field instead of an exception being thrown.
      */
-    public JsonMapper(boolean serializeNullValues, boolean ignoreUnknownProperties) {
+    public JsonMapper(CrsId defaultCrsId, boolean serializeNullValues, boolean ignoreUnknownProperties) {
+		this.defaultCrsId = defaultCrsId;
         this.serializeNullValues = serializeNullValues;
         this.ignoreUnknownProperties = ignoreUnknownProperties;
         setNewObjectMapper();
@@ -97,12 +114,24 @@ public class JsonMapper {
 
     }
 
-    /**
-     * Default constructor. Maps all values, including null values and will throw exceptions on unknown properties
+	/**
+    * Constructor of the jsonmapper using as default Coordinate System WGS84 (EPSG:4326)
+    *
+    * @param serializeNullValues     if set to true, null values are serialized as usual. If set to false, they are not.
+    * @param ignoreUnknownProperties if set to true, unknown properties in a json object will be ignored when they can not
+    *                                be mapped to a field instead of an exception being thrown.
+    */
+	public JsonMapper(boolean serializeNullValues, boolean ignoreUnknownProperties) {
+		this(WGS84, serializeNullValues, ignoreUnknownProperties);
+	}
+
+	/**
+     * Default constructor. Maps all values, including null values and will throw exceptions on unknown properties;
+	 * default coordinate reference system will be WGS84.
      */
     public JsonMapper() {
-        this(true, false);
-    }
+		this(WGS84, true, false);
+	}
 
     /**
      * Converts a given object into a JSON String
@@ -148,7 +177,6 @@ public class JsonMapper {
         }
     }
 
-
     /**
      * Converts a JsonString into a corresponding javaobject of the requested type.
      *
@@ -178,7 +206,6 @@ public class JsonMapper {
             throw new JsonException(e.getMessage(), e);
         }
     }
-
 
     /**
      * @return Internal method that returns the current (recursion)-depth of this in the context of recursion/serialization
@@ -238,13 +265,22 @@ public class JsonMapper {
     }
 
     /**
-     * We allow retrieval of the mapper for serializers (in this package)
+     * We allow retrieval of the mapper for serializers
      *
      * @return the objectmapper used by this transformation
      */
-    ObjectMapper getObjectMapper() {
+    public ObjectMapper getObjectMapper() {
         return mapper;
     }
+
+	/**
+	 * Returns the default {@code CrsId} for this instance
+	 *
+	 * @return the {@code CrsId}
+	 */
+	public CrsId getDefaultCrsId(){
+		return defaultCrsId;
+	}
 
     void increaseDepth() {
         depth++;

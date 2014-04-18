@@ -15,14 +15,27 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 
-import org.codehaus.jackson.JsonParser;
-import org.geolatte.geom.*;
-import org.geolatte.geom.crs.CrsId;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.codehaus.jackson.JsonParser;
+import org.geolatte.geom.DimensionalFlag;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.GeometryCollection;
+import org.geolatte.geom.LineString;
+import org.geolatte.geom.LinearRing;
+import org.geolatte.geom.MultiLineString;
+import org.geolatte.geom.MultiPoint;
+import org.geolatte.geom.MultiPolygon;
+import org.geolatte.geom.Point;
+import org.geolatte.geom.PointCollectionFactory;
+import org.geolatte.geom.PointSequence;
+import org.geolatte.geom.PointSequenceBuilder;
+import org.geolatte.geom.PointSequenceBuilders;
+import org.geolatte.geom.Polygon;
+import org.geolatte.geom.crs.CrsId;
 
 /**
  * General deserializer responsable for the deserialization of all geometries.
@@ -48,8 +61,7 @@ public class GeometryDeserializer<T extends Geometry> extends GeoJsonDeserialize
         //TODO -- spec also states that if CRS element is null, no CRS should be assumed.
         // Default srd = WGS84 according to the GeoJSON specification
         Integer srid = getSrid();
-        int sridValue = srid == null ? DEFAULT_SRID : srid;
-        CrsId crsId = CrsId.valueOf(sridValue);
+        CrsId crsId =  srid == null ? parent.getDefaultCrsId() : CrsId.valueOf(srid);
         if ("GeometryCollection".equals(type)) {
             GeometryCollection result = asGeomCollection(crsId);
             if (getDeserializerClass().isAssignableFrom(GeometryCollection.class)) {
