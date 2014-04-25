@@ -38,6 +38,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.geolatte.common.dataformats.json.to.*;
 import org.geolatte.geom.*;
 import org.geolatte.geom.crs.CrsId;
+import org.geolatte.geom.jts.DimensionalCoordinate;
 import org.geolatte.geom.jts.JTS;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -230,6 +231,12 @@ public class GeoJsonToDeserializationTest {
                 "  }, \"type\": \"LineString\",\n" +
                 "  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]\n" +
                 "  }";
+        String validLineString3D = "{ \"type\": \"LineString\",\n" +
+                "  \"coordinates\": [ [100.0, 0.0, 2.0], [101.0, 1.0, 3.0] ]\n" +
+                "  }";
+        String validLineString3DM = "{ \"type\": \"LineString\",\n" +
+                "  \"coordinates\": [ [100.0, 0.0, 2.0, 0.0], [101.0, 1.0, 3.0, 5.0] ]\n" +
+                "  }";
         LineString ls = (LineString) JTS.to(assembler.fromTransferObject(mapper.readValue(validLinestring, LineStringTo.class)));
         Assert.assertEquals(CrsId.UNDEFINED, CrsId.valueOf(ls.getSRID()));
         Coordinate[] c = ls.getCoordinates();
@@ -245,6 +252,22 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(0.0, c[0].y, ACCURACY);
         Assert.assertEquals(101.0, c[1].x, ACCURACY);
         Assert.assertEquals(1.0, c[1].y, ACCURACY);
+
+        org.geolatte.geom.LineString glLs = assembler.fromTransferObject(mapper.readValue(validLineString3D, LineStringTo.class));
+        Assert.assertEquals(DimensionalFlag.d3D, glLs.getDimensionalFlag());
+        ls = (LineString) JTS.to(glLs);
+        c = ls.getCoordinates();
+        Assert.assertEquals(2.0, c[0].z, ACCURACY);
+        Assert.assertEquals(3.0, c[1].z, ACCURACY);
+
+        glLs = assembler.fromTransferObject(mapper.readValue(validLineString3DM, LineStringTo.class));
+        Assert.assertEquals(DimensionalFlag.d3DM, glLs.getDimensionalFlag());
+        ls = (LineString) JTS.to(glLs);
+        c = ls.getCoordinates();
+        Assert.assertEquals(0.0, ((DimensionalCoordinate)c[0]).getM(), ACCURACY);
+        Assert.assertEquals(5.0, ((DimensionalCoordinate)c[1]).getM(), ACCURACY);
+
+
     }
 
     /**

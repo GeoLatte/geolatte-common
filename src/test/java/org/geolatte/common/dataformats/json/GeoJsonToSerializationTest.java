@@ -116,6 +116,29 @@ public class GeoJsonToSerializationTest {
         }
     }
 
+    @Test
+    public void testPointSerializationZMValues() throws IOException {
+        org.geolatte.geom.Point p = (org.geolatte.geom.Point)Wkt.fromWkt("SRID=900913;  POINT (2.0 3.0 100.0 10.0)");
+        GeoJsonTo to = assembler.toTransferObject(p);
+        String geoJsonOutput = mapper.writeValueAsString(to);
+
+        try {
+            Map map = mapper.readValue(geoJsonOutput, HashMap.class);
+            Assert.assertEquals("Point", map.get("type"));
+            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+            Assert.assertEquals("name", getFromMap("crs.type", map));
+            List<Double> coords = (List<Double>) map.get("coordinates");
+            Assert.assertNotNull(coords);
+            Assert.assertEquals(2.0, coords.get(0), 0.00001);
+            Assert.assertEquals(3.0, coords.get(1), 0.00001);
+            Assert.assertEquals(100.0, coords.get(2), 0.00001);
+            Assert.assertEquals(10.0, coords.get(3), 0.00001);
+
+        } catch (Exception ignored) {
+            Assert.fail("No exception expected");
+        }
+    }
+
     /**
      * Test serialization of a linestring.
      *

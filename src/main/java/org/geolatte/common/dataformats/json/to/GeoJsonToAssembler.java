@@ -464,7 +464,7 @@ public class GeoJsonToAssembler {
             return PointCollectionFactory.createEmpty();
         }
 
-        DimensionalFlag df = coordinates[0].length == 4 ? DimensionalFlag.d3DM  : coordinates[0].length == 3 ? DimensionalFlag.d2DM : DimensionalFlag.d2D;
+        DimensionalFlag df = coordinates[0].length == 4 ? DimensionalFlag.d3DM  : coordinates[0].length == 3 ? DimensionalFlag.d3D : DimensionalFlag.d2D;
         PointSequenceBuilder psb = PointSequenceBuilders.variableSized(df, crsId);
         for (double[] point : coordinates) {
             psb.add(point);
