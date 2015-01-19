@@ -215,7 +215,16 @@ Productions /* Non-terminals, precede a token by T and a production by P in case
         | {nested_search_condition} left_paren search_condition right_paren {-> search_condition.expr};
 
     routine_invocation {-> expr} =
-        geo_equals_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_equals(attr.attr, geometry_literal.geometry_literal)};
+          {geo_equals} geo_equals_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_equals(attr.attr, geometry_literal.geometry_literal)}
+        | {geo_disjoint} geo_disjoint_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_disjoint(attr.attr, geometry_literal.geometry_literal)}
+        | {geo_intersects} geo_intersects_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_intersects(attr.attr, geometry_literal.geometry_literal)}
+        | {geo_touches} geo_touches_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_touches(attr.attr, geometry_literal.geometry_literal)}
+        | {geo_crosses} geo_crosses_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_crosses(attr.attr, geometry_literal.geometry_literal)}
+        | {geo_contains} geo_contains_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_contains(attr.attr, geometry_literal.geometry_literal)}
+        | {geo_overlaps} geo_overlaps_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_overlaps(attr.attr, geometry_literal.geometry_literal)}
+        | {geo_relate} geo_relate_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_relate(attr.attr, geometry_literal.geometry_literal)}
+        | {geo_within} geo_within_operator left_paren [attr]:attribute_name comma geometry_literal right_paren {-> New expr.geo_within(attr.attr, geometry_literal.geometry_literal)};
+
 
                                                                 // <predicate> ::= <comparison predicate> | <text predicate> | <null predicate> | <temporal predicate> | <classification predicate> | <existence_predicate>
     predicate {-> expr} =
@@ -338,7 +347,15 @@ Abstract Syntax Tree
          | {during}             [attr]:attr [time_span]:timespan_literal
          | {before_or_during}   [attr]:attr [time_span]:timespan_literal
          | {during_or_after}    [attr]:attr [time_span]:timespan_literal
-         | {geo_equals}         [left]:attr [right]:geometry_literal;
+         | {geo_equals}         [left]:attr [right]:geometry_literal
+         | {geo_disjoint}       [left]:attr [right]:geometry_literal
+         | {geo_intersects}     [left]:attr [right]:geometry_literal
+         | {geo_touches}        [left]:attr [right]:geometry_literal
+         | {geo_crosses}        [left]:attr [right]:geometry_literal
+         | {geo_contains}       [left]:attr [right]:geometry_literal
+         | {geo_overlaps}       [left]:attr [right]:geometry_literal
+         | {geo_relate}         [left]:attr [right]:geometry_literal
+         | {geo_within}         [left]:attr [right]:geometry_literal;
 
     attr =
           {id} identifier
