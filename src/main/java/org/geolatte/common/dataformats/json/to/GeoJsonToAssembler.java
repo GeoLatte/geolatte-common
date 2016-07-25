@@ -121,8 +121,7 @@ public class GeoJsonToAssembler {
     public PointTo toTransferObject(Point input) {
         PointTo result = new PointTo();
         result.setCrs(GeoJsonTo.createCrsTo("EPSG:" + input.getSRID()));
-        result.setCoordinates(input.is3D() ? new double[]{input.getX(), input.getY(), input.getZ()}
-                : new double[]{input.getX(), input.getY()});
+        result.setCoordinates(getPoints(input)[0]);
         return result;
     }
 
@@ -464,7 +463,8 @@ public class GeoJsonToAssembler {
         } else if (coordinates.length == 0) {
             return PointCollectionFactory.createEmpty();
         }
-        DimensionalFlag df = coordinates[0].length == 3 ? DimensionalFlag.d3D : DimensionalFlag.d2D;
+
+        DimensionalFlag df = coordinates[0].length == 4 ? DimensionalFlag.d3DM  : coordinates[0].length == 3 ? DimensionalFlag.d3D : DimensionalFlag.d2D;
         PointSequenceBuilder psb = PointSequenceBuilders.variableSized(df, crsId);
         for (double[] point : coordinates) {
             psb.add(point);
@@ -485,8 +485,16 @@ public class GeoJsonToAssembler {
         }
         if (input.length == 2) {
             return Points.create2D(input[0], input[1], crsIdValue);
-        } else {
+        } else if(input.length == 3){
             return Points.create3D(input[0], input[1], input[2], crsIdValue);
+        } else {
+            double z = input[2];
+            double m = input[3];
+            if(Double.isNaN(z)) {
+                return Points.create2DM(input[0],input[1],m,crsIdValue);
+            } else {
+                return Points.create3DM(input[0], input[1], z, m, crsIdValue);
+            }
         }
     }
 
@@ -494,13 +502,22 @@ public class GeoJsonToAssembler {
      * Serializes all points of the input into a list of their coordinates
      *
      * @param input a geometry whose points are to be converted to a list of coordinates
-     * @return an array containing arrays with x,y and optionally z values.
+     * @return an array containing arrays with x,y and optionally z and m values.
      */
     private double[][] getPoints(Geometry input) {
         double[][] result = new double[input.getNumPoints()][];
         for (int i = 0; i < input.getPoints().size(); i++) {
             Point p = input.getPointN(i);
-            result[i] = input.is3D() ? new double[]{p.getX(), p.getY(), p.getZ()} : new double[]{p.getX(), p.getY()};
+            if(p.isMeasured() && p.is3D()) {
+                result[i] = new double[]{p.getX(), p.getY(), p.getZ(), p.getM()};
+            } else if(p.isMeasured()) {
+                // ideally we'd use something like Double.Nan, but JSON doesn't support that.
+                result[i] = new double[]{p.getX(), p.getY(), 0, p.getM()};
+            } else if(p.is3D()) {
+                result[i] = new double[]{p.getX(), p.getY(), p.getZ()};
+            } else {
+                result[i] = new double[]{p.getX(), p.getY()};
+            }
         }
         return result;
     }

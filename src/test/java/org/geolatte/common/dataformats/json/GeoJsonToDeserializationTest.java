@@ -26,9 +26,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import junit.framework.Assert;
 import org.geolatte.common.dataformats.json.to.*;
+import org.geolatte.geom.*;
 import org.geolatte.geom.crs.CrsId;
+import org.geolatte.geom.jts.DimensionalCoordinate;
 import org.geolatte.geom.jts.JTS;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -92,6 +102,14 @@ public class GeoJsonToDeserializationTest {
                 "    }\n" +
                 "  }, \"type\": \"Point\", \"coordinates\": [100.0, 0.0, 50.0] }";
 
+        // Let's also test a point with m values.
+        String testString5 = "{ \"crs\": {\n" +
+                "  \"type\": \"name\",\n" +
+                "  \"properties\": {\n" +
+                "    \"name\": \"EPSG:31370\"\n" +
+                "    }\n" +
+                "  }, \"type\": \"Point\", \"coordinates\": [100.0, 0.0, 50.0, 66.0] }";
+
         Point test = (Point) JTS.to(assembler.fromTransferObject(mapper.readValue(testString, PointTo.class)));
         Coordinate c = test.getCoordinate();
         Assert.assertEquals(100.0, c.x, ACCURACY);
@@ -128,7 +146,17 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(0.0, c4.y, ACCURACY);
         Assert.assertEquals(50.0, c4.z, ACCURACY);
         Assert.assertEquals(LAMBERT72.getCode(), test4.getSRID());
+
+        // geolatte geom since default jts point doesn't support M
+        org.geolatte.geom.Point test5 = (org.geolatte.geom.Point) assembler.fromTransferObject(mapper.readValue(testString5, PointTo.class));
+
+        Assert.assertEquals(100.0, test5.getX(), ACCURACY);
+        Assert.assertEquals(0.0, test5.getY(), ACCURACY);
+        Assert.assertEquals(50.0, test5.getZ(), ACCURACY);
+        Assert.assertEquals(66.0, test5.getM(), ACCURACY);
+        Assert.assertEquals(LAMBERT72.getCode(), test5.getSRID());
     }
+
 
     /**
      * Test invalid variations of a json representing a point
@@ -203,6 +231,12 @@ public class GeoJsonToDeserializationTest {
                 "  }, \"type\": \"LineString\",\n" +
                 "  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]\n" +
                 "  }";
+        String validLineString3D = "{ \"type\": \"LineString\",\n" +
+                "  \"coordinates\": [ [100.0, 0.0, 2.0], [101.0, 1.0, 3.0] ]\n" +
+                "  }";
+        String validLineString3DM = "{ \"type\": \"LineString\",\n" +
+                "  \"coordinates\": [ [100.0, 0.0, 2.0, 0.0], [101.0, 1.0, 3.0, 5.0] ]\n" +
+                "  }";
         LineString ls = (LineString) JTS.to(assembler.fromTransferObject(mapper.readValue(validLinestring, LineStringTo.class)));
         Assert.assertEquals(CrsId.UNDEFINED, CrsId.valueOf(ls.getSRID()));
         Coordinate[] c = ls.getCoordinates();
@@ -218,6 +252,22 @@ public class GeoJsonToDeserializationTest {
         Assert.assertEquals(0.0, c[0].y, ACCURACY);
         Assert.assertEquals(101.0, c[1].x, ACCURACY);
         Assert.assertEquals(1.0, c[1].y, ACCURACY);
+
+        org.geolatte.geom.LineString glLs = assembler.fromTransferObject(mapper.readValue(validLineString3D, LineStringTo.class));
+        Assert.assertEquals(DimensionalFlag.d3D, glLs.getDimensionalFlag());
+        ls = (LineString) JTS.to(glLs);
+        c = ls.getCoordinates();
+        Assert.assertEquals(2.0, c[0].z, ACCURACY);
+        Assert.assertEquals(3.0, c[1].z, ACCURACY);
+
+        glLs = assembler.fromTransferObject(mapper.readValue(validLineString3DM, LineStringTo.class));
+        Assert.assertEquals(DimensionalFlag.d3DM, glLs.getDimensionalFlag());
+        ls = (LineString) JTS.to(glLs);
+        c = ls.getCoordinates();
+        Assert.assertEquals(0.0, ((DimensionalCoordinate)c[0]).getM(), ACCURACY);
+        Assert.assertEquals(5.0, ((DimensionalCoordinate)c[1]).getM(), ACCURACY);
+
+
     }
 
     /**
@@ -412,7 +462,7 @@ public class GeoJsonToDeserializationTest {
         // Empty crs name
         invalidTestStrings.add("{ \"crs\": {},\"type\": \"MultiPoint\",  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]  }");
         // Invalid coordinate array
-        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [ [100.0, 0.0,101.0, 1.0] ]  }");
+        invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [ [100.0, 0.0,101.0, 1.0, 5.0] ]  }");
         invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [[ [100.0, 0.0],[101.0, 1.0]] ]  }");
         invalidTestStrings.add("{ \"crs\": {\"type\": \"name\", \"properties\": {\"name\": \"urn:ogc:def:crs:EPSG:7.6:31370\"}},\"type\": \"MultiPoint\",  \"coordinates\": [[],[]] }");
         // Only one value as a coordinate

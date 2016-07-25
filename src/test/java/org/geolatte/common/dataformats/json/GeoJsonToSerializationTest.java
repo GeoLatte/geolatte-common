@@ -25,9 +25,21 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import org.geolatte.common.dataformats.json.to.GeoJsonTo;
 import org.geolatte.common.dataformats.json.to.GeoJsonToAssembler;
+import org.geolatte.geom.*;
+import org.geolatte.geom.codec.Wkt;
 import org.geolatte.geom.jts.JTS;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -81,6 +93,52 @@ public class GeoJsonToSerializationTest {
         }
     }
 
+    @Test
+    public void testPointSerializationMValues() throws IOException {
+        org.geolatte.geom.Point p = (org.geolatte.geom.Point)Wkt.fromWkt("SRID=900913;  POINTM (2.0 3.0 10.0)");
+        GeoJsonTo to = assembler.toTransferObject(p);
+        String geoJsonOutput = mapper.writeValueAsString(to);
+
+        try {
+            Map map = mapper.readValue(geoJsonOutput, HashMap.class);
+            Assert.assertEquals("Point", map.get("type"));
+            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+            Assert.assertEquals("name", getFromMap("crs.type", map));
+            List<Double> coords = (List<Double>) map.get("coordinates");
+            Assert.assertNotNull(coords);
+            Assert.assertEquals(2.0, coords.get(0), 0.00001);
+            Assert.assertEquals(3.0, coords.get(1), 0.00001);
+            Assert.assertEquals(0, coords.get(2), 0.00001); // we always have a Z value too
+            Assert.assertEquals(10.0, coords.get(3), 0.00001);
+
+        } catch (Exception ignored) {
+            Assert.fail("No exception expected");
+        }
+    }
+
+    @Test
+    public void testPointSerializationZMValues() throws IOException {
+        org.geolatte.geom.Point p = (org.geolatte.geom.Point)Wkt.fromWkt("SRID=900913;  POINT (2.0 3.0 100.0 10.0)");
+        GeoJsonTo to = assembler.toTransferObject(p);
+        String geoJsonOutput = mapper.writeValueAsString(to);
+
+        try {
+            Map map = mapper.readValue(geoJsonOutput, HashMap.class);
+            Assert.assertEquals("Point", map.get("type"));
+            Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+            Assert.assertEquals("name", getFromMap("crs.type", map));
+            List<Double> coords = (List<Double>) map.get("coordinates");
+            Assert.assertNotNull(coords);
+            Assert.assertEquals(2.0, coords.get(0), 0.00001);
+            Assert.assertEquals(3.0, coords.get(1), 0.00001);
+            Assert.assertEquals(100.0, coords.get(2), 0.00001);
+            Assert.assertEquals(10.0, coords.get(3), 0.00001);
+
+        } catch (Exception ignored) {
+            Assert.fail("No exception expected");
+        }
+    }
+
     /**
      * Test serialization of a linestring.
      *
@@ -88,7 +146,7 @@ public class GeoJsonToSerializationTest {
      */
     @Test
     public void testLineStringSerializer() throws IOException {
-        LineString l = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0), new Coordinate(3.0, 4.0), new Coordinate(2.5, 5.0)}), geomFactory);
+        LineString l = new LineString(new CoordinateArraySequence(new Coordinate[]{new Coordinate(2.0, 3.0), new Coordinate(3.5, 4.0), new Coordinate(2.5, 5.0)}), geomFactory);
         GeoJsonTo to = assembler.toTransferObject(JTS.from(l));
         String output = mapper.writeValueAsString(to);
         HashMap map = mapper.readValue(output, HashMap.class);
@@ -99,16 +157,48 @@ public class GeoJsonToSerializationTest {
         Assert.assertNotNull(coords);
         Assert.assertEquals(2.0, coords.get(0).get(0), 0.00001);
         Assert.assertEquals(3.0, coords.get(0).get(1), 0.00001);
-        Assert.assertEquals(3.0, coords.get(1).get(0), 0.00001);
+        Assert.assertEquals(3.5, coords.get(1).get(0), 0.00001);
         Assert.assertEquals(4.0, coords.get(1).get(1), 0.00001);
         Assert.assertEquals(2.5, coords.get(2).get(0), 0.00001);
         Assert.assertEquals(5.0, coords.get(2).get(1), 0.00001);
         List<Double> bbox = (List<Double>) map.get("bbox");
         Assert.assertNotNull(coords);
-        Assert.assertEquals(2.0, bbox.get(0), 0.00001);
-        Assert.assertEquals(3.0, bbox.get(1), 0.00001);
-        Assert.assertEquals(3.0, bbox.get(2), 0.00001);
-        Assert.assertEquals(5.0, bbox.get(3), 0.00001);
+        Assert.assertEquals(2.0, bbox.get(0), 0.00001); // x min
+        Assert.assertEquals(3.0, bbox.get(1), 0.00001); // y min
+        Assert.assertEquals(3.5, bbox.get(2), 0.00001); // x max
+        Assert.assertEquals(5.0, bbox.get(3), 0.00001); // y max
+    }
+
+    /**
+     * Test serialization of a linestring.
+     *
+     * @throws java.io.IOException If an unexpected exception is thrown, this will result in a testfailure
+     */
+    @Test
+    public void testLineStringSerializerMValues() throws IOException {
+        org.geolatte.geom.LineString l = (org.geolatte.geom.LineString)Wkt.fromWkt("SRID=900913;  LINESTRINGM (2.0 3.0 10.0, 3.5 4.0 15.0, 2.5 5 20)");
+        GeoJsonTo to = assembler.toTransferObject(l);
+        String output = mapper.writeValueAsString(to);
+        HashMap map = mapper.readValue(output, HashMap.class);
+        Assert.assertEquals("LineString", map.get("type"));
+        Assert.assertEquals("EPSG:900913", getFromMap("crs.properties.name", map));
+        Assert.assertEquals("name", getFromMap("crs.type", map));
+        List<List<Double>> coords = (List<List<Double>>) map.get("coordinates");
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, coords.get(0).get(0), 0.00001);
+        Assert.assertEquals(3.0, coords.get(0).get(1), 0.00001);
+        Assert.assertEquals(3.5, coords.get(1).get(0), 0.00001);
+        Assert.assertEquals(4.0, coords.get(1).get(1), 0.00001);
+        Assert.assertEquals(2.5, coords.get(2).get(0), 0.00001);
+        Assert.assertEquals(5.0, coords.get(2).get(1), 0.00001);
+        List<Double> bbox = (List<Double>) map.get("bbox");
+        Assert.assertNotNull(coords);
+        Assert.assertEquals(2.0, bbox.get(0), 0.00001); // x min
+        Assert.assertEquals(3.0, bbox.get(1), 0.00001); // y min
+        Assert.assertEquals(0, bbox.get(2), 0.00001); // z min
+        Assert.assertEquals(3.5, bbox.get(3), 0.00001); // x max
+        Assert.assertEquals(5.0, bbox.get(4), 0.00001); // y max
+        Assert.assertEquals(0, bbox.get(5), 0.00001); // z max
     }
 
     /**
