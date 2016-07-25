@@ -26,8 +26,10 @@ import java.util.NoSuchElementException;
 
 /**
  * <p>
- * Performs a filtering operation on its source elements. When the given filter {@link Transformation} (<_, Boolean>) evaluates to false, the source element is not passed, when it evaluates to true, it is passed unmodified to the output.
- *
+ * Performs a filtering operation on its source elements. When the given filter {@link Transformation} ({@code <_, Boolean>}) evaluates
+ * to false, the source element is not passed, when it evaluates to true, it is passed unmodified to the output.
+ * </p>
+ * 
  * <pre>
  *  input | tf    | output
  * --------------------
@@ -38,7 +40,7 @@ import java.util.NoSuchElementException;
  *   obj5 |*excep*| -     (+ error event)
  * </pre>
  *
- * </p>
+ *
  * <p>
  * <i>Creation-Date</i>: 02-Jun-2010<br>
  * <i>Creation-Time</i>:  17:08:21<br>

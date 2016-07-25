@@ -516,7 +516,7 @@ public class GeoJsonToAssembler {
      *  "crs": {
      *       "type": "name",
      *       "properties": {
-     *             "name": "<yourcrsname>"
+     *             "name": "...yourcrsname..."
      *       }
      * }
      * </pre>
@@ -530,6 +530,7 @@ public class GeoJsonToAssembler {
      * EPSG:4326
      * </pre>
      *
+     * @param to the transfer object
      * @return the CrsId of the crs system in the json if it is present. {@link CrsId#UNDEFINED} otherwise.
      * @throws IllegalArgumentException If a crs object is present, but deserialization is not possible
      */

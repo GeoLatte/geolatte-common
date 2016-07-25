@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * No comment provided yet for this class.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 30-aug-2010<br>
  * <i>Creation-Time</i>: 18:17:52<br>

@@ -33,7 +33,7 @@ import java.io.IOException;
 
 /**
  * Serializer for MultiPolygons according to the geojson specification
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 21-apr-2010<br>
  * <i>Creation-Time</i>: 16:14:51<br>

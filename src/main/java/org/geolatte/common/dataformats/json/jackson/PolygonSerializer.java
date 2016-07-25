@@ -32,7 +32,7 @@ import java.io.IOException;
 
 /**
  * Implements the geojson serializer for a polygon object
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 21-apr-2010<br>
  * <i>Creation-Time</i>: 9:50:17<br>

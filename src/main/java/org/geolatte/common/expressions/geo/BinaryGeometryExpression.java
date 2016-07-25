@@ -27,7 +27,7 @@ import org.geolatte.geom.Geometry;
 /**
  * <p>
  * Represents expressions that operate on two Geometry expressions.
- * <p>
+ * </p>
  * <p>
  * <i>Creation-Date</i>: 31-Aug-2010<br>
  * <i>Creation-Time</i>:  18:50:50<br>

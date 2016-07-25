@@ -33,7 +33,7 @@ import java.io.IOException;
 /**
  * Serializationclass for multilinestrings: creates a geojson representation of a
  * multilinestring-geometry.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 20-apr-2010<br>
  * <i>Creation-Time</i>: 9:01:31<br>

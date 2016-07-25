@@ -24,7 +24,8 @@ package org.geolatte.common.expressions;
 /**
  * <p>
  * "and" expression: a boolean AND of two boolean expressions.
- * <p>
+ * </p>
+ *
  * <p>
  * <i>Creation-Date</i>: 9-apr-2010<br>
  * <i>Creation-Time</i>:  11:48:54<br>

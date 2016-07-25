@@ -26,7 +26,7 @@ import org.geolatte.geom.Geometry;
 
 /**
  * No comment provided yet for this class.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 31-Aug-2010<br>
  * <i>Creation-Time</i>:  18:48:22<br>

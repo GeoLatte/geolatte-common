@@ -29,6 +29,7 @@ import org.geolatte.geom.Geometry;
  * <p>
  * Abstract base class for all {@link Geometry} expressions. Offers methods to create other expressions from this expression.
  * </p>
+ *
  * <p>
  * <i>Creation-Date</i>: 31-Aug-2010<br>
  * <i>Creation-Time</i>:  20:40:23<br>
@@ -53,7 +54,7 @@ public abstract class GeometryExpression implements Expression<Geometry> {
 
     /**
      * Implements the visitor pattern as a switch on the type of this expression.
-     * For example, on an Expression<Integer>, this method calls the {@link org.geolatte.common.expressions.BasicTypeSwitch#caseInteger(org.geolatte.common.expressions.Expression)} method on the given switcher.
+     * For example, on an {@code Expression<Integer>}, this method calls the {@link org.geolatte.common.expressions.BasicTypeSwitch#caseInteger(org.geolatte.common.expressions.Expression)} method on the given switcher.
      *
      * @param switcher The class on which a 'case' corresponding to type of this expression will be called.
      */

@@ -98,7 +98,7 @@ public abstract class GeometrySerializer<T extends Geometry> extends JsonSeriali
     /**
      * This method will return, for each of its dimension, the lowest value followed by its highest value.
      * Suppose the dimension is 3 (eg xyz) , the method will return [xmin, xmax, ymin, ymax, zmin, zmax] in that order.
-     * <p/>
+     * <br>
      * Since the presence of boundingbox coordinates is not required by the specification, the subclass may decide
      * whether or not the information is to be included. If this method returns null, the bbox information will not be
      * part of the final geojson representation.

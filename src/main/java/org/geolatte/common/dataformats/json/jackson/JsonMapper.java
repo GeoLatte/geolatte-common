@@ -44,7 +44,7 @@ import org.geolatte.geom.crs.CrsId;
  * demand of the user by providing additional serializers or deserializers.
  * <i>Creation-Date</i>: 20-apr-2010<br>
  * <i>Creation-Time</i>: 8:09:55<br>
- * </p>
+ * <br>
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
@@ -169,6 +169,7 @@ public class JsonMapper {
      *
      * @param json  the inputstring to be converted to a javaobject
      * @param clazz the class to which the resulting object should belong to
+     * @param <T>   the type of the result elements
      * @return An object of type T that corresponds with the given json string.
      * @throws JsonException If something went wrong converting the jsonstring into an object
      */
@@ -226,6 +227,7 @@ public class JsonMapper {
     /**
      * Adds a serializer to this mapper. Allows a user to alter the serialization behavior for a certain type.
      *
+     * @param classToMap the class to map
      * @param classSerializer the serializer
      * @param <T>             the type of objects that will be serialized by the given serializer
      */

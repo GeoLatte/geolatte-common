@@ -26,7 +26,7 @@ import java.io.IOException;
  * This is just a dumb class which is simply added so that users of the geolatte serializer/deserializer for geojson
  * can do something as: ... provider.findValueSerializer(Geometry.class) inside their own serializers without needing to
  * know what kind of geometry they have.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 23-sep-2010<br>
  * <i>Creation-Time</i>: 16:40:24<br>

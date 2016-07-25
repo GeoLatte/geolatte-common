@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 
 /**
  * A <code>Accessor</code> retrieves a property value from an object by means of reflection.
- * <p/>
+ * <br>
  * <p>This abstraction allows us to massage the return value of a Method.invoke() before using it,
  * e.g. so that we can first transform if from JTS Geometry to Geolatte Geometry.</p>
  *

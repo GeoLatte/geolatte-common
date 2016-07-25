@@ -49,7 +49,7 @@ public interface Expression<T> {
 
     /**
      * Implements the visitor pattern as a switch on the type of this expression.
-     * For example, on an Expression<Integer>, this method calls the {@link BasicTypeSwitch#caseInteger(Expression)} method on the given switcher.
+     * For example, on an {@code Expression<Integer>}, this method calls the {@link BasicTypeSwitch#caseInteger(Expression)} method on the given switcher.
      *
      * @param switcher The class on which a 'case' corresponding to type of this expression will be called.
      */

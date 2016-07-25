@@ -30,7 +30,7 @@ import java.util.ArrayList;
  * </p>
  * <i>Creation-Date</i>: 04-May-2010<br>
  * <i>Creation-Time</i>:  14:54:50<br>
- * </p>
+ *
  *
  * @author Bert Vanhooff
  * @author <a href="http://www.qmino.com">Qmino bvba</a>

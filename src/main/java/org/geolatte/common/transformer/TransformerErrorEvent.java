@@ -73,6 +73,7 @@ public class TransformerErrorEvent extends ErrorEvent {
      * @param source    The object on which the Event initially occurred.
      * @param exception The exception that caused the error.
      * @param failedObject The input object that caused a transformation error. Can be null.
+     * @param nestedEvent The nested event.
      * @throws IllegalArgumentException if source is null.
      */
     public TransformerErrorEvent(Object source, Object failedObject, Exception exception, TransformerErrorEvent nestedEvent) {

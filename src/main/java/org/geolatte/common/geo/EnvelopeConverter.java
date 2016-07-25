@@ -39,7 +39,7 @@ import org.geolatte.geom.Envelope;
 public class EnvelopeConverter implements TypeConverter<Envelope>{
     /**
      * Converts the given string into an Envelope.
-     * <p/>
+     * <br>
      * The inputstring is simply a list of 4 doubles seperated by a , The first two numbers are the first
      * corner of the envelope, the two last make up the second corner. If there are more than 4 numbers present,
      * all numbers are ignored except for the first 4. If there are less than 4 or if the string contains other

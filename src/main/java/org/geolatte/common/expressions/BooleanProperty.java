@@ -27,7 +27,7 @@ import org.geolatte.common.reflection.InvalidObjectReaderException;
 /**
  * <p>
  * Represents a Boolean valued property.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 14-Jul-2010<br>
  * <i>Creation-Time</i>:  18:48:45<br>

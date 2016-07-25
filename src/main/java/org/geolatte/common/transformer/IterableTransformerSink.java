@@ -24,7 +24,8 @@ package org.geolatte.common.transformer;
 import java.util.Iterator;
 
 /**
- * This sink offers its collected input directly to a client through the Iterable<T> interface. The input objects are not cached in an internal list first, but are available immediately.
+ * This sink offers its collected input directly to a client through the {@code Iterable<T>} interface. The input objects are
+ * not cached in an internal list first, but are available immediately.
  * Use this sink if you want to process the output of a transformer operation manually (not encapsulated in a dedicated sink).
  *
  * @param <T> The type of data processed by this sink.

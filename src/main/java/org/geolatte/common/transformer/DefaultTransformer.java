@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
  * Once the input is set (setInput()), output() may be called to get an iterator to set the transformation process in
  * motion. output() will return the same iterable/iterator as long as the input remains the same. This means that one
  * cannot transform the input element multiple times in parallel.
- * <p/>
+ * <br>
  * e.g.,
  * <pre>
  * {@code
@@ -49,7 +49,7 @@ import java.util.NoSuchElementException;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @param <Source> The type of the elements that will be transformed.
  * @param <Target> The type of the transformed elements.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 18-Mar-2010<br>
  * <i>Creation-Time</i>:  16:30:04 <br>
