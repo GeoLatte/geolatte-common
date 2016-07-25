@@ -21,7 +21,7 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import org.codehaus.jackson.map.JsonSerializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import org.geolatte.common.transformer.Transformation;
 import org.geolatte.common.transformer.TransformationException;
 
@@ -64,4 +64,5 @@ public class JsonSerializationTransformation implements Transformation<Object, S
     {
         mapper.addClassSerializer(classToMap, classSerializer);
     }
+
 }

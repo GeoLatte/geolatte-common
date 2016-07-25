@@ -13,7 +13,8 @@
  */
 
 package org.geolatte.common.dataformats.json.jackson;
-import org.codehaus.jackson.JsonParser;
+
+import com.fasterxml.jackson.core.JsonParser;
 import org.geolatte.common.Feature;
 import org.geolatte.common.FeatureCollection;
 

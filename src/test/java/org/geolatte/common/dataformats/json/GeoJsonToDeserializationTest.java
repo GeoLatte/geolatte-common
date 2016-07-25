@@ -21,12 +21,12 @@
 
 package org.geolatte.common.dataformats.json;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.*;
 import junit.framework.Assert;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.geolatte.common.dataformats.json.to.*;
 import org.geolatte.geom.crs.CrsId;
 import org.geolatte.geom.jts.JTS;
@@ -58,7 +58,7 @@ public class GeoJsonToDeserializationTest {
     public static void setupSuite() {
         assembler = new GeoJsonToAssembler();
         mapper = new ObjectMapper();
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     /**

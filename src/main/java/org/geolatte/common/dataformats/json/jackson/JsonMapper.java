@@ -22,17 +22,11 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.deser.CustomDeserializerFactory;
-import org.codehaus.jackson.map.deser.StdDeserializerProvider;
-import org.codehaus.jackson.map.ser.CustomSerializerFactory;
-import org.codehaus.jackson.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.geolatte.common.Feature;
 import org.geolatte.common.FeatureCollection;
 import org.geolatte.geom.Geometry;
@@ -59,13 +53,11 @@ import org.geolatte.geom.crs.CrsId;
 public class JsonMapper {
 
 
-	private static final CrsId WGS84 = CrsId.valueOf(4326);
-	public static final int MAXIMUMDEPTH = 10;
+    private static final CrsId WGS84 = CrsId.valueOf(4326);
+    public static final int MAXIMUMDEPTH = 10;
     private ObjectMapper mapper;
-    private CustomSerializerFactory serializerFactory;
-    private CustomDeserializerFactory deserializerFactory;
     private int depth;
-	private CrsId defaultCrsId;
+    private CrsId defaultCrsId;
     private boolean insideGeometryCollection;
     private boolean serializeNullValues;
     private boolean ignoreUnknownProperties;
@@ -73,65 +65,60 @@ public class JsonMapper {
     /**
      * Constructor of the jsonmapper
      *
-	 * @param defaultCrsId			  default Coordinate Referency System to use for {@code Geometry}s.
+     * @param defaultCrsId            default Coordinate Referency System to use for {@code Geometry}s.
      * @param serializeNullValues     if set to true, null values are serialized as usual. If set to false, they are not.
      * @param ignoreUnknownProperties if set to true, unknown properties in a json object will be ignored when they can not
      *                                be mapped to a field instead of an exception being thrown.
      */
     public JsonMapper(CrsId defaultCrsId, boolean serializeNullValues, boolean ignoreUnknownProperties) {
-		this.defaultCrsId = defaultCrsId;
+        this.defaultCrsId = defaultCrsId;
         this.serializeNullValues = serializeNullValues;
         this.ignoreUnknownProperties = ignoreUnknownProperties;
         setNewObjectMapper();
-        serializerFactory = new CustomSerializerFactory();
 
-        serializerFactory.addGenericMapping(MultiLineString.class, new MultiLineStringSerializer(this));
-        serializerFactory.addGenericMapping(LineString.class, new LineStringSerializer(this));
-        serializerFactory.addGenericMapping(Point.class, new PointSerializer(this));
-        serializerFactory.addGenericMapping(MultiPoint.class, new MultiPointSerializer(this));
-        serializerFactory.addGenericMapping(Polygon.class, new PolygonSerializer(this));
-        serializerFactory.addGenericMapping(Feature.class, new FeatureSerializer(this));
-        serializerFactory.addGenericMapping(MultiPolygon.class, new MultiPolygonSerializer(this));
-        serializerFactory.addGenericMapping(Geometry.class, new AnyGeometrySerializer());
-        serializerFactory.addGenericMapping(GeometryCollection.class, new GeometryCollectionSerializer(this));
+        SimpleModule mod = new SimpleModule("GeolatteCommonModule");
+        mod.addSerializer(MultiLineString.class, new MultiLineStringSerializer(this));
+        mod.addSerializer(LineString.class, new LineStringSerializer(this));
+        mod.addSerializer(Point.class, new PointSerializer(this));
+        mod.addSerializer(MultiPoint.class, new MultiPointSerializer(this));
+        mod.addSerializer(Polygon.class, new PolygonSerializer(this));
+        mod.addSerializer(Feature.class, new FeatureSerializer(this));
+        mod.addSerializer(MultiPolygon.class, new MultiPolygonSerializer(this));
+        mod.addSerializer(Geometry.class, new AnyGeometrySerializer());
+        mod.addSerializer(GeometryCollection.class, new GeometryCollectionSerializer(this));
 
-        mapper.setSerializerFactory(serializerFactory);
-        deserializerFactory = new CustomDeserializerFactory();
+        mod.addDeserializer(Geometry.class, new GeometryDeserializer<Geometry>(this, Geometry.class));
+        mod.addDeserializer(Point.class, new GeometryDeserializer<Point>(this, Point.class));
+        mod.addDeserializer(LineString.class, new GeometryDeserializer<LineString>(this, LineString.class));
+        mod.addDeserializer(MultiPoint.class, new GeometryDeserializer<MultiPoint>(this, MultiPoint.class));
+        mod.addDeserializer(MultiLineString.class, new GeometryDeserializer<MultiLineString>(this, MultiLineString.class));
+        mod.addDeserializer(Polygon.class, new GeometryDeserializer<Polygon>(this, Polygon.class));
+        mod.addDeserializer(MultiPolygon.class, new GeometryDeserializer<MultiPolygon>(this, MultiPolygon.class));
+        mod.addDeserializer(GeometryCollection.class, new GeometryDeserializer<GeometryCollection>(this, GeometryCollection.class));
+        mod.addDeserializer(Feature.class, new FeatureDeserializer(this));
+        mod.addDeserializer(FeatureCollection.class, new FeatureCollectionDeserializer(this));
 
-        deserializerFactory.addSpecificMapping(Geometry.class, new GeometryDeserializer<Geometry>(this, Geometry.class));
-        deserializerFactory.addSpecificMapping(Point.class, new GeometryDeserializer<Point>(this, Point.class));
-        deserializerFactory.addSpecificMapping(LineString.class, new GeometryDeserializer<LineString>(this, LineString.class));
-        deserializerFactory.addSpecificMapping(MultiPoint.class, new GeometryDeserializer<MultiPoint>(this, MultiPoint.class));
-        deserializerFactory.addSpecificMapping(MultiLineString.class, new GeometryDeserializer<MultiLineString>(this, MultiLineString.class));
-        deserializerFactory.addSpecificMapping(Polygon.class, new GeometryDeserializer<Polygon>(this, Polygon.class));
-        deserializerFactory.addSpecificMapping(MultiPolygon.class, new GeometryDeserializer<MultiPolygon>(this, MultiPolygon.class));
-        deserializerFactory.addSpecificMapping(GeometryCollection.class, new GeometryDeserializer<GeometryCollection>(this, GeometryCollection.class));
-        deserializerFactory.addSpecificMapping(Feature.class, new FeatureDeserializer(this));
-        deserializerFactory.addSpecificMapping(FeatureCollection.class, new FeatureCollectionDeserializer(this));
-
-        StdDeserializerProvider deserProvider = new StdDeserializerProvider(deserializerFactory);
-        mapper.setDeserializerProvider(deserProvider);
-
+        mapper.registerModule(mod);
     }
 
-	/**
-    * Constructor of the jsonmapper using as default Coordinate System WGS84 (EPSG:4326)
-    *
-    * @param serializeNullValues     if set to true, null values are serialized as usual. If set to false, they are not.
-    * @param ignoreUnknownProperties if set to true, unknown properties in a json object will be ignored when they can not
-    *                                be mapped to a field instead of an exception being thrown.
-    */
-	public JsonMapper(boolean serializeNullValues, boolean ignoreUnknownProperties) {
-		this(WGS84, serializeNullValues, ignoreUnknownProperties);
-	}
+    /**
+     * Constructor of the jsonmapper using as default Coordinate System WGS84 (EPSG:4326)
+     *
+     * @param serializeNullValues     if set to true, null values are serialized as usual. If set to false, they are not.
+     * @param ignoreUnknownProperties if set to true, unknown properties in a json object will be ignored when they can not
+     *                                be mapped to a field instead of an exception being thrown.
+     */
+    public JsonMapper(boolean serializeNullValues, boolean ignoreUnknownProperties) {
+        this(WGS84, serializeNullValues, ignoreUnknownProperties);
+    }
 
-	/**
+    /**
      * Default constructor. Maps all values, including null values and will throw exceptions on unknown properties;
-	 * default coordinate reference system will be WGS84.
+     * default coordinate reference system will be WGS84.
      */
     public JsonMapper() {
-		this(WGS84, true, false);
-	}
+        this(WGS84, true, false);
+    }
 
     /**
      * Converts a given object into a JSON String
@@ -239,29 +226,28 @@ public class JsonMapper {
     /**
      * Adds a serializer to this mapper. Allows a user to alter the serialization behavior for a certain type.
      *
-     * @param classToMap      the class for which the given serializer is meant
      * @param classSerializer the serializer
      * @param <T>             the type of objects that will be serialized by the given serializer
      */
     public <T> void addClassSerializer(Class<? extends T> classToMap, JsonSerializer<T> classSerializer) {
-        setNewObjectMapper();
-        serializerFactory.addGenericMapping(classToMap, classSerializer);
-        mapper.setDeserializerProvider(new StdDeserializerProvider(deserializerFactory));
-        mapper.setSerializerFactory(serializerFactory);
+        setNewObjectMapper(); // Is this right, setting a new object mapper on each add operation?
+        SimpleModule mod = new SimpleModule("GeolatteCommonModule-" + classSerializer.getClass().getSimpleName());
+        mod.addSerializer(classToMap, classSerializer);
+        mapper.registerModule(mod);
     }
 
     /**
      * Adds a deserializer to this mapper. Allows a user to alter the deserialization behavior for a certain type.
      *
      * @param classToMap      the class for which the given serializer is meant
-     * @param classSerializer the serializer
+     * @param classDeserializer the serializer
      * @param <T>             the type of objects that will be serialized by the given serializer
      */
-    public <T> void addClassDeserializer(Class<T> classToMap, JsonDeserializer<? extends T> classSerializer) {
-        setNewObjectMapper();
-        deserializerFactory.addSpecificMapping(classToMap, classSerializer);
-        mapper.setDeserializerProvider(new StdDeserializerProvider(deserializerFactory));
-        mapper.setSerializerFactory(serializerFactory);
+    public <T> void addClassDeserializer(Class<T> classToMap, JsonDeserializer<? extends T> classDeserializer) {
+        setNewObjectMapper(); // Is this right, setting a new object mapper on each add operation?
+        SimpleModule mod = new SimpleModule("GeolatteCommonModule-" + classDeserializer.getClass().getSimpleName());
+        mod.addDeserializer(classToMap, classDeserializer);
+        mapper.registerModule(mod);
     }
 
     /**
@@ -273,14 +259,14 @@ public class JsonMapper {
         return mapper;
     }
 
-	/**
-	 * Returns the default {@code CrsId} for this instance
-	 *
-	 * @return the {@code CrsId}
-	 */
-	public CrsId getDefaultCrsId(){
-		return defaultCrsId;
-	}
+    /**
+     * Returns the default {@code CrsId} for this instance
+     *
+     * @return the {@code CrsId}
+     */
+    public CrsId getDefaultCrsId() {
+        return defaultCrsId;
+    }
 
     void increaseDepth() {
         depth++;
@@ -292,6 +278,7 @@ public class JsonMapper {
 
     /**
      * Indicates whether a subgeometry is being mapped (used to know whether the CRS property needs to be generated)
+     *
      * @return
      */
     boolean insideGeometryCollection() {
@@ -312,9 +299,9 @@ public class JsonMapper {
     private void setNewObjectMapper() {
         mapper = new ObjectMapper();
         if (!serializeNullValues) {
-            mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             if (ignoreUnknownProperties) {
-                mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             }
         }
     }

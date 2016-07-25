@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.codehaus.jackson.JsonParser;
+import com.fasterxml.jackson.core.JsonParser;
 import org.geolatte.geom.DimensionalFlag;
 import org.geolatte.geom.Geometry;
 import org.geolatte.geom.GeometryCollection;

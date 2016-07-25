@@ -21,11 +21,11 @@
 
 package org.geolatte.common.dataformats.json;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.geolatte.common.dataformats.json.to.GeoJsonTo;
 import org.geolatte.common.dataformats.json.to.GeoJsonToAssembler;
 import org.geolatte.geom.jts.JTS;
