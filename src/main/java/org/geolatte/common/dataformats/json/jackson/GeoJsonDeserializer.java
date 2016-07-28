@@ -56,7 +56,7 @@ public abstract class GeoJsonDeserializer<T> extends AbstractJsonDeserializer<T>
      *  "crs": {
      *       "type": "name",
      *       "properties": {
-     *             "name": "<yourcrsname>"
+     *             "name": "...yourcrsname..."
      *       }
      * }
      * </pre>

@@ -22,8 +22,9 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.geolatte.geom.Geometry;
 import org.geolatte.geom.GeometryCollection;
 

@@ -24,7 +24,8 @@ package org.geolatte.common.expressions;
 /**
  * <p>
  * Represents expressions that operate on two boolean expressions.
- * <p>
+ * </p>
+ *
  * <p>
  * <i>Creation-Date</i>: 9-apr-2010<br>
  * <i>Creation-Time</i>:  11:48:54<br>

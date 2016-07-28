@@ -21,8 +21,9 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
 
@@ -30,7 +31,7 @@ import java.io.IOException;
 
 /**
  * No comment provided yet for this class.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 20-apr-2010<br>
  * <i>Creation-Time</i>: 11:50:23<br>

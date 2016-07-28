@@ -43,7 +43,7 @@ public class TransformationException extends Exception {
      *
      * Further documentation, see {@link Exception}
      *
-     * @param failedObject The transformation input object that caused the transformation to fail. This object must be of the Source type of the Transformation<Source, Target>. Unfortunately, we cannot enforce this through generics as Exceptions cannot be generic.
+     * @param failedObject The transformation input object that caused the transformation to fail. This object must be of the Source type of the {@code Transformation<Source, Target>}. Unfortunately, we cannot enforce this through generics as Exceptions cannot be generic.
      */
     public TransformationException(Object failedObject) {
 
@@ -58,7 +58,7 @@ public class TransformationException extends Exception {
      *
      * @param   message   the detail message. The detail message is saved for
      *          later retrieval by the {@link #getMessage()} method.
-     * @param failedObject The transformation input object that caused the transformation to fail.  This object must be of the Source type of the Transformation<Source, Target>. Unfortunately, we cannot enforce this through generics as Exceptions cannot be generic.
+     * @param failedObject The transformation input object that caused the transformation to fail.  This object must be of the Source type of the {@code Transformation<Source, Target>}. Unfortunately, we cannot enforce this through generics as Exceptions cannot be generic.
      */
     public TransformationException(String message, Object failedObject) {
         super(message);
@@ -77,7 +77,7 @@ public class TransformationException extends Exception {
      *         {@link #getCause()} method).  (A <tt>null</tt> value is
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
-     * @param failedObject The transformation input object that caused the transformation to fail.  This object must be of the Source type of the Transformation<Source, Target>. Unfortunately, we cannot enforce this through generics as Exceptions cannot be generic.
+     * @param failedObject The transformation input object that caused the transformation to fail.  This object must be of the Source type of the {@code Transformation<Source, Target>}. Unfortunately, we cannot enforce this through generics as Exceptions cannot be generic.
      */
     public TransformationException(String message, Throwable cause, Object failedObject) {
         super(message, cause);
@@ -94,7 +94,7 @@ public class TransformationException extends Exception {
      *         {@link #getCause()} method).  (A <tt>null</tt> value is
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
-     * @param failedObject The transformation input object that caused the transformation to fail.  This object must be of the Source type of the Transformation<Source, Target>. Unfortunately, we cannot enforce this through generics as Exceptions cannot be generic.
+     * @param failedObject The transformation input object that caused the transformation to fail.  This object must be of the Source type of the {@code Transformation<Source, Target>}. Unfortunately, we cannot enforce this through generics as Exceptions cannot be generic.
      */
     public TransformationException(Throwable cause, Object failedObject) {
         super(cause);

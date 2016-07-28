@@ -21,9 +21,9 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.MultiPolygon;
 import org.geolatte.geom.Point;
@@ -33,7 +33,7 @@ import java.io.IOException;
 
 /**
  * Serializer for MultiPolygons according to the geojson specification
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 21-apr-2010<br>
  * <i>Creation-Time</i>: 16:14:51<br>

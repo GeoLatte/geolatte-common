@@ -78,6 +78,7 @@ public abstract class StringLikeComparisonExpression extends BooleanBinaryString
      * @param left  The left expression.
      * @param right The right expression.
      * @param wildCardCharacter the character to use as a wildcard
+     * @param caseInsensitive Match is case insensitive or not.
      */
     public StringLikeComparisonExpression(Expression<String> left, Expression<String> right, char wildCardCharacter, boolean caseInsensitive) {
         super(left, right);
@@ -92,6 +93,7 @@ public abstract class StringLikeComparisonExpression extends BooleanBinaryString
      * @param text The text to match
      * @param pattern The pattern
      * @param multiCharacterWildCardChar The character to use as wildcard.
+     * @param caseInsensitive Match is case insensitive or not.
      * @return True if the text matches the pattern. False otherwise.
      */
     public static boolean wildCardMatch(String text, String pattern, char multiCharacterWildCardChar, boolean caseInsensitive)

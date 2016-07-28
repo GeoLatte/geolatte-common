@@ -21,11 +21,10 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializerProvider;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.geolatte.common.Feature;
 import org.geolatte.common.reflection.EntityClassReader;
 import org.geolatte.common.reflection.InvalidObjectReaderException;

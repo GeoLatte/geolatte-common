@@ -24,7 +24,7 @@ package org.geolatte.common.geo;
 /**
  * Generic interface for a typeconverter. A typeconverter is a class that converts a string into a type specified
  * by the generic parameter.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 10-mei-2010<br>
  * <i>Creation-Time</i>: 10:36:07<br>

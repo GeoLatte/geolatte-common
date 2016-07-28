@@ -35,7 +35,7 @@ import java.text.ParseException;
 
 /**
  * <p>
- * Utility class that translates CQL expressions such as "(AnAttribute > 5) and (AnotherOne LIKE 'this')" into an executable filter or Hibernate criteria.
+ * Utility class that translates CQL expressions such as "({@code AnAttribute > 5}) and (AnotherOne LIKE 'this')" into an executable filter or Hibernate criteria.
  * CQL - Common Catalogue Query Language - is described in the OGC Catalogue Services Specification. Our implementation is based on that specification but might differ slightly in some areas.
  * </p>
  * <p>

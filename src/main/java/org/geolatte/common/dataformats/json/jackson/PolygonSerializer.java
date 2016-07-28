@@ -21,8 +21,9 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
 import org.geolatte.geom.Polygon;
@@ -31,7 +32,7 @@ import java.io.IOException;
 
 /**
  * Implements the geojson serializer for a polygon object
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 21-apr-2010<br>
  * <i>Creation-Time</i>: 9:50:17<br>

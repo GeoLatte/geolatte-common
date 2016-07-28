@@ -27,6 +27,7 @@ import java.util.Iterator;
 /**
  * <p>
  * Provides a type safe API to create chains of Transformers.
+ * </p>
  *
  * Usage Example:
  * <pre>
@@ -48,7 +49,6 @@ import java.util.Iterator;
  *
  * }
  * </pre>
- * </p>
  *
  * <p>
  * Both <tt>Transformers</tt> and <TT>Filters</tt> can be added to a chain directly; <tt>Transformations</tt> and filter <tt>Transformation</tt> can also be added. The latter two are wrapped in <tt>DefaultTransformers</tt> and <tt>DefaultFilters</tt> automatically.

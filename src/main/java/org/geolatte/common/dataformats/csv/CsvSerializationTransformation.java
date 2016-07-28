@@ -41,7 +41,7 @@ import java.util.List;
  * This transformation is stateless with the exception of its configuration (the dateformatter and separator).
  * <i>Creation-Date</i>: 9-jul-2010<br>
  * <i>Creation-Time</i>: 11:35:11<br>
- * </p>
+ * <br>
  *
  * @author Yves Vandewoude
  * @author <a href="http://www.qmino.com">Qmino bvba</a>

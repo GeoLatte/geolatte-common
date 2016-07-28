@@ -21,8 +21,10 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.geolatte.geom.Envelope;
 import org.geolatte.geom.Geometry;
 
@@ -96,7 +98,7 @@ public abstract class GeometrySerializer<T extends Geometry> extends JsonSeriali
     /**
      * This method will return, for each of its dimension, the lowest value followed by its highest value.
      * Suppose the dimension is 3 (eg xyz) , the method will return [xmin, xmax, ymin, ymax, zmin, zmax] in that order.
-     * <p/>
+     * <br>
      * Since the presence of boundingbox coordinates is not required by the specification, the subclass may decide
      * whether or not the information is to be included. If this method returns null, the bbox information will not be
      * part of the final geojson representation.
@@ -105,7 +107,7 @@ public abstract class GeometrySerializer<T extends Geometry> extends JsonSeriali
      * @param shape the geometry for which the bbox coordinates must be retrieved
      * @param provider provider to retrieve other serializers (for recursion)
      * @return boundingbox coordinates of this geojson or null if none are to be specified
-     * @throws org.codehaus.jackson.map.JsonMappingException If for some reason a provider could not be found
+     * @throws JsonMappingException If for some reason a provider could not be found
      * (recursion)
      */
     protected double[] getBboxCoordinates(JsonGenerator jgen, T shape, SerializerProvider provider)

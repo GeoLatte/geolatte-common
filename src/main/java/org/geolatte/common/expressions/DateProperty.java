@@ -29,7 +29,7 @@ import java.util.Date;
 /**
  * <p>
  * Represents a Date valued property.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 01-Jun-2010<br>
  * <i>Creation-Time</i>:  18:59:56<br>

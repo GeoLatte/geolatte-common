@@ -14,10 +14,10 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.*;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.*;
 import org.geolatte.geom.*;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.io.IOException;
  * This is just a dumb class which is simply added so that users of the geolatte serializer/deserializer for geojson
  * can do something as: ... provider.findValueSerializer(Geometry.class) inside their own serializers without needing to
  * know what kind of geometry they have.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 23-sep-2010<br>
  * <i>Creation-Time</i>: 16:40:24<br>
@@ -36,7 +36,7 @@ import java.io.IOException;
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class AnyGeometrySerializer extends JsonSerializer<Geometry> implements ContextualSerializer<Geometry> {
+public class AnyGeometrySerializer extends JsonSerializer<Geometry> implements ContextualSerializer {
 
     // Note: we must implement ContextualSerialized because findValueSerializer needs a beanproperty.
     // Otherwise this serializer is not context-aware
@@ -80,9 +80,11 @@ public class AnyGeometrySerializer extends JsonSerializer<Geometry> implements C
         }
     }
 
-    @Override
-    public JsonSerializer<Geometry> createContextual(SerializationConfig config, BeanProperty property) throws JsonMappingException {
 
-        return new AnyGeometrySerializer(property);
+    @Override
+    public JsonSerializer<Geometry> createContextual(SerializerProvider serializerProvider,
+                                                     BeanProperty beanProperty) throws JsonMappingException {
+        return new AnyGeometrySerializer(beanProperty);
     }
+
 }

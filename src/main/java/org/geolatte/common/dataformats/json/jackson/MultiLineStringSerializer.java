@@ -21,9 +21,9 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.geolatte.geom.LineString;
 import org.geolatte.geom.MultiLineString;
 import org.geolatte.geom.Point;
@@ -33,7 +33,7 @@ import java.io.IOException;
 /**
  * Serializationclass for multilinestrings: creates a geojson representation of a
  * multilinestring-geometry.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 20-apr-2010<br>
  * <i>Creation-Time</i>: 9:01:31<br>

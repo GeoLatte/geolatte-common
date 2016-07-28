@@ -25,7 +25,7 @@ package org.geolatte.common.reflection;
  * An invalidobjectreader exception is thrown by an entityclassreader if the object
  * the class is requested to read from does not correspond with the entityclass
  * the reader was initialized with.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 19-apr-2010<br>
  * <i>Creation-Time</i>:  11:48:54<br>

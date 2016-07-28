@@ -14,9 +14,10 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -28,7 +29,7 @@ import java.util.Map;
 /**
  * The abstract JsonDeserializer is a convenience class allowing the implementor of an actual
  * JSON deserializer to more quickly implement the deserializer. The deserializer will first deserialize
- * the object to a Map<String,Object>, and then provides a number of convenient methods to get the values
+ * the object to a {@code Map<String,Object>}, and then provides a number of convenient methods to get the values
  * of the parameters you need.
  *
  * @author Yves Vandewoude
@@ -265,6 +266,7 @@ public abstract class AbstractJsonDeserializer<T> extends JsonDeserializer<T> {
      * @param errorMessage the errormessage to add to the exception if the param does not exist.
      * @param clazz        the class of the parameter that should be parsed.
      * @param mapToUse     the map to use as inputparameter source
+     * @param <A>          the type of the parameter
      * @return a stringparameter with given name. If it does not exist and the errormessage is provided,
      *         an IOException is thrown with that message. if the errormessage is not provided, null is returned.
      * @throws IOException Exception if the paramname does not exist and an errormessage is provided.
@@ -289,6 +291,7 @@ public abstract class AbstractJsonDeserializer<T> extends JsonDeserializer<T> {
      * @param paramName    the name of the parameter
      * @param errorMessage the errormessage to add to the exception if the param does not exist.
      * @param clazz        the class of the parameter that should be parsed.
+     * @param <A>          the type of the parameter
      * @return a stringparameter with given name. If it does not exist and the errormessage is provided,
      *         an IOException is thrown with that message. if the errormessage is not provided, null is returned.
      * @throws IOException Exception if the paramname does not exist and an errormessage is provided.

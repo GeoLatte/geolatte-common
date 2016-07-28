@@ -14,9 +14,7 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import org.codehaus.jackson.JsonParser;
-import org.geolatte.common.dataformats.json.jackson.AbstractJsonDeserializer;
-import org.geolatte.common.dataformats.json.jackson.JsonMapper;
+import com.fasterxml.jackson.core.JsonParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

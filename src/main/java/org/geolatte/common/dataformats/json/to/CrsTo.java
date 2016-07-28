@@ -29,7 +29,7 @@ package org.geolatte.common.dataformats.json.to;
  *  "crs": {
  *       "type": "name",
  *       "properties": {
- *             "name": "<yourcrsname>"
+ *             "name": "...yourcrsname..."
  *       }
  * }
  * </pre>

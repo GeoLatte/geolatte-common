@@ -14,7 +14,7 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
-import org.codehaus.jackson.JsonParser;
+import com.fasterxml.jackson.core.JsonParser;
 import org.geolatte.common.Feature;
 import org.geolatte.geom.Geometry;
 import org.geolatte.geom.crs.CrsId;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * No comment provided yet for this class.
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 30-aug-2010<br>
  * <i>Creation-Time</i>: 18:17:52<br>

@@ -14,16 +14,11 @@
 
 package org.geolatte.common.dataformats.json.jackson;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.*;
 import junit.framework.Assert;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.geolatte.common.dataformats.json.jackson.JsonMapper;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -64,10 +59,13 @@ public class JsonMapperTest {
             }
         });
         // Now, check if the configuration parameters on the JsonMapper still apply.
-        Assert.assertEquals("Non-null inclusion is expected.", JsonSerialize.Inclusion.NON_NULL,
-                mapper.getObjectMapper().getSerializationConfig().getSerializationInclusion());
-        Assert.assertFalse("FAIL_ON_UNKNOWN_PROPERTIES is expected to be false.", mapper.getObjectMapper()
-                .getDeserializationConfig().isEnabled(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES));
+        Assert.assertEquals("Non-null inclusion is expected.",
+                JsonInclude.Include.NON_NULL,
+                mapper.getObjectMapper().getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion()
+        );
+        Assert.assertFalse("FAIL_ON_UNKNOWN_PROPERTIES is expected to be false.",
+                mapper.getObjectMapper().getDeserializationConfig().isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        );
     }
 
 }

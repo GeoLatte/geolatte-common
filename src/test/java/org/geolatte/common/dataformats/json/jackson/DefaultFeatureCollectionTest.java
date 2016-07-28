@@ -15,8 +15,6 @@
 package org.geolatte.common.dataformats.json.jackson;
 
 import org.geolatte.common.Feature;
-import org.geolatte.common.dataformats.json.jackson.DefaultFeature;
-import org.geolatte.common.dataformats.json.jackson.DefaultFeatureCollection;
 import org.junit.Assert;
 import org.junit.Test;
 

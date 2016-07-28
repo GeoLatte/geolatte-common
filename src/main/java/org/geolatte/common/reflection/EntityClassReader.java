@@ -33,13 +33,13 @@ import java.util.*;
 /**
  * Convenience class that allows one to easily access properties from entity classes. The {@link EntityClassReader} uses a variety of optimizations
  * to ensure that repetitive reads of the same properties on different objects are relatively efficient.
- * <p/>
+ * <br>
  * In addition, the class allows one to retrieve a wrapped version of an object if wanted.
  * Note: <ul>
  * <li>The method {@link EntityClassReader#getId(Object)} is intended to return an identifier or primary key of the object
  * <li>The method {@link EntityClassReader#getGeometry(Object)} is intended to return a geometry that specifies the object's location.
  * </ul>
- * <p/>
+ * <br>
  * <p>
  * <i>Creation-Date</i>: 9-apr-2010<br>
  * <i>Creation-Time</i>:  11:48:54<br>
@@ -125,7 +125,7 @@ public class EntityClassReader {
     /*
      * Create a reader for a given entityclass which allows for easy access to properties of an object of an unknown
      * class. Although any class can be given to the reader, the reader is made specifically for features.
-     * <p/>
+     * <br>
      * A feature has two <i>special</i> properties, which do not appear in the list of properties but
      * are instead retrieved through a dedicated method: getGeometry() and getId(), the names of those properties
      * are specified in this constructor. If for some reason, the given properties would not exist in the
@@ -181,14 +181,14 @@ public class EntityClassReader {
     /**
      * Factorymethod that returns the reader for a given entity class which allows for easy access to properties of an
      * object of an unknown class. Although any class can be given to the reader, the reader is made specifically for features.
-     * <p/>
+     * <br>
      * A feature has two <i>special</i> properties, which do not appear in the list of properties but
      * are instead retrieved through a dedicated method: getGeometry() and getId(). The reader retrieved by this method
      * will consider the first property encountered with type geometry (or a subclass of geometry) to be the geometry,
      * and the property with name "id" is considered the id. For a custom mapping of those properties, the alternative
      * factory method should be used. If for some reason the property 'id' is of type geometry, and it is
      * encountered as the first property of that type, it functions as both the id and the geometry of the feature.
-     * <p/>
+     * <br>
      * Presence of those properties is not required. If they are not present, calling getId() or getGeometry()
      * will just return null.
      *
@@ -203,7 +203,7 @@ public class EntityClassReader {
     /**
      * Factorymethod that returns the reader for a given entity class which allows for easy access to properties of an
      * object of an unknown class. Although any class can be given to the reader, the reader is made specifically for features.
-     * <p/>
+     * <br>
      * A feature has two <i>special</i> properties, which do not appear in the list of properties but
      * are instead retrieved through a dedicated method: getGeometry() and getId(). The reader retrieved by this method
      * allows the user to specify the name of the geometry and id property. If for some reason, the given properties
@@ -211,7 +211,7 @@ public class EntityClassReader {
      * will just return null. If the property that corresponds with the geometryPropertyName exists but corresponds with
      * a non-geometry type, it is ignored and getGeometry() will return null. The property will, however, be added
      * as a normal property.
-     * <p/>
+     * <br>
      *
      * @param entityClass          the class for which a reader is desired.
      * @param geometryPropertyName the name of the property representing the geometry of the feature
@@ -268,6 +268,7 @@ public class EntityClassReader {
      * @param objectToGet the object from which the id is desired.
      * @return the value of the id property of the given object
      * @throws IllegalStateException     if no value can be retrieved from the object.
+     * @throws InvalidObjectReaderException object and entity class mismatch
      */
     public Object getId(Object objectToGet)
             throws InvalidObjectReaderException {
@@ -407,7 +408,7 @@ public class EntityClassReader {
     /**
      * Returns whether a 'normal' property exists with a given name. A property a is said to exist
      * if the underlying class contains a method A getA().
-     * <p/>
+     * <br>
      * The id and geometry of the feature are not considered as normal properties. Depending on the value of the second
      * parameter, the method will return true or false if the given propertyname corresponds with the id or geometryfield
      *

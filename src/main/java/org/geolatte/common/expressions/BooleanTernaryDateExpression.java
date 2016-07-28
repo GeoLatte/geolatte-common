@@ -26,7 +26,7 @@ import java.util.Date;
 /**
  * <p>
  * Represents expressions that operates on three Date expressions and returns a boolean value.
- * <p>
+ * </p>
  * <p>
  * <i>Creation-Date</i>: 09-Aug-2010<br>
  * <i>Creation-Time</i>:  17:34:42<br>
