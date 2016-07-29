@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.geolatte</groupId>
     <artifactId>geolatte-common</artifactId>
-    <version>0.8</version>
+    <version>0.9-SNAPSHOT</version>
     <name>geolatte-common</name>
     <description>
         This GeoLatte-common library contains the transformer framework and other common classes used by other
@@ -178,7 +178,7 @@
             </execution>
         </executions>
     </plugin>
-    
+
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
