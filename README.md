@@ -1,5 +1,3 @@
-[![Build Status](http://teamcity.geolatte.org/app/rest/builds/buildType:\(id:bt3\)/statusIcon)](http://teamcity.geolatte.org/viewType.html?buildTypeId=bt3&guest=1)
-
 geolatte-common
 ===============
 
