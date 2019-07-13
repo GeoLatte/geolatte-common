@@ -75,30 +75,7 @@ public class JsonMapper {
         this.serializeNullValues = serializeNullValues;
         this.ignoreUnknownProperties = ignoreUnknownProperties;
         setNewObjectMapper();
-
-        SimpleModule mod = new SimpleModule("GeolatteCommonModule");
-        mod.addSerializer(MultiLineString.class, new MultiLineStringSerializer(this));
-        mod.addSerializer(LineString.class, new LineStringSerializer(this));
-        mod.addSerializer(Point.class, new PointSerializer(this));
-        mod.addSerializer(MultiPoint.class, new MultiPointSerializer(this));
-        mod.addSerializer(Polygon.class, new PolygonSerializer(this));
-        mod.addSerializer(Feature.class, new FeatureSerializer(this));
-        mod.addSerializer(MultiPolygon.class, new MultiPolygonSerializer(this));
-        mod.addSerializer(Geometry.class, new AnyGeometrySerializer());
-        mod.addSerializer(GeometryCollection.class, new GeometryCollectionSerializer(this));
-
-        mod.addDeserializer(Geometry.class, new GeometryDeserializer<Geometry>(this, Geometry.class));
-        mod.addDeserializer(Point.class, new GeometryDeserializer<Point>(this, Point.class));
-        mod.addDeserializer(LineString.class, new GeometryDeserializer<LineString>(this, LineString.class));
-        mod.addDeserializer(MultiPoint.class, new GeometryDeserializer<MultiPoint>(this, MultiPoint.class));
-        mod.addDeserializer(MultiLineString.class, new GeometryDeserializer<MultiLineString>(this, MultiLineString.class));
-        mod.addDeserializer(Polygon.class, new GeometryDeserializer<Polygon>(this, Polygon.class));
-        mod.addDeserializer(MultiPolygon.class, new GeometryDeserializer<MultiPolygon>(this, MultiPolygon.class));
-        mod.addDeserializer(GeometryCollection.class, new GeometryDeserializer<GeometryCollection>(this, GeometryCollection.class));
-        mod.addDeserializer(Feature.class, new FeatureDeserializer(this));
-        mod.addDeserializer(FeatureCollection.class, new FeatureCollectionDeserializer(this));
-
-        mapper.registerModule(mod);
+        mapper.registerModule(new GeolatteCommonModule(this));
     }
 
     /**
